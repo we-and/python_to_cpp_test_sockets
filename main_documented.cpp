@@ -300,6 +300,24 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
 }
 
 
+/**
+ * Validates an access token based on its expiration time.
+ * 
+ * This function checks the environment for an access token and its associated expiration time.
+ * If both are present, it parses the expiration time and compares it against the current system time
+ * to determine if the token is still valid. The expiration time is expected to be in the format "YYYY-MM-DD HH:MM:SS".
+ * If the parsing fails or the token has expired, the function returns false.
+ * 
+ * @return A bool indicating whether the access token is valid (true) or not (false).
+ * 
+ * Usage Example:
+ * bool valid = is_valid_access_token();
+ * 
+ * Notes:
+ * - This function assumes that the access token and its expiration time are stored in the environment variables
+ *   'ACCESS_TOKEN' and 'TOKEN_EXPIRY_TIME', respectively.
+ * - Proper error handling is implemented for date parsing and time comparison.
+ */
 bool is_valid_access_token() {
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
@@ -327,62 +345,101 @@ bool is_valid_access_token() {
     return false;
 }
 
+
+/**
+ * Main function to set up and run a TCP echo server.
+ * 
+ * This function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
+ * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
+ * socket operations like bind, listen, or accept.
+ * 
+ * Function Flow:
+ * 1. Create a socket.
+ * 2. Set socket options to reuse the address and port.
+ * 3. Bind the socket to a host (IP address) and port.
+ * 4. Listen on the socket for incoming connections.
+ * 5. Accept a connection from a client.
+ * 6. Read data from the client, log the received data, and send it back (echo).
+ * 7. Close the connection and wait for another.
+ * 
+ * Error Handling:
+ * - If any socket operation fails, the function will print an error message and terminate the program.
+ * 
+ * Logging:
+ * - Logs the establishment of connections and the data received from clients.
+ * 
+ * Usage Example:
+ * Run the compiled program, and it will start a server listening on IP 0.0.0.0 and port 6000.
+ * 
+ * Notes:
+ * - The server handles one connection at a time.
+ * - Ensure that the program is run with sufficient privileges to bind to the desired port.
+ */
 int main() {
-    const char* host = "0.0.0.0";
-    int port = 6000;
-    int server_fd, new_socket;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    char buffer[1024] = {0};
+    const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
+    int port = 6001;  // Port number on which the server will listen for connections
+    int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
+    struct sockaddr_in address;  // Structure to store the server's address information
+    int opt = 1;  // Option value for setsockopt to enable certain socket properties
+    int addrlen = sizeof(address);  // Length of the address data structure
+    char buffer[1024] = {0};  // Buffer to store incoming data from clients
 
-    // Creating socket file descriptor
+    // Create socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
+        perror("socket failed");  // Print error message if socket creation fails
+        exit(EXIT_FAILURE);  // Exit program with a failure return code
     }
 
-    // Forcefully attaching socket to the port 6000
+    // Forcefully attach socket to the port 6001
+    // This helps in reusing the port immediately after the server terminates.
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
+        perror("setsockopt");  // Print error message if setting socket options fails
+        exit(EXIT_FAILURE);  // Exit program with a failure return code
     }
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(port);
 
-    // Bind the socket to the host and port
+    // Setting the fields of the address structure
+    address.sin_family = AF_INET;  // Address family (IPv4)
+    address.sin_addr.s_addr = INADDR_ANY;  // IP address to bind to (all local interfaces)
+    address.sin_port = htons(port);  // Convert port number from host byte order to network byte order
+
+    // Bind the socket to the IP and port
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
+        perror("bind failed");  // Print error message if bind fails
+        exit(EXIT_FAILURE);  // Exit program with a failure return code
     }
 
-    // Listen for incoming connections
+    // Listen for incoming connections with a backlog limit of 5 clients
     if (listen(server_fd, 5) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
+        perror("listen");  // Print error message if listening fails
+        exit(EXIT_FAILURE);  // Exit program with a failure return code
     }
-    std::cout << "Server is listening on " << host << ":" << port << std::endl;
+    std::cout << "Server is listening on " << host << ":" << port << std::endl;  // Notify that server is ready
 
+    // Infinite loop to continuously accept client connections
     while (true) {
+        // Accept a new connection
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
-            perror("accept");
-            exit(EXIT_FAILURE);
+            perror("accept");  // Print error message if accepting a new connection fails
+            exit(EXIT_FAILURE);  // Exit program with a failure return code
         }
 
-        long valread = read(new_socket, buffer, 1024);
-        std::string data(buffer, valread);
+        // Read data sent by the client
+        long valread = read(new_socket, buffer, 1024);  // Read up to 1024 bytes from the client
+        std::string data(buffer, valread);  // Convert read data to a C++ string
         std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
-        log_to_file("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");
-        log_to_file("Received data from client: " + data);
+        log_to_file("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
+        log_to_file("Received data from client: " + data);  // Log received data
 
+        // If data was received, echo it back to the client
         if (!data.empty()) {
-            send(new_socket, data.c_str(), data.size(), 0);
-            log_to_file("Echoed back data to client.");
+            send(new_socket, data.c_str(), data.size(), 0);  // Send data back to client
+            log_to_file("Echoed back data to client.");  // Log the action of echoing data
         }
 
+        // Close the client socket after handling the connection
         close(new_socket);
     }
 
+    // Although unreachable in an infinite loop, good practice is to return a code at the end
     return 0;
 }
