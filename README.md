@@ -1,5 +1,9 @@
 # Device Activation and Logging Server
 This repository contains a C++ application designed to handle device activation through a REST API, compute SHA-256 hashes for sequence validation, and manage network communications through a simple TCP server. The application uses various libraries such as Crypto++, cURL, and nlohmann/json for its operations.
+
+![](https://github.com/we-and/python_to_cpp_test_sockets/blob/main/screenshot.png?raw=true)
+
+
 ## Tasks
 The main function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
  * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
