@@ -56,6 +56,15 @@ g++ -o device_server main.cpp -std=c++11 -lcryptopp -lcurl -lpthread
 ```
 Make sure to link against the required libraries (cryptopp, curl, and potentially pthread if using multithreading).
 
+Mac compilation:
+Static linking
+```
+g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread /opt/homebrew/opt/cryptopp/lib/libcryptopp.a 
+```
+
+Dynamic linking
+```
+g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread -lcryptopp                         ```        
 Usage
 Run the server:
 
