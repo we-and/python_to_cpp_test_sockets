@@ -46,6 +46,8 @@ You can install it directly via the package manager or integrate it into your pr
 
 ```
 sudo apt-get install nlohmann-json3-dev
+```
+
 ## Compilation
 Compile the application using g++:
 
