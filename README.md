@@ -73,7 +73,7 @@ Dynamic linking
 g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread -lcryptopp
 ```        
 
-Usage
+## Usage
 Run the server:
 
 ```
@@ -81,7 +81,7 @@ Run the server:
 ```
 The server will start listening on the specified port for incoming TCP connections.
 
-Code Structure
+## Code Structure
  - log_to_file: Logs messages to a dynamically named file based on the current date.
  - activateDevice: Sends a device activation request to a remote API.
  - calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
