@@ -1,5 +1,9 @@
 # Device Activation and Logging Server
 This repository contains a C++ application designed to handle device activation through a REST API, compute SHA-256 hashes for sequence validation, and manage network communications through a simple TCP server. The application uses various libraries such as Crypto++, cURL, and nlohmann/json for its operations.
+
+![](https://github.com/we-and/python_to_cpp_test_sockets/blob/main/screenshot.png?raw=true)
+
+
 ## Tasks
 The main function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
  * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
@@ -69,7 +73,7 @@ Dynamic linking
 g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread -lcryptopp
 ```        
 
-Usage
+## Usage
 Run the server:
 
 ```
@@ -77,11 +81,11 @@ Run the server:
 ```
 The server will start listening on the specified port for incoming TCP connections.
 
-Code Structure
-log_to_file: Logs messages to a dynamically named file based on the current date.
-activateDevice: Sends a device activation request to a remote API.
-calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
-sendSequenceHash: Submits the computed hash to a remote server for validation.
-sendPlainText: Sends plain text data to a specified API endpoint using cURL.
-is_valid_access_token: Validates an access token based on its expiry time.
-main: Initializes a TCP server that handles incoming connections and data transmissions.
+## Code Structure
+ - log_to_file: Logs messages to a dynamically named file based on the current date.
+ - activateDevice: Sends a device activation request to a remote API.
+ - calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
+ - sendSequenceHash: Submits the computed hash to a remote server for validation.
+ - sendPlainText: Sends plain text data to a specified API endpoint using cURL.
+ - is_valid_access_token: Validates an access token based on its expiry time.
+ - main: Initializes a TCP server that handles incoming connections and data transmissions.
