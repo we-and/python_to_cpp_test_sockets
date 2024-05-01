@@ -82,10 +82,10 @@ Run the server:
 The server will start listening on the specified port for incoming TCP connections.
 
 Code Structure
-log_to_file: Logs messages to a dynamically named file based on the current date.
-activateDevice: Sends a device activation request to a remote API.
-calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
-sendSequenceHash: Submits the computed hash to a remote server for validation.
-sendPlainText: Sends plain text data to a specified API endpoint using cURL.
-is_valid_access_token: Validates an access token based on its expiry time.
-main: Initializes a TCP server that handles incoming connections and data transmissions.
+ - log_to_file: Logs messages to a dynamically named file based on the current date.
+ - activateDevice: Sends a device activation request to a remote API.
+ - calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
+ - sendSequenceHash: Submits the computed hash to a remote server for validation.
+ - sendPlainText: Sends plain text data to a specified API endpoint using cURL.
+ - is_valid_access_token: Validates an access token based on its expiry time.
+ - main: Initializes a TCP server that handles incoming connections and data transmissions.
