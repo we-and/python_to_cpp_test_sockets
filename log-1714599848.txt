@@ -1,0 +1,18 @@
+2024-05-01 22:44:08 - main
+2024-05-01 22:44:08 - Setup
+2024-05-01 22:44:08 - hasValidSecretToken
+2024-05-01 22:44:10 - hasValidSessionToken
+2024-05-01 22:44:10 - ACCESS_TOKEN does not exist.
+2024-05-01 22:44:10 - hasValidSessionToken: no ACCESS_TOKEN
+2024-05-01 22:44:10 - Requesting access_token from secret.
+2024-05-01 22:44:10 - requestAccessTokenFromSecretToken
+2024-05-01 22:44:10 - activateDevice
+2024-05-01 22:44:10 - OK
+2024-05-01 22:44:10 - JSON response: 
+2024-05-01 22:44:10 - {
+    "message": "Invalid Credentials"
+}
+2024-05-01 22:44:10 - Done
+2024-05-01 22:44:10 - activationResult
+2024-05-01 22:44:10 - saveJsonToFile
+2024-05-01 22:44:10 - JSON data successfully saved to device_security_parameters.json

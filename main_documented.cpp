@@ -17,6 +17,50 @@
 #include <cstdlib>
 namespace fs = std::filesystem;
 
+// Retrieve the current system time as a time_t object
+auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+bool is_verbose=false;
+/**
+ * Callback function for handling data received from a CURL request.
+ * 
+ * This function is designed to be used with the libcurl easy interface as a write callback function.
+ * It is triggered by CURL during data transfer operations, specifically when data is received from a server.
+ * The function writes the received data into a provided std::string buffer. It ensures that the buffer is
+ * resized to accommodate the incoming data and then copies the data into the buffer.
+ * 
+ * @param contents Pointer to the data received from the server. This data needs to be appended to the existing buffer.
+ * @param size Size of each data element received in bytes.
+ * @param nmemb Number of data elements received.
+ * @param s Pointer to the std::string that will store the received data. This string is resized and filled with the data.
+ * 
+ * @return The total number of bytes processed in this call. If a memory allocation failure occurs (std::bad_alloc),
+ *         the function returns 0, signaling to CURL that an error occurred.
+ * 
+ * Usage Example:
+ * std::string response_data;
+ * curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
+ * curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_data);
+ * 
+ * Notes:
+ * - This function should be used carefully within a multithreaded context as it modifies the content of the passed std::string.
+ * - Proper exception handling for std::bad_alloc is crucial to avoid crashes due to memory issues.
+ */
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
+    size_t newLength = size * nmemb;
+    size_t oldLength = s->size();
+    try {
+        s->resize(oldLength + newLength);
+    } catch (std::bad_alloc& e) {
+        // handle memory problem
+        return 0;
+    }
+
+    std::copy((char*)contents, (char*)contents + newLength, s->begin() + oldLength);
+    return size * nmemb;
+}
+
+
 /**
  * Logs a message to a uniquely named file with a timestamp.
  * 
@@ -33,14 +77,16 @@ namespace fs = std::filesystem;
  */
 using json = nlohmann::json;
 void log_to_file(const std::string& text) {
-    // Retrieve the current system time as a time_t object
-    auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
     // Create or open a log file named with the current time stamp
     std::ofstream log_file("log-" + std::to_string(t) + ".txt", std::ios::app);
 
+
+    // Retrieve the current system time as a time_t object
+    auto tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
     // Write the current time and the log message to the file
-    log_file << std::put_time(std::localtime(&t), "%F %T") << " - " << text << "\n";
+    log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << text << "\n";
 }
 
 
@@ -70,10 +116,11 @@ void log_to_file(const std::string& text) {
  * - This function depends on the libcurl library for HTTP communications and the nlohmann::json
  *   library for JSON parsing.
  */
-json activateDevice2(const std::string& secret) {
+json activateDevice(const std::string& secret) {
+    log_to_file("activateDevice");
     CURL *curl;
     CURLcode res;
-
+    std::string readBuffer; 
     curl = curl_easy_init();
     if(curl) {
         // Set the URL that receives the POST data
@@ -81,55 +128,37 @@ json activateDevice2(const std::string& secret) {
 
         // Specify the POST data
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 
         // Perform the request, and get the response code
         res = curl_easy_perform(curl);
-        if (res == CURLE_OK) {
-            std::cout << "activateDevice res OK"  << std::endl; 
-            json response = json::parse(output);
-            curl_easy_cleanup(curl);
-            return response;
+        if(res != CURLE_OK) {
+            log_to_file("Failed");
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }else{
-                    std::cout << "activateDevice res not OK"  << std::endl; 
-
+            log_to_file("OK");
+              // Try to parse the response as JSON
+            try {
+                json j = json::parse(readBuffer);
+                log_to_file( "JSON response: "  ); // Pretty print the JSON
+                log_to_file(  j.dump(4) ); // Pretty print the JSON
+                log_to_file( "Done" ); // Pretty print the JSON
+               curl_easy_cleanup(curl);
+                return j;
+            } catch(json::parse_error &e) {
+                std::cerr << "JSON parsing error: " << e.what() << '\n';
+              
+              curl_easy_cleanup(curl);
+               return  json();
+            }
         }
-
 
         // Always cleanup
         curl_easy_cleanup(curl);
     }
-    return 0;
-
-}
-json activateDevice(const std::string& secret) {
-    
-    CURL* curl = curl_easy_init();
-    if (curl) {
-        std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/device/activateDevice?Secret=" + secret;
-        std::cout << "activateDevice"  << url<< std::endl; 
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-        // Add more curl options as needed
-
-        char* output;
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &output);
-
-        CURLcode res = curl_easy_perform(curl);
-        if (res == CURLE_OK) {
-            std::cout << "activateDevice res OK"  << std::endl; 
-            json response = json::parse(output);
-            curl_easy_cleanup(curl);
-            return response;
-        }else{
-                    std::cout << "activateDevice res not OK"  << std::endl; 
-
-        }
-        curl_easy_cleanup(curl);
-    }
     return json();
 }
-
 
 
 /*
@@ -209,10 +238,10 @@ std::string readStringFromFile(const std::string& filePath) {
     return ""; // Return empty string if file does not exist or is empty
 }
 
-std::string inputOneTimePosToken(){
-        std::cout << "One-time POS token does not exist. Please run set_token <YOUR_ONE_TIME_POS_TOKEN> first or enter it below:" << std::endl;
+std::string inputSecretToken(){
+        std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand or enter it below:" << std::endl;
         // Prompt for user input
-        std::string userString = getUserInput("Please enter a string: ");
+        std::string userString = getUserInput("Please enter a secret token: ");
         return userString;
 }
 // Function to check if the one time exists
@@ -237,10 +266,10 @@ bool checkEnvVarExists(const std::string& envVar) {
 
     // Check if the environment variable exists
     if (value) {
-        std::cout << envVar << " exists with value: " << value << std::endl;
+       log_to_file(  envVar + " exists with value: " + value );
         return true;
     } else {
-        std::cout << envVar << " does not exist." << std::endl;
+        log_to_file( envVar + " does not exist." );
         return false;
     }
 
@@ -300,44 +329,6 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
     return digest;
 }
 
-/**
- * Callback function for handling data received from a CURL request.
- * 
- * This function is designed to be used with the libcurl easy interface as a write callback function.
- * It is triggered by CURL during data transfer operations, specifically when data is received from a server.
- * The function writes the received data into a provided std::string buffer. It ensures that the buffer is
- * resized to accommodate the incoming data and then copies the data into the buffer.
- * 
- * @param contents Pointer to the data received from the server. This data needs to be appended to the existing buffer.
- * @param size Size of each data element received in bytes.
- * @param nmemb Number of data elements received.
- * @param s Pointer to the std::string that will store the received data. This string is resized and filled with the data.
- * 
- * @return The total number of bytes processed in this call. If a memory allocation failure occurs (std::bad_alloc),
- *         the function returns 0, signaling to CURL that an error occurred.
- * 
- * Usage Example:
- * std::string response_data;
- * curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
- * curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_data);
- * 
- * Notes:
- * - This function should be used carefully within a multithreaded context as it modifies the content of the passed std::string.
- * - Proper exception handling for std::bad_alloc is crucial to avoid crashes due to memory issues.
- */
-static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
-    size_t newLength = size * nmemb;
-    size_t oldLength = s->size();
-    try {
-        s->resize(oldLength + newLength);
-    } catch (std::bad_alloc& e) {
-        // handle memory problem
-        return 0;
-    }
-
-    std::copy((char*)contents, (char*)contents + newLength, s->begin() + oldLength);
-    return size * nmemb;
-}
 
 /**
  * Sends a sequence hash and other device information to a specified server endpoint via HTTP POST.
@@ -476,7 +467,7 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
  * - Proper error handling is implemented for date parsing and time comparison.
  */
 bool is_valid_access_token() {
-           std::cout << "is_valid_access_token"  << std::endl; 
+           log_to_file( "is_valid_access_token" ); 
 
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
@@ -509,7 +500,7 @@ bool isValidSecretToken(std::string token){
 }
 
 bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
-       std::cout << "hasValidSecretToken"  << std::endl; 
+       log_to_file( "hasValidSecretToken"); 
   bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
     std::string secretToken;    
     if(secretTokenExists){
@@ -517,13 +508,13 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         secretToken=readStringFromFile(secretTokenPath);
         return isValidSecretToken(secretToken);
     }else{
-        secretToken=inputOneTimePosToken();
+        secretToken=inputSecretToken();
         return isValidSecretToken(secretToken);
     }
 }
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string& filePath) {
-     std::cout << "readJsonFromFile"  << std::endl; 
+     log_to_file( "readJsonFromFile"); 
    std::ifstream file(filePath);
     json j;
 
@@ -540,18 +531,18 @@ json readJsonFromFile(const std::string& filePath) {
     return j;  // Return the parsed JSON object or an empty object if an exception occurred
 }
 bool hasValidSessionToken(){
-    std::cout <<"hasValidSessionToken"<<std::endl;
+    log_to_file("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
-            std::cout <<"hasValidSessionToken: has ACCESS_TOKEN"<<std::endl;
+            log_to_file("hasValidSessionToken: has ACCESS_TOKEN");
             return is_valid_access_token();
     }else{
-            std::cout <<"hasValidSessionToken: no ACCESS_TOKEN"<<std::endl;
+            log_to_file("hasValidSessionToken: no ACCESS_TOKEN");
         return false;
     }
 }
 void saveJsonToFile(const json& j, const std::string& filePath) {
-    std::cout << "saveJsonToFile"  << std::endl; 
+   log_to_file( "saveJsonToFile"  );
     std::ofstream file(filePath);
     if (!file) {
         std::cerr << "Error opening file for writing: " << filePath << std::endl;
@@ -560,7 +551,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
     file << j.dump(4); // Serialize the JSON with an indentation of 4 spaces
     file.close();
     if (file.good()) {
-        std::cout << "JSON data successfully saved to " << filePath << std::endl;
+        log_to_file( "JSON data successfully saved to " + filePath );
     } else {
         std::cerr << "Error occurred during file write operation." << std::endl;
     }
@@ -569,44 +560,59 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 // Function to process a one-time POS token for device activation and session creation
 bool requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename ){
-    std::cout << "requestAccessTokenFromSecretToken"  << std::endl; 
+    log_to_file( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
-    json activationResult = activateDevice2(secretToken);
-    std::cout <<"activationResult"<< activationResult<<std::endl;
+    json activationResult = activateDevice(secretToken);
+    log_to_file("activationResult");
 
     // Save the activation result to a JSON file
     saveJsonToFile(activationResult, activationResultFilename);
-    // Extract deviceId, deviceKey, and deviceSequence from the activation result
-    auto deviceId = activationResult["deviceId"];
-    auto deviceKey = activationResult["deviceKey"];
-    auto deviceSequence = activationResult["deviceSequence"];
 
-    // Calculate a hash using the device sequence and device key
-    auto sequenceHash = calculateHash(deviceSequence, deviceKey);
+    if(activationResult.contains("message")){
 
-    // Send the calculated sequence hash along with device details to create a session
-    // Receive session creation result as a JSON object
-    json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash);
-    std::cout <<"createSessionResult"<< createSessionResult<<std::endl;
-
-    // Extract the access token and its expiry time from the session result
-    std::string accessToken = createSessionResult["accessToken"];
-    std::string expiresIn = createSessionResult["expiresIn"];
-
-    // Save the session result (which includes the access token and expiry) to a JSON file
-    //saveJsonToFile(createSessionResult, accessTokenFilename);
-    // Set the environment variable
-    if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0) {
-        std::cerr << "Failed to set environment variable." << std::endl;
-        return 1; // Return an error code
+         if (activationResult["message"]=="Invalid Credentials"){
+                std::cerr <<activationResult["message"]<<std::endl;
+                std::exit(EXIT_FAILURE);
+         }else{
+             std::cerr <<"Message "<< activationResult["message"]<<std::endl;
+        
+         }
+        return false;
     }
-    if (setenv("TOKEN_EXPIRY_TIME", expiresIn.c_str(), 1) != 0) {
-        std::cerr << "Failed to set environment variable." << std::endl;
-        return 1; // Return an error code
+
+    if(activationResult.contains("deviceId")){
+        // Extract deviceId, deviceKey, and deviceSequence from the activation result
+        auto deviceId = activationResult["deviceId"];
+        auto deviceKey = activationResult["deviceKey"];
+        auto deviceSequence = activationResult["deviceSequence"];
+
+        // Calculate a hash using the device sequence and device key
+        auto sequenceHash = calculateHash(deviceSequence, deviceKey);
+
+        // Send the calculated sequence hash along with device details to create a session
+        // Receive session creation result as a JSON object
+        json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash);
+        std::cout <<"createSessionResult"<< createSessionResult<<std::endl;
+
+        // Extract the access token and its expiry time from the session result
+        std::string accessToken = createSessionResult["accessToken"];
+        std::string expiresIn = createSessionResult["expiresIn"];
+
+        // Save the session result (which includes the access token and expiry) to a JSON file
+        //saveJsonToFile(createSessionResult, accessTokenFilename);
+        // Set the environment variable
+        if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0) {
+            std::cerr << "Failed to set environment variable." << std::endl;
+            return 1; // Return an error code
+        }
+        if (setenv("TOKEN_EXPIRY_TIME", expiresIn.c_str(), 1) != 0) {
+            std::cerr << "Failed to set environment variable." << std::endl;
+            return 1; // Return an error code
+        }
+        // Assuming function should return a bool, add return value here.
+        // For example, you might return true if everything succeeds:
+        return true; // You might want to add error handling and return false if any step fails.
     }
-    // Assuming function should return a bool, add return value here.
-    // For example, you might return true if everything succeeds:
-    return true; // You might want to add error handling and return false if any step fails.
 }
 
 
@@ -614,14 +620,14 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
 
 
 void setup(std::string posDirectory,std::string secretTokenFilename,std::string activationResultFilename){
-     std::cout << "Setup"  << std::endl;     
+     log_to_file( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
     bool hasValidSessionToken_=hasValidSessionToken();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
              std::cout << "App setup and ready."  << std::endl;            
         }else{
-             std::cout << "Requesting access_token from secret."  << std::endl;
+             log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
             bool res=requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
@@ -659,7 +665,7 @@ void setup(std::string posDirectory,std::string secretTokenFilename,std::string 
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 int main() {
-        std::cout << "main"  << std::endl; 
+    log_to_file("main" ); 
 
     std::string posDirectory="/root/pos/";
     std::string posTokenFilename="one_time_pos_token.txt";

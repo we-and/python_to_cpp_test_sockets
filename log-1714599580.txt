@@ -1,0 +1,13 @@
+2024-05-01 22:39:40 - main
+2024-05-01 22:39:40 - Setup
+2024-05-01 22:39:40 - hasValidSecretToken
+2024-05-01 22:39:43 - hasValidSessionToken
+2024-05-01 22:39:43 - hasValidSessionToken: no ACCESS_TOKEN
+2024-05-01 22:39:43 - Requesting access_token from secret.
+2024-05-01 22:39:43 - requestAccessTokenFromSecretToken
+2024-05-01 22:39:43 - activateDevice
+2024-05-01 22:39:43 - OK
+2024-05-01 22:39:43 - JSON response: 
+2024-05-01 22:39:43 - {
+    "message": "Invalid Credentials"
+}

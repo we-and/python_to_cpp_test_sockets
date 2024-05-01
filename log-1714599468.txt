@@ -1,0 +1,7 @@
+2024-05-01 22:37:48 - main
+2024-05-01 22:37:48 - Setup
+2024-05-01 22:37:48 - hasValidSecretToken
+2024-05-01 22:37:50 - hasValidSessionToken
+2024-05-01 22:37:50 - hasValidSessionToken: no ACCESS_TOKEN
+2024-05-01 22:37:50 - Requesting access_token from secret.
+2024-05-01 22:37:50 - requestAccessTokenFromSecretToken
