@@ -1,0 +1,10 @@
+[Unit]
+Description=POS application startup script
+
+[Service]
+Type=simple
+ExecStart=/path/to/your/application
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

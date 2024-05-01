@@ -3,8 +3,10 @@
 #include <chrono>
 #include <iomanip>
 #include <string>
+#include <stdlib.h>  
 #include <sstream>
 #include <curl/curl.h>
+#include <filesystem>
 #include "json.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -12,6 +14,8 @@
 #include <unistd.h>
 #include <cryptopp/sha.h>
 #include <cryptopp/hex.h>
+#include <cstdlib>
+namespace fs = std::filesystem;
 
 /**
  * Logs a message to a uniquely named file with a timestamp.
@@ -66,12 +70,46 @@ void log_to_file(const std::string& text) {
  * - This function depends on the libcurl library for HTTP communications and the nlohmann::json
  *   library for JSON parsing.
  */
+json activateDevice2(const std::string& secret) {
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if(curl) {
+        // Set the URL that receives the POST data
+        curl_easy_setopt(curl, CURLOPT_URL, "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/device/activateDevice?Secret=SECRET");
+
+        // Specify the POST data
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+
+        // Perform the request, and get the response code
+        res = curl_easy_perform(curl);
+        if (res == CURLE_OK) {
+            std::cout << "activateDevice res OK"  << std::endl; 
+            json response = json::parse(output);
+            curl_easy_cleanup(curl);
+            return response;
+        }else{
+                    std::cout << "activateDevice res not OK"  << std::endl; 
+
+        }
+
+
+        // Always cleanup
+        curl_easy_cleanup(curl);
+    }
+    return 0;
+
+}
 json activateDevice(const std::string& secret) {
+    
     CURL* curl = curl_easy_init();
     if (curl) {
         std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/device/activateDevice?Secret=" + secret;
+        std::cout << "activateDevice"  << url<< std::endl; 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         // Add more curl options as needed
 
         char* output;
@@ -79,13 +117,133 @@ json activateDevice(const std::string& secret) {
 
         CURLcode res = curl_easy_perform(curl);
         if (res == CURLE_OK) {
+            std::cout << "activateDevice res OK"  << std::endl; 
             json response = json::parse(output);
             curl_easy_cleanup(curl);
             return response;
+        }else{
+                    std::cout << "activateDevice res not OK"  << std::endl; 
+
         }
         curl_easy_cleanup(curl);
     }
     return json();
+}
+
+
+
+/*
+void execute() {
+    json activation_result = activateDevice("4B8XP5CW2A");
+
+    if (!activation_result.empty()) {
+        std::string nextHash = calculateHash(activation_result["deviceSequence"], activation_result["deviceKey"]);
+        std::cout << nextHash << std::endl;
+        std::cout << "Next Hash: " << nextHash << std::endl;
+
+        json session = sendSequenceHash(activation_result["deviceId"], activation_result["deviceSequence"],
+                                        activation_result["deviceKey"], nextHash);
+        std::cout << session.dump(4) << std::endl;
+
+        std::string payload = R"(
+            <isomsg>
+                <!-- org.jpos.iso.packager.XMLPackager -->
+                <field id="0" value="0600"/>
+                <field id="2" value="2408-5000-0031"/>
+                <field id="22" value="1"/>
+                <field id="23" value="0297"/>
+                <field id="55" value="1.2.0.0"/>
+            </isomsg>
+        )";
+
+        if (!session.empty()) {
+            sendPlainText(session["accessToken"], payload);
+        }
+    }
+}*/
+
+// Function to prompt user and get a string
+std::string getUserInput(const std::string& prompt) {
+    std::string input;
+    std::cout << prompt;
+    std::getline(std::cin, input); // Use getline to read the whole line
+    return input;
+}
+/*
+void writeOneTimePosToken(const std::string token,const std::string posDirectory, const std::string oneTimeTokenFilename){
+        // Define the file path
+    std::string filePath = posDirectory+oneTimeTokenFilename;
+
+    // Open a file in write mode
+    std::ofstream outFile(filePath);
+
+    if (!outFile) {
+        std::cerr << "Error: Unable to open file at " << filePath << std::endl;
+        return 1;
+    }
+
+    // Write the POS token to the file
+    outFile << posToken << std::endl;
+
+    // Close the file
+    outFile.close();
+
+ // Set file permissions to read and write for owner only
+    chmod(filePath.c_str(), S_IRUSR | S_IWUSR);
+
+
+    std::cout << "Token saved to " << filePath << std::endl;
+
+}
+*/
+std::string readStringFromFile(const std::string& filePath) {
+    std::ifstream file(filePath);
+    std::string token;
+    if (file) {
+        std::getline(file, token);
+        file.close();
+        if (!token.empty()) {
+            return token;
+        }
+    }
+    return ""; // Return empty string if file does not exist or is empty
+}
+
+std::string inputOneTimePosToken(){
+        std::cout << "One-time POS token does not exist. Please run set_token <YOUR_ONE_TIME_POS_TOKEN> first or enter it below:" << std::endl;
+        // Prompt for user input
+        std::string userString = getUserInput("Please enter a string: ");
+        return userString;
+}
+// Function to check if the one time exists
+bool checkFileExists(const std::string& folderPath,const std::string filename) {
+    fs::path myFile = folderPath+filename;
+    bool exists= fs::exists(myFile);
+
+    if (exists) {
+        std::cout << "File exists." << std::endl;
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+
+// Function to check if the one time exists
+bool checkEnvVarExists(const std::string& envVar) {
+   // Use getenv to get the environment variable value
+    const char* value = std::getenv(envVar.c_str());
+
+    // Check if the environment variable exists
+    if (value) {
+        std::cout << envVar << " exists with value: " << value << std::endl;
+        return true;
+    } else {
+        std::cout << envVar << " does not exist." << std::endl;
+        return false;
+    }
+
 }
 
 
@@ -259,8 +417,7 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * 
  * Notes:
  * - This function is dependent on the libcurl library for handling HTTP communications.
- * - Proper initialization and cleanup of CURL and its resources are managed within the function.
- * - The function assumes that the server endpoint, headers, and CURL error handling are correctly set.
+ * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
 void sendPlainText(const std::string& accessToken, const std::string& payload) {
     std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/posCommand";
@@ -319,6 +476,8 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
  * - Proper error handling is implemented for date parsing and time comparison.
  */
 bool is_valid_access_token() {
+           std::cout << "is_valid_access_token"  << std::endl; 
+
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
 
@@ -345,6 +504,130 @@ bool is_valid_access_token() {
     return false;
 }
 
+bool isValidSecretToken(std::string token){
+    return !token.empty();
+}
+
+bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
+       std::cout << "hasValidSecretToken"  << std::endl; 
+  bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
+    std::string secretToken;    
+    if(secretTokenExists){
+        fs::path secretTokenPath = posDirectory+secretTokenFilename;
+        secretToken=readStringFromFile(secretTokenPath);
+        return isValidSecretToken(secretToken);
+    }else{
+        secretToken=inputOneTimePosToken();
+        return isValidSecretToken(secretToken);
+    }
+}
+// Function to read a JSON file and return a JSON object
+json readJsonFromFile(const std::string& filePath) {
+     std::cout << "readJsonFromFile"  << std::endl; 
+   std::ifstream file(filePath);
+    json j;
+
+    try {
+        file >> j;  // Attempt to read and parse the JSON file
+    } catch (const json::parse_error& e) {
+        std::cerr << "JSON parse error: " << e.what() << '\n';
+        // Optionally, return or throw another exception depending on how you want to handle errors
+    } catch (const std::ifstream::failure& e) {
+        std::cerr << "Error opening or reading the file: " << e.what() << '\n';
+        // Optionally, return or throw another exception depending on how you want to handle errors
+    }
+
+    return j;  // Return the parsed JSON object or an empty object if an exception occurred
+}
+bool hasValidSessionToken(){
+    std::cout <<"hasValidSessionToken"<<std::endl;
+    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
+    if(sessionTokenExists){
+            std::cout <<"hasValidSessionToken: has ACCESS_TOKEN"<<std::endl;
+            return is_valid_access_token();
+    }else{
+            std::cout <<"hasValidSessionToken: no ACCESS_TOKEN"<<std::endl;
+        return false;
+    }
+}
+void saveJsonToFile(const json& j, const std::string& filePath) {
+    std::cout << "saveJsonToFile"  << std::endl; 
+    std::ofstream file(filePath);
+    if (!file) {
+        std::cerr << "Error opening file for writing: " << filePath << std::endl;
+        return;
+    }
+    file << j.dump(4); // Serialize the JSON with an indentation of 4 spaces
+    file.close();
+    if (file.good()) {
+        std::cout << "JSON data successfully saved to " << filePath << std::endl;
+    } else {
+        std::cerr << "Error occurred during file write operation." << std::endl;
+    }
+}
+
+
+// Function to process a one-time POS token for device activation and session creation
+bool requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename ){
+    std::cout << "requestAccessTokenFromSecretToken"  << std::endl; 
+    // Activate the device using the POS token and receive the activation result as a JSON object
+    json activationResult = activateDevice2(secretToken);
+    std::cout <<"activationResult"<< activationResult<<std::endl;
+
+    // Save the activation result to a JSON file
+    saveJsonToFile(activationResult, activationResultFilename);
+    // Extract deviceId, deviceKey, and deviceSequence from the activation result
+    auto deviceId = activationResult["deviceId"];
+    auto deviceKey = activationResult["deviceKey"];
+    auto deviceSequence = activationResult["deviceSequence"];
+
+    // Calculate a hash using the device sequence and device key
+    auto sequenceHash = calculateHash(deviceSequence, deviceKey);
+
+    // Send the calculated sequence hash along with device details to create a session
+    // Receive session creation result as a JSON object
+    json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash);
+    std::cout <<"createSessionResult"<< createSessionResult<<std::endl;
+
+    // Extract the access token and its expiry time from the session result
+    std::string accessToken = createSessionResult["accessToken"];
+    std::string expiresIn = createSessionResult["expiresIn"];
+
+    // Save the session result (which includes the access token and expiry) to a JSON file
+    //saveJsonToFile(createSessionResult, accessTokenFilename);
+    // Set the environment variable
+    if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0) {
+        std::cerr << "Failed to set environment variable." << std::endl;
+        return 1; // Return an error code
+    }
+    if (setenv("TOKEN_EXPIRY_TIME", expiresIn.c_str(), 1) != 0) {
+        std::cerr << "Failed to set environment variable." << std::endl;
+        return 1; // Return an error code
+    }
+    // Assuming function should return a bool, add return value here.
+    // For example, you might return true if everything succeeds:
+    return true; // You might want to add error handling and return false if any step fails.
+}
+
+
+
+
+
+void setup(std::string posDirectory,std::string secretTokenFilename,std::string activationResultFilename){
+     std::cout << "Setup"  << std::endl;     
+    bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
+    bool hasValidSessionToken_=hasValidSessionToken();
+    if(hasValidSecretToken_){
+        if(hasValidSessionToken_){
+             std::cout << "App setup and ready."  << std::endl;            
+        }else{
+             std::cout << "Requesting access_token from secret."  << std::endl;
+            fs::path secretTokenPath = posDirectory+secretTokenFilename;
+            std::string secretToken=readStringFromFile(secretTokenPath);
+            bool res=requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
+        }
+    }
+}
 
 /**
  * Main function to set up and run a TCP echo server.
@@ -376,6 +659,14 @@ bool is_valid_access_token() {
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 int main() {
+        std::cout << "main"  << std::endl; 
+
+    std::string posDirectory="/root/pos/";
+    std::string posTokenFilename="one_time_pos_token.txt";
+    std::string activationResultFilename="device_security_parameters.json";
+    
+    setup(posDirectory,posTokenFilename,activationResultFilename);
+
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = 6001;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
