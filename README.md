@@ -53,32 +53,29 @@ sudo apt-get install nlohmann-json3-dev
 ```
 
 ## Compilation
-Compile the application using g++:
+Compile the server using g++:
 
 ```
-g++ -o device_server main.cpp -std=c++11 -lcryptopp -lcurl -lpthread
+cd src/pos_server
+g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
+cd ../..
 ```
+```
+cd src/
+g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
+cd ../..
+```
+
 Make sure to link against the required libraries (cryptopp, curl, and potentially pthread if using multithreading).
-
-### Mac compilation:
-Static linking
-
-```
-g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread /opt/homebrew/opt/cryptopp/lib/libcryptopp.a 
-```
-
-Dynamic linking
-
-```
-g++ -o device_server main_documented.cpp -std=c++11 -L/opt/homebrew/opt/cryptopp/lib -I/opt/homebrew/opt/cryptopp/include -lcurl -lpthread -lcryptopp
-```        
 
 ## Usage
 Run the server:
+```
+cd dist
+./set_token
+./pos_server
+```
 
-```
-./device_server
-```
 The server will start listening on the specified port for incoming TCP connections.
 
 ## Code Structure
