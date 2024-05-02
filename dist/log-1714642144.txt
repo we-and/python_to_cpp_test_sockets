@@ -1,4 +1,0 @@
-2024-05-02 10:29:04 - main
-2024-05-02 10:29:04 - Setup
-2024-05-02 10:29:04 - hasValidSecretToken
-2024-05-02 10:29:04 - checkFileExists/root/pos/secrettoken.txt
