@@ -88,6 +88,7 @@ int saveSecretToken(const Config& appConfig){
     // Define the file path
     std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
 
+    auto input=inputSecretToken();
     // Open a file in write mode
     std::ofstream outFile(filePath);
 
@@ -97,7 +98,7 @@ int saveSecretToken(const Config& appConfig){
     }
 
     // Write the secret token to the file
-    outFile << appConfig.getSecretTokenFilename() << std::endl;
+    outFile << input << std::endl;
 
     // Close the file
     outFile.close();
