@@ -69,12 +69,17 @@ cd ../..
 Make sure to link against the required libraries (cryptopp, curl, and potentially pthread if using multithreading).
 
 ## Usage
-Run the server:
+Ask admin to run set_token first, as in:
 ```
+#one time config
 cd dist
-./set_token
+sudo ./set_token
+
+# run server
 ./pos_server
 ```
+
+
 
 The server will start listening on the specified port for incoming TCP connections.
 
