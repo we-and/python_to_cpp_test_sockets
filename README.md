@@ -1,4 +1,27 @@
 # Device Activation and Logging Server
+## Quick start
+
+```
+git clone https://github.com/we-and/python_to_cpp_test_sockets  
+cd python_to_cpp_test_sockets/
+
+cd src/pos_server
+g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
+
+cd ../..
+
+cd src/set_token
+g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
+cd ../..
+
+
+cd dist
+sudo ./set_token
+sudo ls /root/pos
+sudo cat /root/pos/secrettoken.txt
+sudo cat /etc/systemd/system/pos.service 
+```
+
 This repository contains a C++ application designed to handle device activation through a REST API, compute SHA-256 hashes for sequence validation, and manage network communications through a simple TCP server. The application uses various libraries such as Crypto++, cURL, and nlohmann/json for its operations.
 
 ![](https://github.com/we-and/python_to_cpp_test_sockets/blob/main/screenshot.png?raw=true)
