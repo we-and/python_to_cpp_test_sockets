@@ -153,35 +153,6 @@ json activateDevice(const std::string& secret) {
 }
 
 
-/*
-void execute() {
-    json activation_result = activateDevice("4B8XP5CW2A");
-
-    if (!activation_result.empty()) {
-        std::string nextHash = calculateHash(activation_result["deviceSequence"], activation_result["deviceKey"]);
-        std::cout << nextHash << std::endl;
-        std::cout << "Next Hash: " << nextHash << std::endl;
-
-        json session = sendSequenceHash(activation_result["deviceId"], activation_result["deviceSequence"],
-                                        activation_result["deviceKey"], nextHash);
-        std::cout << session.dump(4) << std::endl;
-
-        std::string payload = R"(
-            <isomsg>
-                <!-- org.jpos.iso.packager.XMLPackager -->
-                <field id="0" value="0600"/>
-                <field id="2" value="2408-5000-0031"/>
-                <field id="22" value="1"/>
-                <field id="23" value="0297"/>
-                <field id="55" value="1.2.0.0"/>
-            </isomsg>
-        )";
-
-        if (!session.empty()) {
-            sendPlainText(session["accessToken"], payload);
-        }
-    }
-}*/
 
 // Function to prompt user and get a string
 std::string getUserInput(const std::string& prompt) {
@@ -190,33 +161,6 @@ std::string getUserInput(const std::string& prompt) {
     std::getline(std::cin, input); // Use getline to read the whole line
     return input;
 }
-/*
-void writeOneTimePosToken(const std::string token,const std::string posDirectory, const std::string oneTimeTokenFilename){
-        // Define the file path
-    std::string filePath = posDirectory+oneTimeTokenFilename;
-
-    // Open a file in write mode
-    std::ofstream outFile(filePath);
-
-    if (!outFile) {
-        std::cerr << "Error: Unable to open file at " << filePath << std::endl;
-        return 1;
-    }
-
-    // Write the POS token to the file
-    outFile << posToken << std::endl;
-
-    // Close the file
-    outFile.close();
-
- // Set file permissions to read and write for owner only
-    chmod(filePath.c_str(), S_IRUSR | S_IWUSR);
-
-
-    std::cout << "Token saved to " << filePath << std::endl;
-
-}
-*/
 
 std::string inputSecretToken(){
         std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand or enter it below:" << std::endl;
@@ -224,6 +168,7 @@ std::string inputSecretToken(){
         std::string userString = getUserInput("Please enter a secret token: ");
         return userString;
 }
+
 // Function to check if the one time exists
 bool checkFileExists(const std::string& folderPath,const std::string filename) {
     log_to_file( "checkFileExists"+folderPath+filename); 
@@ -498,10 +443,17 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         log_to_file( "hasValidSecretToken true"); 
         return isValidSecretToken(secretToken);
     }else{
-        secretToken=inputSecretToken();
-        saveSecretToken(secretToken,posDirectory,secretTokenFilename);
-        log_to_file( "hasValidSecretToken false"); 
-        return isValidSecretToken(secretToken);
+        bool allowUserToEnterToken=false;
+        if(allowUserToEnterToken){
+            secretToken=inputSecretToken();
+            saveSecretToken(secretToken,posDirectory,secretTokenFilename);
+            log_to_file( "hasValidSecretToken false"); 
+            return isValidSecretToken(secretToken);
+        }else{
+             std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
+
+            return false;
+        }
     }
 }
 bool hasValidSessionToken(){
@@ -593,10 +545,10 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
 
 
 
-void setup(const Config& settings){
-    auto posDirectory=settings.getPosDirectory();
-    auto secretTokenFilename=settings.getSecretTokenFilename();
-    auto activationResultFilename=settings.getActivationResultFilename();
+int setup(const Config& appConfig){
+    auto posDirectory=appConfig.getPosDirectory();
+    auto secretTokenFilename=appConfig.getSecretTokenFilename();
+    auto activationResultFilename=appConfig.getActivationResultFilename();
     
     log_to_file( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
@@ -604,12 +556,16 @@ void setup(const Config& settings){
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
              std::cout << "App setup and ready."  << std::endl;            
+            return 0;
         }else{
             log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
             bool res=requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
+            return 0;
         }
+    }else{
+        return 1;
     }
 }
 
@@ -720,7 +676,10 @@ int main() {
     log_to_file("main"); 
     Config appConfig; 
     
-    setup(appConfig);
+    auto setupResult=setup(appConfig);
+    if (setupResult>0){
+        std::cout<<"Exiting program..."<<std::endl;
+    }
     startServer();
  
     // Although unreachable in an infinite loop, good practice is to return a code at the end
