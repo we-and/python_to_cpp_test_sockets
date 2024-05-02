@@ -15,10 +15,14 @@
 #include <cryptopp/sha.h>
 #include <cryptopp/hex.h>
 #include <cstdlib>
+#include <sys/stat.h> 
+#include "log_utils.hpp"
+#include "io_utils.hpp"
+#include "config.hpp"
 namespace fs = std::filesystem;
 
 // Retrieve the current system time as a time_t object
-auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+//auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 bool is_verbose=false;
 /**
@@ -76,18 +80,6 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
  * Contents of log-1700819387.txt: 2024-04-30 12:34:56 - Application has started.
  */
 using json = nlohmann::json;
-void log_to_file(const std::string& text) {
-
-    // Create or open a log file named with the current time stamp
-    std::ofstream log_file("log-" + std::to_string(t) + ".txt", std::ios::app);
-
-
-    // Retrieve the current system time as a time_t object
-    auto tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-    // Write the current time and the log message to the file
-    log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << text << "\n";
-}
 
 
 /**
@@ -225,18 +217,6 @@ void writeOneTimePosToken(const std::string token,const std::string posDirectory
 
 }
 */
-std::string readStringFromFile(const std::string& filePath) {
-    std::ifstream file(filePath);
-    std::string token;
-    if (file) {
-        std::getline(file, token);
-        file.close();
-        if (!token.empty()) {
-            return token;
-        }
-    }
-    return ""; // Return empty string if file does not exist or is empty
-}
 
 std::string inputSecretToken(){
         std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand or enter it below:" << std::endl;
@@ -246,11 +226,13 @@ std::string inputSecretToken(){
 }
 // Function to check if the one time exists
 bool checkFileExists(const std::string& folderPath,const std::string filename) {
+    log_to_file( "checkFileExists"+folderPath+filename); 
+    
     fs::path myFile = folderPath+filename;
     bool exists= fs::exists(myFile);
 
     if (exists) {
-        std::cout << "File exists." << std::endl;
+        log_to_file("File exists.");
         return true;
     } else {
         return false;
@@ -258,22 +240,6 @@ bool checkFileExists(const std::string& folderPath,const std::string filename) {
 
 }
 
-
-// Function to check if the one time exists
-bool checkEnvVarExists(const std::string& envVar) {
-   // Use getenv to get the environment variable value
-    const char* value = std::getenv(envVar.c_str());
-
-    // Check if the environment variable exists
-    if (value) {
-       log_to_file(  envVar + " exists with value: " + value );
-        return true;
-    } else {
-        log_to_file( envVar + " does not exist." );
-        return false;
-    }
-
-}
 
 
 /**
@@ -498,37 +464,45 @@ bool is_valid_access_token() {
 bool isValidSecretToken(std::string token){
     return !token.empty();
 }
+int saveSecretToken(std::string secret,std::string posDirectory,std::string secretTokenFilename){
+    log_to_file( "saveSecretToken"); 
+        // Define the file path
+    std::string filePath = posDirectory+secretTokenFilename;
+
+    // Open a file in write mode
+    std::ofstream outFile(filePath);
+
+    if (!outFile) {
+        std::cerr << "Error: Unable to open file at " << filePath << std::endl;
+        return 1;
+    }
+
+    // Write the POS token to the file
+    outFile << secret << std::endl;
+
+    // Close the file
+    outFile.close();
+    log_to_file( "saveSecretToken chmod"); 
+ // Set file permissions to read and write for owner only
+    chmod(filePath.c_str(), S_IRUSR | S_IWUSR);
+    return 0;
+}
 
 bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
-       log_to_file( "hasValidSecretToken"); 
-  bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
+    log_to_file( "hasValidSecretToken"); 
+    bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
         secretToken=readStringFromFile(secretTokenPath);
+        log_to_file( "hasValidSecretToken true"); 
         return isValidSecretToken(secretToken);
     }else{
         secretToken=inputSecretToken();
+        saveSecretToken(secretToken,posDirectory,secretTokenFilename);
+        log_to_file( "hasValidSecretToken false"); 
         return isValidSecretToken(secretToken);
     }
-}
-// Function to read a JSON file and return a JSON object
-json readJsonFromFile(const std::string& filePath) {
-     log_to_file( "readJsonFromFile"); 
-   std::ifstream file(filePath);
-    json j;
-
-    try {
-        file >> j;  // Attempt to read and parse the JSON file
-    } catch (const json::parse_error& e) {
-        std::cerr << "JSON parse error: " << e.what() << '\n';
-        // Optionally, return or throw another exception depending on how you want to handle errors
-    } catch (const std::ifstream::failure& e) {
-        std::cerr << "Error opening or reading the file: " << e.what() << '\n';
-        // Optionally, return or throw another exception depending on how you want to handle errors
-    }
-
-    return j;  // Return the parsed JSON object or an empty object if an exception occurred
 }
 bool hasValidSessionToken(){
     log_to_file("hasValidSessionToken");
@@ -569,13 +543,11 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
     saveJsonToFile(activationResult, activationResultFilename);
 
     if(activationResult.contains("message")){
-
          if (activationResult["message"]=="Invalid Credentials"){
                 std::cerr <<activationResult["message"]<<std::endl;
                 std::exit(EXIT_FAILURE);
          }else{
              std::cerr <<"Message "<< activationResult["message"]<<std::endl;
-        
          }
         return false;
     }
@@ -603,15 +575,17 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
         // Set the environment variable
         if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0) {
             std::cerr << "Failed to set environment variable." << std::endl;
-            return 1; // Return an error code
+            return false; // Return an error code
         }
         if (setenv("TOKEN_EXPIRY_TIME", expiresIn.c_str(), 1) != 0) {
             std::cerr << "Failed to set environment variable." << std::endl;
-            return 1; // Return an error code
+            return false; // Return an error code
         }
         // Assuming function should return a bool, add return value here.
         // For example, you might return true if everything succeeds:
         return true; // You might want to add error handling and return false if any step fails.
+    }else{
+        return false;
     }
 }
 
@@ -619,15 +593,19 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
 
 
 
-void setup(std::string posDirectory,std::string secretTokenFilename,std::string activationResultFilename){
-     log_to_file( "Setup"  );     
+void setup(const Config& settings){
+    auto posDirectory=settings.getPosDirectory();
+    auto secretTokenFilename=settings.getSecretTokenFilename();
+    auto activationResultFilename=settings.getActivationResultFilename();
+    
+    log_to_file( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
     bool hasValidSessionToken_=hasValidSessionToken();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
              std::cout << "App setup and ready."  << std::endl;            
         }else{
-             log_to_file( "Requesting access_token from secret."  );
+            log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
             bool res=requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
@@ -636,7 +614,7 @@ void setup(std::string posDirectory,std::string secretTokenFilename,std::string 
 }
 
 /**
- * Main function to set up and run a TCP echo server.
+ * Runs a TCP echo server.
  * 
  * This function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
  * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
@@ -664,14 +642,8 @@ void setup(std::string posDirectory,std::string secretTokenFilename,std::string 
  * - The server handles one connection at a time.
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
-int main() {
-    log_to_file("main" ); 
 
-    std::string posDirectory="/root/pos/";
-    std::string posTokenFilename="one_time_pos_token.txt";
-    std::string activationResultFilename="device_security_parameters.json";
-    
-    setup(posDirectory,posTokenFilename,activationResultFilename);
+void startServer(){
 
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = 6001;  // Port number on which the server will listen for connections
@@ -737,6 +709,20 @@ int main() {
         close(new_socket);
     }
 
+}
+
+
+
+/**
+ * Main function to set up and run a TCP echo server.
+ */
+int main() {
+    log_to_file("main"); 
+    Config appConfig; 
+    
+    setup(appConfig);
+    startServer();
+ 
     // Although unreachable in an infinite loop, good practice is to return a code at the end
     return 0;
 }

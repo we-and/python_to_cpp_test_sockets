@@ -158,7 +158,6 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
     }
 }
 
-
 bool is_valid_access_token() {
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");

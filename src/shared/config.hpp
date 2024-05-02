@@ -1,0 +1,29 @@
+#ifndef SETTINGS_H
+#define SETTINGS_H
+
+#include <string>
+
+class Config {
+private:
+    std::string posDirectory;
+    std::string mainAppName;
+    std::string secretTokenFilename;
+    std::string activationResultFilename;
+
+public:
+    // Constructor to initialize the settings
+    Config();
+
+    // Getters
+    std::string getMainAppName() const;
+    std::string getPosDirectory() const;
+    std::string getSecretTokenFilename() const;
+    std::string getActivationResultFilename() const;
+
+    // Setters (if you want to allow modifications to settings)
+    void setPosDirectory(const std::string& dir);
+    void setSecretTokenFilename(const std::string& filename);
+    void setActivationResultFilename(const std::string& filename);
+};
+
+#endif // SETTINGS_H

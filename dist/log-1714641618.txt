@@ -1,0 +1,4 @@
+2024-05-02 10:20:18 - main
+2024-05-02 10:20:18 - Setup
+2024-05-02 10:20:18 - hasValidSecretToken
+2024-05-02 10:20:18 - checkFileExists/root/pos/secrettoken.txt
