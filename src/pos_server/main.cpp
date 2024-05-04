@@ -571,20 +571,9 @@ std::pair<int,std::string> setup(const Config& appConfig){
 }
 
 // The execute function orchestrates the communication with the API.
-void execute(std::string sessionToken) {
+void execute(std::string sessionToken, std::string payload) {
     log_to_file("execute");  // Log the action of echoing data
 
-    // Prepares an XML payload for the next communication step.
-    std::string payload = R"(
-        <isomsg>
-      <!-- org.jpos.iso.packager.XMLPackager -->
-      <field id="0" value="0600"/>
-      <field id="2" value="2408-5000-0031"/>
-      <field id="22" value="1"/>
-      <field id="23" value="0297"/>
-      <field id="55" value="1.2.0.0"/>
-    </isomsg>
-    )";
     // Sends the XML payload using the session's access token.
     sendPlainText(sessionToken, payload);
 }
@@ -676,7 +665,8 @@ void startServer(std::string sessionToken){
 
         // If data was received, echo it back to the client
         if (!data.empty()) {
-            execute(sessionToken);
+            std::string payload=data;
+            execute(sessionToken,payload);
         }
 
         // Close the client socket after handling the connection
