@@ -82,6 +82,13 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
 using json = nlohmann::json;
 
 
+
+//return the payload to the requestor
+void resendToRequestor(int socket, std::string data){
+    send(socket,data.c_str(),data.size(), 0);  // Send data back to client
+
+}
+
 /**
  * Activates a device by making an HTTP POST request to a specific URL with a provided secret.
  * 
@@ -321,7 +328,7 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - This function is dependent on the libcurl library for handling HTTP communications.
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
-void sendPlainText(const std::string& accessToken, const std::string& payload) {
+std::string sendPlainText(const std::string& accessToken, const std::string& payload) {
     std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/posCommand";
     log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
     log_to_file("URL: " + url);
@@ -355,9 +362,33 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
 
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
+        return response_string;
     }
+    return "";
 }
 
+void executeTokenExpiry(int requestorSocket, std::string accessToken){
+     std::string payload = R"(
+        <isomsg>
+      <!-- org.jpos.iso.packager.XMLPackager -->
+      <field id="32" value="TOKEN EXPIRY"/>
+    </isomsg>
+    )";
+    auto response=sendPlainText(accessToken,payload);
+    if (response=="TOKEN EXPIRY"){
+        std::string payload = R"(
+            <isomsg>
+        <!-- org.jpos.iso.packager.XMLPackager -->
+        <field id="32" value="DECLINED"/>
+        <field id="33" value="“POS not authorized to process this request"/>
+        </isomsg>
+        )";
+        auto response=sendPlainText(accessToken,payload);
+
+    }else{
+        resendToRequestor(requestorSocket,response);
+    }
+}
 
 /**
  * Validates an access token based on its expiration time.
@@ -377,7 +408,7 @@ void sendPlainText(const std::string& accessToken, const std::string& payload) {
  *   'ACCESS_TOKEN' and 'TOKEN_EXPIRY_TIME', respectively.
  * - Proper error handling is implemented for date parsing and time comparison.
  */
-bool is_valid_access_token() {
+bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt) {
            log_to_file( "is_valid_access_token" ); 
 
     const char* access_token = std::getenv("ACCESS_TOKEN");
@@ -401,6 +432,11 @@ bool is_valid_access_token() {
         // Compare current time with expiration time
         if (current_time < expiration_time) {
             return true;
+        }else{
+            if (requestorSocket.has_value()) {
+                executeTokenExpiry(*requestorSocket,access_token);
+            }
+            return false;
         }
     }
     return false;
@@ -456,12 +492,25 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         }
     }
 }
-bool hasValidSessionToken(){
+//used at the request phase
+bool hasValidSessionToken(int requestorSocket){
     log_to_file("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
             log_to_file("hasValidSessionToken: has ACCESS_TOKEN");
-            return is_valid_access_token();
+            return is_valid_access_token( requestorSocket);
+    }else{
+            log_to_file("hasValidSessionToken: no ACCESS_TOKEN");
+        return false;
+    }
+}
+//used for the setup phase
+bool hasValidSessionTokenInit(){
+    log_to_file("hasValidSessionToken");
+    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
+    if(sessionTokenExists){
+            log_to_file("hasValidSessionToken: has ACCESS_TOKEN");
+            return is_valid_access_token(); //-1 means no resend to sender if token is invalid. 
     }else{
             log_to_file("hasValidSessionToken: no ACCESS_TOKEN");
         return false;
@@ -552,7 +601,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     
     log_to_file( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
-    bool hasValidSessionToken_=hasValidSessionToken();
+    bool hasValidSessionToken_=hasValidSessionTokenInit();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
              std::cout << "App setup and ready."  << std::endl;     
@@ -570,13 +619,24 @@ std::pair<int,std::string> setup(const Config& appConfig){
     }
 }
 
+
+
 // The execute function orchestrates the communication with the API.
-void execute(std::string sessionToken, std::string payload) {
+void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload) {
     log_to_file("execute");  // Log the action of echoing data
 
+    //if the remote server endpoint determines the Session Token is not valid it will send an
+    //ISO8583 response with the response code "TOKEN EXPIRY" in the ISO8583 message
+    //response located in field number 32 prior to returning the ISO8583 message response to
+    //the requestor
+    auto isValidToken=is_valid_access_token( requestorSocket);
+    if (!isValidToken){
+        resendToRequestor( requestorSocket,payload);
+    }
     // Sends the XML payload using the session's access token.
     sendPlainText(sessionToken, payload);
 }
+
 /**
  * Runs a TCP echo server.
  * 
@@ -666,7 +726,7 @@ void startServer(std::string sessionToken){
         // If data was received, echo it back to the client
         if (!data.empty()) {
             std::string payload=data;
-            execute(sessionToken,payload);
+            checkTokenAndExecute(new_socket, sessionToken,payload);
         }
 
         // Close the client socket after handling the connection
