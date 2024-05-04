@@ -570,7 +570,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     }
 }
 
-// The execute function orchestrates the communication with a device.
+// The execute function orchestrates the communication with the API.
 void execute(std::string sessionToken) {
     log_to_file("execute");  // Log the action of echoing data
 
