@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-#include "config.hpp"
+#include "../config.hpp"
 
 namespace fs = std::filesystem;
 
@@ -70,7 +70,6 @@ void createFolder(std::string dir){
         std::cout << "Directory already exists." << std::endl;
     }
 }
-
 // Function to prompt user and get a string
 std::string getUserInput(const std::string& prompt) {
     std::string input;
@@ -84,22 +83,11 @@ std::string inputSecretToken(){
         return userString;
 }
 
-/**
- * Saves a secret token to a file with restricted permissions.
- * 
- * The function retrieves the secret token from user input,
- * saves it to a designated file within the application's configuration directory,
- * and sets the file permissions to restrict access to the owner only.
- *
- * @param appConfig The configuration object which includes the application's directory paths.
- * @return int Returns 0 if the token is successfully saved, otherwise returns 1.
- */
 int saveSecretToken(const Config& appConfig){
 
     // Define the file path
     std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
 
-    auto input=inputSecretToken();
     // Open a file in write mode
     std::ofstream outFile(filePath);
 
@@ -109,7 +97,7 @@ int saveSecretToken(const Config& appConfig){
     }
 
     // Write the secret token to the file
-    outFile << input << std::endl;
+    outFile << appConfig.getSecretTokenFilename() << std::endl;
 
     // Close the file
     outFile.close();
@@ -120,20 +108,7 @@ int saveSecretToken(const Config& appConfig){
 
     return 0;
 }
-/**
- * Main entry point for the application which handles initializing configurations,
- * saving a secret token, and setting up a service based on the application configuration.
- * 
- * The main function performs the following steps:
- * - Initializes the application configuration.
- * - Retrieves a secret token from the user.
- * - Saves the secret token securely.
- * - Sets up the main service of the application.
- *
- * @param argc Number of command-line arguments.
- * @param argv Array of command-line arguments.
- * @return int Returns 0 upon successful completion of all tasks.
- */
+
 int main(int argc, char* argv[]) {
     Config appConfig; 
 

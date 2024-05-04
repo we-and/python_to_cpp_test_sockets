@@ -485,7 +485,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 
 // Function to process a one-time POS token for device activation and session creation
-bool requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename ){
+std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename ){
     log_to_file( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
     json activationResult = activateDevice(secretToken);
@@ -501,7 +501,7 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
          }else{
              std::cerr <<"Message "<< activationResult["message"]<<std::endl;
          }
-        return false;
+            return {1,""}; // Return an error code
     }
 
     if(activationResult.contains("deviceId")){
@@ -527,17 +527,17 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
         // Set the environment variable
         if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0) {
             std::cerr << "Failed to set environment variable." << std::endl;
-            return false; // Return an error code
+            return {1,""}; // Return an error code
         }
         if (setenv("TOKEN_EXPIRY_TIME", expiresIn.c_str(), 1) != 0) {
             std::cerr << "Failed to set environment variable." << std::endl;
-            return false; // Return an error code
+            return {1,""}; // Return an error code
         }
         // Assuming function should return a bool, add return value here.
         // For example, you might return true if everything succeeds:
-        return true; // You might want to add error handling and return false if any step fails.
+        return {0,accessToken}; // You might want to add error handling and return false if any step fails.
     }else{
-        return false;
+            return {1,""}; // Return an error code
     }
 }
 
@@ -545,7 +545,7 @@ bool requestAccessTokenFromSecretToken(std::string secretToken, std::string acti
 
 
 
-int setup(const Config& appConfig){
+std::pair<int,std::string> setup(const Config& appConfig){
     auto posDirectory=appConfig.getPosDirectory();
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
     auto activationResultFilename=appConfig.getActivationResultFilename();
@@ -555,20 +555,39 @@ int setup(const Config& appConfig){
     bool hasValidSessionToken_=hasValidSessionToken();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
-             std::cout << "App setup and ready."  << std::endl;            
-            return 0;
+             std::cout << "App setup and ready."  << std::endl;     
+            const char* access_token = std::getenv("ACCESS_TOKEN");
+       
+            return {0,access_token};
         }else{
             log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
-            bool res=requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
-            return 0;
+            return requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
         }
     }else{
-        return 1;
+        return {1,""};
     }
 }
 
+// The execute function orchestrates the communication with a device.
+void execute(std::string sessionToken) {
+    log_to_file("execute");  // Log the action of echoing data
+
+    // Prepares an XML payload for the next communication step.
+    std::string payload = R"(
+        <isomsg>
+      <!-- org.jpos.iso.packager.XMLPackager -->
+      <field id="0" value="0600"/>
+      <field id="2" value="2408-5000-0031"/>
+      <field id="22" value="1"/>
+      <field id="23" value="0297"/>
+      <field id="55" value="1.2.0.0"/>
+    </isomsg>
+    )";
+    // Sends the XML payload using the session's access token.
+    sendPlainText(sessionToken, payload);
+}
 /**
  * Runs a TCP echo server.
  * 
@@ -599,7 +618,7 @@ int setup(const Config& appConfig){
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(){
+void startServer(std::string sessionToken){
 
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = 6001;  // Port number on which the server will listen for connections
@@ -657,8 +676,7 @@ void startServer(){
 
         // If data was received, echo it back to the client
         if (!data.empty()) {
-            send(new_socket, data.c_str(), data.size(), 0);  // Send data back to client
-            log_to_file("Echoed back data to client.");  // Log the action of echoing data
+            execute(sessionToken);
         }
 
         // Close the client socket after handling the connection
@@ -676,11 +694,11 @@ int main() {
     log_to_file("main"); 
     Config appConfig; 
     
-    auto setupResult=setup(appConfig);
+    auto [setupResult,accessToken]=setup(appConfig);
     if (setupResult>0){
         std::cout<<"Exiting program..."<<std::endl;
     }
-    startServer();
+    startServer(accessToken);
  
     // Although unreachable in an infinite loop, good practice is to return a code at the end
     return 0;
