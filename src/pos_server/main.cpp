@@ -632,9 +632,11 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     auto isValidToken=is_valid_access_token( requestorSocket);
     if (!isValidToken){
         resendToRequestor( requestorSocket,payload);
-    }
+    }else{
     // Sends the XML payload using the session's access token.
     sendPlainText(sessionToken, payload);
+
+    }
 }
 
 /**
