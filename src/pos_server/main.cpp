@@ -831,6 +831,13 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     //the requestor
     auto isValidToken=is_valid_access_token( requestorSocket);
     if (!isValidToken){
+        log_to_file( "Requesting access_token from secret."  );
+        fs::path secretTokenPath = posDirectory+secretTokenFilename;
+        std::string secretToken=readStringFromFile(secretTokenPath);
+        auto [isValid, newAccessToken]= requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
+
+        sendPlainText(requestorSocket,newAccessToken, payload);
+
         resendToRequestor( requestorSocket,payload);
     }else{
     // Sends the XML payload using the session's access token.
