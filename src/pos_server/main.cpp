@@ -85,6 +85,7 @@ using json = nlohmann::json;
 
 //return the payload to the requestor
 void resendToRequestor(int socket, std::string data){
+    log_to_file("resendToRequestor"+ data);
     send(socket,data.c_str(),data.size(), 0);  // Send data back to client
 
 }
@@ -160,6 +161,121 @@ json activateDevice(const std::string& secret) {
 }
 
 
+//Helper function to pad or trim a string to a specified fixed length
+std::string formatFixedField(const std::string& value, size_t length) {
+    if (value.length() > length) {
+        return value.substr(0, length);  // Trim if too long
+    } else {
+        return value + std::string(length - value.length(), ' ');  // Pad with spaces if too short
+    }
+}
+
+// Helper function to parse variable-length fields
+std::string parseVariableField(const std::string& data, size_t& start, int maxLength) {
+    int length = std::stoi(data.substr(start, 2));  // Assuming 2-digit length indicator
+    start += 2;  // Move start past the length indicator
+
+    if (length > maxLength) {
+        throw std::runtime_error("Field length exceeds maximum allowed length.");
+    }
+
+    std::string field = data.substr(start, length);
+    start += length;  // Update start position to the end of the current field
+    return field;
+}
+
+// Function to modify fields 32 and 33 in an existing ISO 8583 message
+std::string modifyISO8583MessageForExpiredTokenAlert(std::string isoMessage) {
+    // Parse and modify the message
+    std::string modifiedMessage;
+    size_t index = 0;
+
+    // Assuming fields are present and correctly formatted up to at least field 33
+    // Parsing up to field 32
+    modifiedMessage += isoMessage.substr(index, 85);  // Sum of lengths of fields before field 32
+    index += 85;
+
+    // Replace field 32 (length 12)
+    modifiedMessage += formatFixedField("DECLINED", 12);
+    index += 12;  // Skip the original content of field 32
+
+    // Replace field 33 (length 40)
+    modifiedMessage += formatFixedField("POS notauthorized to process this request", 40);
+    index += 40;  // Skip the original content of field 33
+
+    // Append the rest of the message unchanged
+    modifiedMessage += isoMessage.substr(index);
+
+    return modifiedMessage;
+}
+
+
+
+// Utility function to check if field 32 contains "TOKEN EXPIRY"
+bool hasResponseTokenExpiry(const std::map<int, std::string>& fields) {
+    auto it = fields.find(32);
+    if (it != fields.end() && it->second == "TOKEN EXPIRY") {
+        return true;
+    }
+    return false;
+}
+
+
+
+// Parses an ISO8583 response string into a map of fields.
+std::map<int, std::string> parseISO8583(const std::string& response) {
+    std::map<int, std::string> fields;
+    size_t index = 0;
+
+    // Fixed-length fields
+    fields[0] = response.substr(index, 4);
+    index += 4;
+
+    // Variable-length fields
+    fields[2] = parseVariableField(response, index, 20);  // Field 2 can be up to 20 characters long
+    fields[4] = response.substr(index, 12);  // Fixed length
+    index += 12;
+    fields[10] = response.substr(index, 12);  // Fixed length
+    index += 12;
+
+    // More variable-length fields
+    fields[11] = parseVariableField(response, index, 40);
+    fields[12] = parseVariableField(response, index, 40);
+    fields[13] = parseVariableField(response, index, 40);
+    fields[14] = parseVariableField(response, index, 256);
+    fields[15] = parseVariableField(response, index, 256);
+    fields[16] = parseVariableField(response, index, 256);
+    fields[22] = response.substr(index, 4);
+    index += 4;
+
+    fields[23] = parseVariableField(response, index, 12);
+    fields[26] = parseVariableField(response, index, 20);
+    fields[31] = parseVariableField(response, index, 40);
+    fields[32] = response.substr(index, 12);
+    index += 12;
+    fields[33] = response.substr(index, 40);
+    index += 40;
+
+    // More fields including very large variable fields
+    fields[35] = parseVariableField(response, index, 660);
+    fields[36] = parseVariableField(response, index, 128);
+    fields[49] = response.substr(index, 3);  // Assuming 3 characters for demo, adjust as needed
+    index += 3;
+    fields[50] = response.substr(index, 1);
+    index += 1;
+
+    fields[55] = parseVariableField(response, index, 20);
+    fields[57] = parseVariableField(response, index, 128);
+    fields[59] = parseVariableField(response, index, 20);
+    fields[60] = response.substr(index, 1);
+    index += 1;
+    fields[61] = response.substr(index, 1);
+    index += 1;
+    fields[62] = response.substr(index, 1);
+    index += 1;
+
+    return fields;
+}
 
 // Function to prompt user and get a string
 std::string getUserInput(const std::string& prompt) {
@@ -328,7 +444,7 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - This function is dependent on the libcurl library for handling HTTP communications.
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
-std::string sendPlainText(const std::string& accessToken, const std::string& payload) {
+std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload) {
     std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/posCommand";
     log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
     log_to_file("URL: " + url);
@@ -362,11 +478,90 @@ std::string sendPlainText(const std::string& accessToken, const std::string& pay
 
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
-        return response_string;
+
+
+
+        //parse and check for token expiry
+        std::string isoMessage=response_string;
+        try {
+            auto parsedFields = parseISO8583(isoMessage);
+
+            for (const auto& field : parsedFields) {
+                std::cout << "Field " << field.first << ": " << field.second << std::endl;
+            }
+            //parse response for token expiry
+            bool isTokenExpiry=hasResponseTokenExpiry(parsedFields);
+            if (!isTokenExpiry){
+                //If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
+                //then the ISO8583 message response is to be returned to the requestor unmodified
+                resendToRequestor(requestorSocket,payload);
+                return response_string;
+            }else{
+                //If a "TOKEN EXPIRY" response is received the response code is to be modified to return
+                //"DECLINED" in the ISO8583 message response located in field number 32, and “POS not
+                //authorized to process this request” in field number 33.
+                auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
+                resendToRequestor(requestorSocket,payload);
+                return "";
+            }
+
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing ISO8583 message: " << e.what() << std::endl;
+    return "";
+        }
+
     }
     return "";
-}
 
+}
+/*
+// Generates an ISO 8583 response with specific values in fields 32 and 33
+std::string generateDummyISO8583ResponseForExpiredTokenAlert() {
+    std::ostringstream message;
+
+    // Field 0: Message Type Indicator
+    message << "0100";  // Assuming '0100' as a typical message type for a financial transaction request
+
+    // Adding some dummy and specific data for other fields
+    message << formatFixedField("123456789012", 12);  // Field 2: Primary Account Number (PAN), max length 20
+    message << formatFixedField("000001234567", 12);  // Field 4: Transaction Amount
+
+    // Skipping fields 10-11 for simplicity; add similar lines if needed
+    message << formatFixedField("123", 3);  // Field 10: Local Transaction Time (Fixed length)
+    message << formatFixedField("RESPONSE", 40);  // Field 11: Systems trace audit number (Variable length, up to 40)
+
+    // Field 12: Local Transaction Time
+    message << formatFixedField("123456", 6);  // Field 12: Local Transaction Time (Fixed length)
+    message << formatFixedField("1206", 4);  // Field 13: Local Transaction Date
+
+    // Assuming similar handling for fields 14-31 if necessary
+    message << formatFixedField("FIELD14", 256);  // Field 14: Extended data (Variable length, up to 256)
+
+    // Field 32: Acquiring Institution Identification Code
+    message << formatFixedField("DECLINED", 12);  // Field 32 with fixed length of 12
+
+    // Field 33: Forwarding Institution Identification Code
+    message << formatFixedField("POS not authorized to process this request", 40);  // Field 33 with fixed length of 40
+
+    // Fields 35-62: Dummy data; provide real values in actual implementation
+    message << formatFixedField("ACCNO1234567890", 16);  // Field 35: Card Sequence Number (Variable length, up to 660)
+    message << formatFixedField("DATA", 4);  // Field 36: Track 3 data (Variable length, up to 128)
+
+    // Continuing with similar placeholders for the rest of the fields
+    message << formatFixedField("", 0);  // Field 49: Currency Code, up to 128 characters
+    message << formatFixedField("1", 1);  // Field 50: Service Restriction Code
+    message << formatFixedField("055", 3);  // Field 55: ICC data (Variable, up to 20)
+
+    message << formatFixedField("1", 1);  // Field 60: POS entry mode
+    message << formatFixedField("1", 1);  // Field 61: POS condition code
+    message << formatFixedField("1", 1);  // Field 62: POS capture code
+
+    return message.str();
+}
+*/
+
+/*
+//Sends TOKEN EXPIRY as ISO8583 and manages its response
 void executeTokenExpiry(int requestorSocket, std::string accessToken){
      std::string payload = R"(
         <isomsg>
@@ -374,7 +569,8 @@ void executeTokenExpiry(int requestorSocket, std::string accessToken){
       <field id="32" value="TOKEN EXPIRY"/>
     </isomsg>
     )";
-    auto response=sendPlainText(accessToken,payload);
+    log_to_file("Send to ")
+    auto response=sendPlainText(requestorSocket, accessToken,payload);
     if (response=="TOKEN EXPIRY"){
         std::string payload = R"(
             <isomsg>
@@ -388,7 +584,7 @@ void executeTokenExpiry(int requestorSocket, std::string accessToken){
     }else{
         resendToRequestor(requestorSocket,response);
     }
-}
+}*/
 
 /**
  * Validates an access token based on its expiration time.
@@ -433,9 +629,13 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt) {
         if (current_time < expiration_time) {
             return true;
         }else{
-            if (requestorSocket.has_value()) {
-                executeTokenExpiry(*requestorSocket,access_token);
-            }
+            //optional:
+            //the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
+            //if you want to check token expiration before the api, uncomment below
+            //if expired, send TOKEN EXPIRY and manage its reponse
+            //if (requestorSocket.has_value()) {
+              //  executeTokenExpiry(*requestorSocket,access_token);
+            //}
             return false;
         }
     }
@@ -634,7 +834,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
         resendToRequestor( requestorSocket,payload);
     }else{
     // Sends the XML payload using the session's access token.
-    sendPlainText(sessionToken, payload);
+        sendPlainText(requestorSocket,sessionToken, payload);
 
     }
 }
