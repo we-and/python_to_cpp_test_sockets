@@ -822,7 +822,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
 
 
 // The execute function orchestrates the communication with the API.
-void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload) {
+void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload,const Config& appConfig) {
     log_to_file("execute");  // Log the action of echoing data
 
     //if the remote server endpoint determines the Session Token is not valid it will send an
@@ -831,13 +831,13 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     //the requestor
     auto isValidToken=is_valid_access_token( requestorSocket);
     if (!isValidToken){
-        log_to_file( "Requesting access_token from secret."  );
-        fs::path secretTokenPath = posDirectory+secretTokenFilename;
-        std::string secretToken=readStringFromFile(secretTokenPath);
-        auto [isNewTokenValid, newAccessToken]= requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
-        if (isNewTokenValid){
+        //redo setup for getting a new access token
+        auto [isNewSetupValid,newAccessToken]=setup(appConfig);
+        //if new setup is valid, process the request
+        if (isNewSetupValid){
             sendPlainText(requestorSocket,newAccessToken, payload);
         }else{
+            //if failed again, return to user
             resendToRequestor( requestorSocket,payload);
         }
     }else{
@@ -877,7 +877,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(std::string sessionToken){
+void startServer(std::string sessionToken,const Config& appConfig){
 
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = 6001;  // Port number on which the server will listen for connections
@@ -936,7 +936,7 @@ void startServer(std::string sessionToken){
         // If data was received, echo it back to the client
         if (!data.empty()) {
             std::string payload=data;
-            checkTokenAndExecute(new_socket, sessionToken,payload);
+            checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
         }
 
         // Close the client socket after handling the connection
@@ -958,7 +958,7 @@ int main() {
     if (setupResult>0){
         std::cout<<"Exiting program..."<<std::endl;
     }
-    startServer(accessToken);
+    startServer(accessToken,appConfig);
  
     // Although unreachable in an infinite loop, good practice is to return a code at the end
     return 0;
