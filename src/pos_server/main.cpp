@@ -835,7 +835,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
         std::string secretToken=readStringFromFile(secretTokenPath);
         auto [isNewTokenValid, newAccessToken]= requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
-        if isValid{
+        if (isNewTokenValid){
             sendPlainText(requestorSocket,newAccessToken, payload);
         }else{
             resendToRequestor( requestorSocket,payload);
