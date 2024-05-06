@@ -501,13 +501,13 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
                 //"DECLINED" in the ISO8583 message response located in field number 32, and “POS not
                 //authorized to process this request” in field number 33.
                 auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
-                resendToRequestor(requestorSocket,payload);
+                resendToRequestor(requestorSocket,msg);
                 return "";
             }
 
         } catch (const std::exception& e) {
             std::cerr << "Error parsing ISO8583 message: " << e.what() << std::endl;
-    return "";
+            return "";
         }
 
     }
