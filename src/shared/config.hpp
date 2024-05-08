@@ -9,6 +9,9 @@ private:
     std::string mainAppName;
     std::string secretTokenFilename;
     std::string activationResultFilename;
+public:
+    int port;
+    std::string endpoint;
 
 public:
     // Constructor to initialize the settings

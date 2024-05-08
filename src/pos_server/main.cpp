@@ -21,6 +21,14 @@
 #include "config.hpp"
 namespace fs = std::filesystem;
 
+
+
+
+struct ConfigFile {
+    int port;
+    std::string endpoint;
+};
+
 // Retrieve the current system time as a time_t object
 //auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
@@ -116,7 +124,7 @@ void resendToRequestor(int socket, std::string data){
  * - This function depends on the libcurl library for HTTP communications and the nlohmann::json
  *   library for JSON parsing.
  */
-json activateDevice(const std::string& secret) {
+json activateDevice(const std::string& secret, const Config& config) {
     log_to_file("activateDevice");
     CURL *curl;
     CURLcode res;
@@ -124,7 +132,9 @@ json activateDevice(const std::string& secret) {
     curl = curl_easy_init();
     if(curl) {
         // Set the URL that receives the POST data
-        curl_easy_setopt(curl, CURLOPT_URL, "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/device/activateDevice?Secret=SECRET");
+        std::string endpoint = config.endpoint + "/device/activateDevice?Secret="+secret;
+        log_to_file("activateDevice endpoint="+endpoint);
+        curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
 
         // Specify the POST data
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
@@ -734,10 +744,10 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 
 // Function to process a one-time POS token for device activation and session creation
-std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename ){
+std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename,const Config &config ){
     log_to_file( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
-    json activationResult = activateDevice(secretToken);
+    json activationResult = activateDevice(secretToken,config);
     log_to_file("activationResult");
 
     // Save the activation result to a JSON file
@@ -812,7 +822,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
             log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
-            return requestAccessTokenFromSecretToken(secretToken,activationResultFilename);
+            return requestAccessTokenFromSecretToken(secretToken,activationResultFilename,appConfig);
         }
     }else{
         return {1,""};
@@ -877,10 +887,10 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(std::string sessionToken,const Config& appConfig){
+void startServer(std::string sessionToken,const Config& appConfig,const ConfigFile& configFile){
 
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
-    int port = 6001;  // Port number on which the server will listen for connections
+    int port = configFile.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
     struct sockaddr_in address;  // Structure to store the server's address information
     int opt = 1;  // Option value for setsockopt to enable certain socket properties
@@ -946,19 +956,122 @@ void startServer(std::string sessionToken,const Config& appConfig){
 }
 
 
+//GET PATH OF CURRENT EXECUTABLE, used to find settings.ini 
+#if defined(_WIN32)
+#include <windows.h>
+std::string getExecutablePath() {
+    char path[MAX_PATH] = { 0 };
+    if (GetModuleFileNameA(NULL, path, MAX_PATH) > 0) {
+        return std::filesystem::path(path).parent_path().string();
+    }
+    return std::string();
+}
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+std::string getExecutablePath() {
+    char path[1024];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0) {
+        return std::filesystem::path(path).parent_path().string();
+    }
+    return std::string();
+}
+#elif defined(__linux__)
+#include <unistd.h>
+#include <linux/limits.h>
+std::string getExecutablePath() {
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    return std::string(result, (count > 0) ? count : 0).parent_path().string();
+}
+#else
+#error "Unsupported platform."
+#endif
+std::string getAbsolutePathRelativeToExecutable(const std::string& filename) {
+    std::filesystem::path exePath = getExecutablePath();
+    std::filesystem::path filePath = exePath / filename;
+    try {
+        // Resolve to absolute path and normalize
+        return std::filesystem::absolute(filePath).string();
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+        return std::string();
+    }
+}
+
+std::string getAbsolutePath(const std::string& filename) {
+    std::filesystem::path path = filename;
+    try {
+        // Resolve to absolute path and normalize
+        return std::filesystem::absolute(path).string();
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+        return std::string();
+    }
+}
+
+
+ConfigFile readIniFile(const std::string& filename) {
+   std::string absPath2= getAbsolutePathRelativeToExecutable(filename);
+    std::cout <<"Reading config file from"<< absPath2 <<std::endl;
+ //    std::string absolutePath = getAbsolutePath(filename);
+   // std::cout << absolutePath <<std::endl;
+    std::ifstream file(absPath2);
+    ConfigFile config;
+    std::string line;
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return config; // Return default-initialized config if file opening fails
+    }
+
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string key;
+        if (std::getline(iss, key, '=')) {
+            std::string value;
+            if (std::getline(iss, value)) {
+                // Remove potential whitespace that might be around the '='
+                key.erase(std::remove_if(key.begin(), key.end(), isspace), key.end());
+                value.erase(std::remove_if(value.begin(), value.end(), isspace), value.end());
+
+                if (key == "PORT") {
+                    config.port = std::stoi(value);
+                } else if (key == "ENDPOINT") {
+                    config.endpoint = value;
+                }
+            }
+        }
+    }
+
+    file.close();
+    return config;
+}
+
 
 /**
  * Main function to set up and run a TCP echo server.
  */
 int main() {
     log_to_file("main"); 
-    Config appConfig; 
+
+    //read config ini file
+    ConfigFile configFile=readIniFile("settings.ini");
+    log_to_file( "Port: " +std::to_string( configFile.port));
+    log_to_file( "Endpoint: " + configFile.endpoint);
+
+    //set appConfig
+    Config appConfig;
+
+    //add config params from settings.ini    appConfig.port=configFile.port;
+    appConfig.endpoint=configFile.endpoint; 
     
+    //setup app: check secret tokens, activation, access token, etc 
     auto [setupResult,accessToken]=setup(appConfig);
     if (setupResult>0){
         std::cout<<"Exiting program..."<<std::endl;
     }
-    startServer(accessToken,appConfig);
+    startServer(accessToken,appConfig,configFile);
  
     // Although unreachable in an infinite loop, good practice is to return a code at the end
     return 0;
