@@ -982,7 +982,12 @@ std::string getExecutablePath() {
 std::string getExecutablePath() {
     char result[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    return std::string(result, (count > 0) ? count : 0).parent_path().string();
+    if (count > 0) {
+        // Create a filesystem path from the result buffer and get the parent path
+        std::filesystem::path exePath(result, result + count);
+        return exePath.parent_path().string();
+    }
+    return std::string();  // Return an empty string if failed
 }
 #else
 #error "Unsupported platform."
