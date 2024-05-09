@@ -109,12 +109,48 @@ int saveSecretToken(const Config& appConfig){
     return 0;
 }
 
+
+// Function to execute a systemd command
+bool executeSystemdCommand(const std::string& command) {
+    int result = system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Command failed: " << command << std::endl;
+        return false;
+    }
+    return true;
+}
+
+// Main function to reload systemd, enable and start a service, and then check its status
+bool reloadSystemdService(const std::string& serviceName) {
+    // Sanitize the input to prevent injection attacks
+    for (char c : serviceName) {
+        if (!(isalnum(c) || c == '-' || c == '_')) {
+            std::cerr << "Invalid service name: " << serviceName << std::endl;
+            return false; // Return failure on invalid input
+        }
+    }
+
+    std::string reloadCmd = "sudo systemctl daemon-reload";
+    std::string enableCmd = "sudo systemctl enable " + serviceName;
+    std::string startCmd = "sudo systemctl start " + serviceName;
+    std::string statusCmd = "sudo systemctl status " + serviceName + " --no-pager";
+
+    if (!executeSystemdCommand(reloadCmd)) return false;
+    if (!executeSystemdCommand(enableCmd)) return false;
+    if (!executeSystemdCommand(startCmd)) return false;
+    
+    // Execute the status command and directly output its result to the terminal
+    std::cout << "Current status of the service:" << std::endl;
+    return executeSystemdCommand(statusCmd);
+}
+
+
 int main(int argc, char* argv[]) {
     Config appConfig; 
 
     auto secretToken=inputSecretToken();
     saveSecretToken(appConfig);    ;
     setupService(appConfig.getMainAppName());
-
+    reloadSystemdService();
     return 0;
 }
