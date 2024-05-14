@@ -57,6 +57,24 @@ void setupService(const std::string& appName) {
     }
 }
 
+int removeTokenIfExists(const Config& appConfig){
+
+    // Define the file path
+    std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
+    // Check if file exists and delete it if it does
+    if (fs::exists(filePath)) {
+        // Try to remove the file
+        bool removed = fs::remove(filePath);
+        if (removed) {
+            std::cout << "File deleted successfully." << std::endl;
+        } else {
+            std::cout << "Failed to delete the file." << std::endl;
+        }
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
+
+}
 void createFolder(std::string dir){
      // Check if the directory exists
     if (!fs::exists(dir)) {
@@ -96,6 +114,10 @@ std::string inputSecretToken(){
  */
 int saveSecretToken(const Config& appConfig){
 
+    std::cout << "Check if token exists"<<std::endl;
+    removeTokenIfExists(appConfig);
+
+
     // Define the file path
     std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
 
@@ -120,6 +142,8 @@ int saveSecretToken(const Config& appConfig){
 
     return 0;
 }
+
+
 /**
  * Main entry point for the application which handles initializing configurations,
  * saving a secret token, and setting up a service based on the application configuration.
@@ -136,10 +160,18 @@ int saveSecretToken(const Config& appConfig){
  */
 int main(int argc, char* argv[]) {
     Config appConfig; 
-
     auto secretToken=inputSecretToken();
+
+    std::cout << "Setting up server"<<std::endl;
+    createPosFolder();
+
+
+    std::cout << "Saving secret token"<std::endl;
     saveSecretToken(appConfig);    ;
+    std::cout << "Saving service"<std::endl;
     setupService(appConfig.getMainAppName());
 
+    std::cout << "Reloading service"<std::endl;
+    reloadSystemdService();
     return 0;
 }
