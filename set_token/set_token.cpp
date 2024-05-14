@@ -104,6 +104,7 @@ std::string inputSecretToken(){
 
 int saveSecretToken(const Config& appConfig){
 
+    std::cout << "Check if token exists"<<std::endl;
     removeTokenIfExists(appConfig);
 
     // Define the file path
