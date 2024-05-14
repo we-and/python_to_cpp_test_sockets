@@ -224,6 +224,6 @@ int main(int argc, char* argv[]) {
     setupService(appConfig.getMainAppName());
 
     std::cout << "Reloading service"<<std::endl;
-    reloadSystemdService();
+    reloadSystemdService("pos.service");
     return 0;
 }
