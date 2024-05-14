@@ -2,6 +2,8 @@
 ## Quick start
 
 ```
+sudo apt-get update && sudo apt-get install -y libcrypto++-dev libcurl4-openssl-dev g++
+
 git clone https://github.com/we-and/python_to_cpp_test_sockets  
 cd python_to_cpp_test_sockets/
 
