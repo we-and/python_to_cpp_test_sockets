@@ -149,23 +149,19 @@ int saveSecretToken(const Config& appConfig){
 
 int createPosFolder() {
     std::string folderPath = "/root/pos";
-     std::cout << "createPosFolder =" << folderPath<<std::endl;
-     std::cout << "createPosFolder check"<<std::endl;
      bool exists=fs::exists(folderPath);
-     std::cout << "createPosFolder " << exists << std::endl;
-     std::cout << "createPosFolder check end"<<std::endl;
- 
+    
  // Check if the directory exists
     if (!fs::exists(folderPath)) {
      std::cout << "createPosFolder folder not existing" << std::endl;
         // Create the directory since it does not exist
         if (fs::create_directory(folderPath)) {
-            std::cout << "Directory created successfully." << std::endl;
+            std::cout << "Pos directory created successfully." << std::endl;
         } else {
-            std::cout << "Failed to create directory." << std::endl;
+            std::cout << "Failed to create pos directory." << std::endl;
         }
     } else {
-        std::cout << "Directory already exists." << std::endl;
+        std::cout << "Pos directory already exists." << std::endl;
     }
 
 
@@ -227,9 +223,6 @@ int main(int argc, char* argv[]) {
     
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
-    auto secretToken=inputSecretToken();
-
-
 
     std::cout << "Saving secret token"<<std::endl;
     saveSecretToken(appConfig);    ;
