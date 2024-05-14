@@ -148,8 +148,8 @@ int saveSecretToken(const Config& appConfig){
 }
 
 int createPosFolder() {
-     std::cout << "createPosFolder" << std::endl;
     std::string folderPath = "/root/pos";
+     std::cout << "createPosFolder" << folderPath<<std::endl;
  // Check if the directory exists
     if (!fs::exists(folderPath)) {
      std::cout << "createPosFolder folder not existing" << std::endl;
@@ -217,11 +217,13 @@ bool reloadSystemdService(const std::string& serviceName) {
  * @return int Returns 0 upon successful completion of all tasks.
  */
 int main(int argc, char* argv[]) {
+    std::cout << "Setting up server"<<std::endl;
+    createPosFolder();
+
+    std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
     auto secretToken=inputSecretToken();
 
-    std::cout << "Setting up server"<<std::endl;
-    createPosFolder();
 
 
     std::cout << "Saving secret token"<<std::endl;
