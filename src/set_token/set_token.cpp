@@ -15,8 +15,12 @@ void setupService(const std::string& appName) {
     // Get the current working directory
     fs::path currentPath = fs::current_path();
 
+ // Navigate up to the parent of the current path, then to 'mypath'
+    fs::path basePath = currentPath.parent_path().parent_path().parent_path();
+
+
     // Form the path for ExecStart
-    fs::path execStartPath = currentPath / appName;
+    fs::path execStartPath = basePath / "dist" / appName;
 
     // Construct mypath string
     std::string mypath = execStartPath.string();
