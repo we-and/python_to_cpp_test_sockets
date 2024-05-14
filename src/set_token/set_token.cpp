@@ -224,12 +224,11 @@ int main(int argc, char* argv[]) {
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
 
-    std::cout << "Saving secret token"<<std::endl;
     saveSecretToken(appConfig);    ;
     std::cout << "Saving service"<<std::endl;
     setupService(appConfig.getMainAppName());
 
     std::cout << "Reloading service"<<std::endl;
-    reloadSystemdService("pos.service");
+    reloadSystemdService("pos");
     return 0;
 }
