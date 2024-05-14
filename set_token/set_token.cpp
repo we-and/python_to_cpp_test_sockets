@@ -110,6 +110,25 @@ int saveSecretToken(const Config& appConfig){
 }
 
 
+namespace fs = std::filesystem;
+
+int createPosFolder() {
+    std::string folderPath = "/root/pos";
+ // Check if the directory exists
+    if (!fs::exists(folderPath)) {
+        // Create the directory since it does not exist
+        if (fs::create_directory(folderPath)) {
+            std::cout << "Directory created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create directory." << std::endl;
+        }
+    } else {
+        std::cout << "Directory already exists." << std::endl;
+    }
+
+
+    return 0;
+}
 // Function to execute a systemd command
 bool executeSystemdCommand(const std::string& command) {
     int result = system(command.c_str());
@@ -147,7 +166,7 @@ bool reloadSystemdService(const std::string& serviceName) {
 
 int main(int argc, char* argv[]) {
     Config appConfig; 
-
+createPosFolder();
     auto secretToken=inputSecretToken();
     saveSecretToken(appConfig);    ;
     setupService(appConfig.getMainAppName());
