@@ -73,7 +73,7 @@ int removeTokenIfExists(const Config& appConfig){
     } else {
         std::cout << "File does not exist." << std::endl;
     }
-
+    return 0;
 }
 void createFolder(std::string dir){
      // Check if the directory exists
@@ -81,11 +81,15 @@ void createFolder(std::string dir){
         // Create the directory
         if (fs::create_directory(dir)) {
             std::cout << "Directory created successfully." << std::endl;
+    return 0;
         } else {
             std::cout << "Failed to create directory." << std::endl;
+            return 1;
+
         }
     } else {
         std::cout << "Directory already exists." << std::endl;
+    return 0;
     }
 }
 
