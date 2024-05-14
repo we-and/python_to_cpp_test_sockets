@@ -143,6 +143,24 @@ int saveSecretToken(const Config& appConfig){
     return 0;
 }
 
+int createPosFolder() {
+    std::string folderPath = "/root/pos";
+ // Check if the directory exists
+    if (!fs::exists(folderPath)) {
+        // Create the directory since it does not exist
+        if (fs::create_directory(folderPath)) {
+            std::cout << "Directory created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create directory." << std::endl;
+        }
+    } else {
+        std::cout << "Directory already exists." << std::endl;
+    }
+
+
+    return 0;
+}
+
 
 /**
  * Main entry point for the application which handles initializing configurations,
