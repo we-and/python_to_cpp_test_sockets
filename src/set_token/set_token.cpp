@@ -75,7 +75,7 @@ int removeTokenIfExists(const Config& appConfig){
     }
     return 0;
 }
-void createFolder(std::string dir){
+int createFolder(std::string dir){
      // Check if the directory exists
     if (!fs::exists(dir)) {
         // Create the directory
