@@ -148,6 +148,7 @@ int saveSecretToken(const Config& appConfig){
 }
 
 int createPosFolder() {
+     std::cout << "createPosFolder" << std::endl;
     std::string folderPath = "/root/pos";
  // Check if the directory exists
     if (!fs::exists(folderPath)) {
