@@ -16,7 +16,7 @@ void setupService(const std::string& appName) {
     fs::path currentPath = fs::current_path();
 
  // Navigate up to the parent of the current path, then to 'mypath'
-    fs::path basePath = currentPath.parent_path().parent_path().parent_path();
+    fs::path basePath = currentPath.parent_path().parent_path();
 
 
     // Form the path for ExecStart
