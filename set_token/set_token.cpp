@@ -70,6 +70,25 @@ void createFolder(std::string dir){
         std::cout << "Directory already exists." << std::endl;
     }
 }
+
+int removeTokenIfExists(const Config& appConfig){
+
+    // Define the file path
+    std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
+    // Check if file exists and delete it if it does
+    if (fs::exists(filePath)) {
+        // Try to remove the file
+        bool removed = fs::remove(filePath);
+        if (removed) {
+            std::cout << "File deleted successfully." << std::endl;
+        } else {
+            std::cout << "Failed to delete the file." << std::endl;
+        }
+    } else {
+        std::cout << "File does not exist." << std::endl;
+    }
+
+}
 // Function to prompt user and get a string
 std::string getUserInput(const std::string& prompt) {
     std::string input;
@@ -84,6 +103,8 @@ std::string inputSecretToken(){
 }
 
 int saveSecretToken(const Config& appConfig){
+
+    removeTokenIfExists(appConfig);
 
     // Define the file path
     std::string filePath = appConfig.getPosDirectory()+"secrettoken.txt";
