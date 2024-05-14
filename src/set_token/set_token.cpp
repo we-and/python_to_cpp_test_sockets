@@ -151,7 +151,8 @@ int createPosFolder() {
     std::string folderPath = "/root/pos";
      std::cout << "createPosFolder =" << folderPath<<std::endl;
      std::cout << "createPosFolder check"<<std::endl;
-     std::cout << "createPosFolder =" << fs::exists(folderPath)<<std::endl;
+     bool exists=fs::exists(folderPath);
+     std::cout << "createPosFolder " << exists << std::endl;
      std::cout << "createPosFolder check end"<<std::endl;
  
  // Check if the directory exists
