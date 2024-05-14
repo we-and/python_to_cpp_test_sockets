@@ -8,12 +8,12 @@ git clone https://github.com/we-and/python_to_cpp_test_sockets
 cd python_to_cpp_test_sockets/
 
 cd src/pos_server
-g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
-
+g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
+ 
 cd ../..
 
 cd src/set_token
-g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl
+g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
 cd ../..
 
 
@@ -71,11 +71,7 @@ sudo apt-get install libcurl4-openssl-dev
 ```
 
 nlohmann/json Library
-You can install it directly via the package manager or integrate it into your project as a header-only library.
-
-```
-sudo apt-get install nlohmann-json3-dev
-```
+Used but no need to add dependency.
 
 ## Compilation
 Compile the server using g++:
