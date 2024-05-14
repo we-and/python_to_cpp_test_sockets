@@ -218,12 +218,12 @@ int main(int argc, char* argv[]) {
     createPosFolder();
 
 
-    std::cout << "Saving secret token"<std::endl;
+    std::cout << "Saving secret token"<<std::endl;
     saveSecretToken(appConfig);    ;
-    std::cout << "Saving service"<std::endl;
+    std::cout << "Saving service"<<std::endl;
     setupService(appConfig.getMainAppName());
 
-    std::cout << "Reloading service"<std::endl;
+    std::cout << "Reloading service"<<std::endl;
     reloadSystemdService();
     return 0;
 }
