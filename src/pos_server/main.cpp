@@ -1075,9 +1075,9 @@ int main() {
     auto [setupResult,accessToken]=setup(appConfig);
     if (setupResult>0){
         std::cout<<"Exiting program..."<<std::endl;
+        return 1;
+    }else{
+        startServer(accessToken,appConfig,configFile);
+        return 0;
     }
-    startServer(accessToken,appConfig,configFile);
- 
-    // Although unreachable in an infinite loop, good practice is to return a code at the end
-    return 0;
 }
