@@ -1110,7 +1110,7 @@ ConfigFile readIniFile(const std::string& filename) {
 /**
  * Main function to set up and run a TCP echo server.
  */
-int main() {
+int main(int argc, char* argv[]) {
 
 
     std::string configFilePath="settings.ini";
