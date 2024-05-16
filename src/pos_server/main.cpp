@@ -100,6 +100,7 @@ using json = nlohmann::json;
 
 //return the payload to the requestor
 void resendToRequestor(int socket, std::string data){
+    Logger* logger = Logger::getInstance();
     logger->log("resendToRequestor"+ data);
     send(socket,data.c_str(),data.size(), 0);  // Send data back to client
 
@@ -132,6 +133,7 @@ void resendToRequestor(int socket, std::string data){
  *   library for JSON parsing.
  */
 json activateDevice(const std::string& secret, const Config& appConfig) {
+    Logger* logger = Logger::getInstance();
     logger->log("activateDevice");
     CURL *curl;
     CURLcode res;
@@ -337,6 +339,7 @@ std::string inputSecretToken(){
  * - Ensure that proper logging mechanisms are set up to handle the output from `log`.
  */
 std::string calculateHash(const std::string& currentSequenceValue, const std::string& deviceKey) {
+    Logger* logger = Logger::getInstance();
     logger->log("Calculating hash... Current Sequence Value: " + currentSequenceValue + ", Device Key: " + deviceKey);
 
     // Convert string to integer and increment
@@ -394,6 +397,7 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
  * - Proper error handling is implemented for CURL failures.
  */
 json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig) {
+    Logger* logger = Logger::getInstance();
     std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
     logger->log(logMessage);
 
@@ -446,6 +450,7 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
+    Logger* logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "/posCommand";
        
     logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
@@ -609,7 +614,8 @@ void executeTokenExpiry(int requestorSocket, std::string accessToken){
  * - Proper error handling is implemented for date parsing and time comparison.
  */
 bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt) {
-           logger->log( "is_valid_access_token" ); 
+    Logger* logger = Logger::getInstance();
+          logger->log( "is_valid_access_token" ); 
 
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
@@ -650,6 +656,7 @@ bool isValidSecretToken(std::string token){
     return !token.empty();
 }
 int saveSecretToken(std::string secret,std::string posDirectory,std::string secretTokenFilename){
+    Logger* logger = Logger::getInstance();
     logger->log( "saveSecretToken"); 
         // Define the file path
     std::string filePath = posDirectory+secretTokenFilename;
@@ -674,6 +681,7 @@ int saveSecretToken(std::string secret,std::string posDirectory,std::string secr
 }
 
 bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
+    Logger* logger = Logger::getInstance();
     logger->log( "hasValidSecretToken"); 
     bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
     std::string secretToken;    
@@ -702,6 +710,7 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
 }
 //used at the request phase
 bool hasValidSessionToken(int requestorSocket){
+    Logger* logger = Logger::getInstance();
     logger->log("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
@@ -714,6 +723,7 @@ bool hasValidSessionToken(int requestorSocket){
 }
 //used for the setup phase
 bool hasValidSessionTokenInit(){
+    Logger* logger = Logger::getInstance();
     logger->log("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
@@ -725,7 +735,8 @@ bool hasValidSessionTokenInit(){
     }
 }
 void saveJsonToFile(const json& j, const std::string& filePath) {
-   logger->log( "saveJsonToFile"  );
+   Logger* logger = Logger::getInstance();
+    logger->log( "saveJsonToFile"  );
     std::ofstream file(filePath);
     if (!file) {
         std::cerr << "Error opening file for writing: " << filePath << std::endl;
@@ -743,6 +754,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 // Function to process a one-time POS token for device activation and session creation
 std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, const Config &config ){
+    Logger* logger = Logger::getInstance();
     logger->log( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
     json activationResult = activateDevice(secretToken,config);
@@ -808,6 +820,7 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
 
 
 std::pair<int,std::string> setup(const Config& appConfig){
+    Logger* logger = Logger::getInstance();
     auto posDirectory=appConfig.getPosDirectory();
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
     
@@ -837,6 +850,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
 
 // The execute function orchestrates the communication with the API.
 void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload,const Config& appConfig) {
+    Logger* logger = Logger::getInstance();
     logger->log("execute");  // Log the action of echoing data
 
     //if the remote server endpoint determines the Session Token is not valid it will send an
@@ -892,7 +906,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
  */
 
 void startServer(std::string sessionToken,const Config& appConfig,const ConfigFile& configFile){
-
+    Logger* logger = Logger::getInstance();
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = configFile.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
