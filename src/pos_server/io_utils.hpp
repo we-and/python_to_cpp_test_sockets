@@ -42,7 +42,7 @@ json readJsonFromFile(const std::string& filePath,Logger * logger) {
 
 
 
-std::string readStringFromFile(const std::string& filePath,Logger * logger)) {
+std::string readStringFromFile(const std::string& filePath,Logger * logger) {
     logger->log( "readStringFromFile: "+filePath); 
     
     try {
