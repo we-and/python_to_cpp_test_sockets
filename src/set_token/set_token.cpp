@@ -281,7 +281,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
-
+    std::cout << "Config file: "<<configFilePath<<std::endl;
     std::cout << "Creating folders"<<std::endl;
     createPosFolder();
     createPosLogsFolder();
