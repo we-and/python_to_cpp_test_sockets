@@ -725,7 +725,7 @@ bool hasValidSessionToken(int requestorSocket){
 bool hasValidSessionTokenInit(){
     Logger* logger = Logger::getInstance();
     logger->log("hasValidSessionToken");
-    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
+    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN",logger);
     if(sessionTokenExists){
             logger->log("hasValidSessionToken: has ACCESS_TOKEN");
             return is_valid_access_token(); //-1 means no resend to sender if token is invalid. 
