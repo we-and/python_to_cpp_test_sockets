@@ -1112,8 +1112,12 @@ ConfigFile readIniFile(const std::string& filename) {
  */
 int main(int argc, char* argv[]) {
 
-
-    std::string configFilePath="settings.ini";
+    // Parse command-line arguments
+    if (argc==1){
+            std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
+            return 1;
+    }
+    std::string configFilePath="";
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
