@@ -264,11 +264,17 @@ bool reloadSystemdService(const std::string& serviceName) {
  * @return int Returns 0 upon successful completion of all tasks.
  */
 int main(int argc, char* argv[]) {
-    std::cout << "Setting up server"<<std::endl;
+    std::cout << "Creating folders"<<std::endl;
     createPosFolder();
     createPosLogsFolder();
     
     std::string configFilePath;
+
+    std::cout << "Reading args" << argc  <<std::endl;
+    // Parse command-line arguments
+    for (int i = 1; i < argc; ++i) {
+    std::cout << "Reading arg" <<i<< argv[i]  <<std::endl;
+    }
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -280,6 +286,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
 
@@ -287,7 +294,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Saving service"<<std::endl;
     setupService(appConfig.getMainAppName(),configFilePath);
 
-    std::cout << "Reloading service"<<std::endl;
+    std::cout << "Reloading service manager"<<std::endl;
     reloadSystemdService("pos");
     return 0;
 }
