@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <sys/stat.h> 
 #include "json.hpp"
+using json = nlohmann::json;
 
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string& filePath,Logger * logger) {
@@ -59,7 +60,7 @@ std::string readStringFromFile(const std::string& filePath) {
 
 // Function to check if the one time exists
 bool checkFileExists(const std::string& folderPath,const std::string filename,Logger * logger) {
-    logger->log_to_file( "checkFileExists: "+folderPath+filename); 
+    logger->log( "checkFileExists: "+folderPath+filename); 
     
     fs::path myFile = folderPath+filename;
     bool exists= fs::exists(myFile);
