@@ -687,7 +687,7 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
-        secretToken=readStringFromFile(secretTokenPath);
+        secretToken=readStringFromFile(secretTokenPath,logger);
         logger->log( "hasValidSecretToken true"); 
         return isValidSecretToken(secretToken);
     }else{
@@ -836,7 +836,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         }else{
             logger->log( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
-            std::string secretToken=readStringFromFile(secretTokenPath);
+            std::string secretToken=readStringFromFile(secretTokenPath,logger);
             return requestAccessTokenFromSecretToken(secretToken,appConfig);
         }
     }else{
