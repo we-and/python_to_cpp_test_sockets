@@ -126,7 +126,7 @@ void resendToRequestor(int socket, std::string data){
  * - This function depends on the libcurl library for HTTP communications and the nlohmann::json
  *   library for JSON parsing.
  */
-json activateDevice(const std::string& secret, const Config& config) {
+json activateDevice(const std::string& secret, const Config& appConfig) {
     log_to_file("activateDevice");
     CURL *curl;
     CURLcode res;
@@ -137,7 +137,7 @@ json activateDevice(const std::string& secret, const Config& config) {
     }
 
         // Set the URL that receives the POST data
-        std::string url = config.baseURL + "/device/activateDevice?Secret="+secret;
+        std::string url = appConfig.baseURL + "/device/activateDevice?Secret="+secret;
         log_to_file("activateDevice: url="+url);
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
@@ -388,11 +388,11 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
  * - The function uses the libcurl library for HTTP communications and the nlohmann::json library for JSON handling.
  * - Proper error handling is implemented for CURL failures.
  */
-json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& config) {
+json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig) {
     std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
     log_to_file(logMessage);
 
-    std::string url = config.baseURL+ "/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
+    std::string url = appConfig.baseURL+ "/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
     log_to_file("URL: " + url);
 
     json payload; // Assuming an empty JSON object is needed
@@ -440,8 +440,8 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - This function is dependent on the libcurl library for handling HTTP communications.
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
-std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& config) {
-    std::string url = config.endpoint + "/posCommand";
+std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
+    std::string url = appConfig.baseURL + "/posCommand";
        
     log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
     log_to_file("URL: " + url);
@@ -844,7 +844,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
         auto [isNewSetupValid,newAccessToken]=setup(appConfig);
         //if new setup is valid, process the request
         if (isNewSetupValid){
-            sendPlainText(requestorSocket,newAccessToken, payload,config);
+            sendPlainText(requestorSocket,newAccessToken, payload,appConfig);
         }else{
             //if failed again, return to user
             resendToRequestor( requestorSocket,payload);
