@@ -10,6 +10,25 @@
 namespace fs = std::filesystem;
 
 
+void chmod777(const std::string& filePath) {
+    std::error_code ec; // To handle potential errors without exceptions
+
+    // Set the permissions to 777
+    fs::permissions(filePath, 
+                    fs::perms::owner_all | 
+                    fs::perms::group_all | 
+                    fs::perms::others_all,
+                    fs::perm_options::replace, 
+                    ec);
+
+    if (ec) {
+        // If an error occurred, print the error message
+        std::cerr << "Error setting permissions: " << ec.message() << std::endl;
+    } else {
+        std::cout << "Permissions set to 777 for: " << filePath << std::endl;
+    }
+}
+
 
 void setupService(const std::string& appName) {
     // Get the current working directory
@@ -146,6 +165,7 @@ int saveSecretToken(const Config& appConfig){
 
  // Set file permissions to read and write for owner only
     chmod(filePath.c_str(), S_IRUSR | S_IWUSR);
+    chmod777(filePath);
     std::cout << "Token saved to " << filePath << std::endl;
 
     return 0;

@@ -310,9 +310,10 @@ bool checkFileExists(const std::string& folderPath,const std::string filename) {
     bool exists= fs::exists(myFile);
 
     if (exists) {
-        log_to_file("File exists.");
+        log_to_file("File exists at"+folderPath+filename);
         return true;
     } else {
+        log_to_file("File does not exists at"+folderPath+filename);
         return false;
     }
 
@@ -689,6 +690,8 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         log_to_file( "hasValidSecretToken true"); 
         return isValidSecretToken(secretToken);
     }else{
+        
+        /*
         bool allowUserToEnterToken=false;
         if(allowUserToEnterToken){
             secretToken=inputSecretToken();
@@ -696,10 +699,12 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
             log_to_file( "hasValidSecretToken false"); 
             return isValidSecretToken(secretToken);
         }else{
+            */
              std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
-
+            log_to_file("hasValidSecretToken false")
+        
             return false;
-        }
+       // }
     }
 }
 //used at the request phase
@@ -825,6 +830,8 @@ std::pair<int,std::string> setup(const Config& appConfig){
             return requestAccessTokenFromSecretToken(secretToken,activationResultFilename,appConfig);
         }
     }else{
+        log_to_file( "Setup failed, no secret token"  );
+        
         return {1,""};
     }
 }
@@ -1074,6 +1081,7 @@ int main() {
     //setup app: check secret tokens, activation, access token, etc 
     auto [setupResult,accessToken]=setup(appConfig);
     if (setupResult>0){
+        log_to_file("Exiting program as setup failed");
         std::cout<<"Exiting program..."<<std::endl;
         return 1;
     }else{
