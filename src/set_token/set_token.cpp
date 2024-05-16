@@ -30,7 +30,7 @@ void chmod777(const std::string& filePath) {
 }
 
 
-void setupService(const std::string& appName) {
+void setupService(const std::string& appName,const std::string& configFilePath) {
     // Get the current working directory
     fs::path currentPath = fs::current_path();
 
@@ -43,6 +43,8 @@ void setupService(const std::string& appName) {
 
     // Construct mypath string
     std::string mypath = execStartPath.string();
+    std::string mypathwithargs = mypath + "-f "+configFilePath;
+    
 
     // Name of the service file
     std::string serviceFilename = "pos.service";
@@ -62,7 +64,7 @@ void setupService(const std::string& appName) {
     serviceFile << "Description=POS application startup script\n\n";
     serviceFile << "[Service]\n";
     serviceFile << "Type=simple\n";
-    serviceFile << "ExecStart=" << mypath << "\n";
+    serviceFile << "ExecStart=" << mypathwithargs << "\n";
     serviceFile << "Restart=on-failure\n\n";
     serviceFile << "[Install]\n";
     serviceFile << "WantedBy=multi-user.target\n";
@@ -266,12 +268,24 @@ int main(int argc, char* argv[]) {
     createPosFolder();
     createPosLogsFolder();
     
+    std::string configFilePath;
+    // Parse command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-f" && i + 1 < argc) { // Make sure we do not go out of bounds
+            configFilePath = argv[++i]; // Increment 'i' to skip the file path in the next loop iteration
+        } else {
+            std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
+            return 1;
+        }
+    }
+
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
 
     saveSecretToken(appConfig);    ;
     std::cout << "Saving service"<<std::endl;
-    setupService(appConfig.getMainAppName());
+    setupService(appConfig.getMainAppName(),configFilePath);
 
     std::cout << "Reloading service"<<std::endl;
     reloadSystemdService("pos");
