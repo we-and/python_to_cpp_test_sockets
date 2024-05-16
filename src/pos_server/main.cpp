@@ -878,6 +878,44 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     }
 }
 
+
+
+
+// Dynamic Buffer Resizing to handle reading for a TCP socket 
+void handleClient(int new_socket, struct sockaddr_in address) {
+    std::vector<char> buffer(1024); // Start with an initial size
+    int totalBytesRead = 0;
+    int bytesRead = 0;
+
+    while ((bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead)) > 0) {
+        totalBytesRead += bytesRead;
+        // Resize buffer if needed (you may also choose to increase in chunks, e.g., another 1024 bytes)
+        if (totalBytesRead == buffer.size()) {
+            buffer.resize(buffer.size() + 1024);
+        }
+    }
+
+    if (bytesRead < 0) {
+        perror("read failed");
+        return;
+    }
+
+    std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
+        logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
+        logger->log("Received data from client: " + data);  // Log received data
+
+
+    std::string data(buffer.begin(), buffer.begin() + totalBytesRead);
+    std::cout << "Received data: " << data << std::endl;
+    // Process the data...
+    // If data was received, echo it back to the client
+    if (!data.empty()) {
+        std::string payload=data;
+        checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
+    }
+
+}
+
 /**
  * Runs a TCP echo server.
  * 
@@ -957,19 +995,7 @@ void startServer(std::string sessionToken,const Config& appConfig,const ConfigFi
             exit(EXIT_FAILURE);  // Exit program with a failure return code
         }
 
-        // Read data sent by the client
-        long valread = read(new_socket, buffer, 1024);  // Read up to 1024 bytes from the client
-        std::string data(buffer, valread);  // Convert read data to a C++ string
-        std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
-        logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
-        logger->log("Received data from client: " + data);  // Log received data
-
-        // If data was received, echo it back to the client
-        if (!data.empty()) {
-            std::string payload=data;
-            checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
-        }
-
+         handleClient(new_socket, address);
         // Close the client socket after handling the connection
         close(new_socket);
     }
@@ -1083,6 +1109,20 @@ ConfigFile readIniFile(const std::string& filename) {
  * Main function to set up and run a TCP echo server.
  */
 int main() {
+
+/*
+    std::string filePath;
+    // Parse command-line arguments
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-f" && i + 1 < argc) { // Make sure we do not go out of bounds
+            filePath = argv[++i]; // Increment 'i' to skip the file path in the next loop iteration
+        } else {
+            std::cerr << "Usage: " << argv[0] << " -f <file_path>" << std::endl;
+            return 1;
+        }
+    }
+*/
 
     //read config ini file
     ConfigFile configFile=readIniFile("settings.ini");
