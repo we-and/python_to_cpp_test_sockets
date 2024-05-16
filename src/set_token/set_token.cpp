@@ -43,7 +43,7 @@ void setupService(const std::string& appName,const std::string& configFilePath) 
 
     // Construct mypath string
     std::string mypath = execStartPath.string();
-    std::string mypathwithargs = mypath + "-f "+configFilePath;
+    std::string mypathwithargs = mypath + " -f "+configFilePath;
     
 
     // Name of the service file
