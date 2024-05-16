@@ -87,6 +87,8 @@ bool checkFileExists(const std::string& folderPath,const std::string filename,Lo
         logger->log( "checkFileExists: exception"); 
         logger->log(e.what());
     }
+        return false;
+
 }
 
 // Function to check if the one time exists
