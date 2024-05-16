@@ -264,17 +264,9 @@ bool reloadSystemdService(const std::string& serviceName) {
  * @return int Returns 0 upon successful completion of all tasks.
  */
 int main(int argc, char* argv[]) {
-    std::cout << "Creating folders"<<std::endl;
-    createPosFolder();
-    createPosLogsFolder();
     
     std::string configFilePath;
 
-    std::cout << "Reading args count=" << argc  <<std::endl;
-    // Parse command-line arguments
-    for (int i = 1; i < argc; ++i) {
-    std::cout << "Reading arg" <<i<< argv[i]  <<std::endl;
-    }
     // Parse command-line arguments
     if (argc==1){
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
@@ -289,6 +281,10 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
+
+    std::cout << "Creating folders"<<std::endl;
+    createPosFolder();
+    createPosLogsFolder();
 
 
     std::cout << "Ask Token"<<std::endl;
