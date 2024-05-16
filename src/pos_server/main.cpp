@@ -1081,7 +1081,7 @@ int main() {
 
     //create logger
     Logger* logger = Logger::getInstance();
-    logger->init(config);  // Initialize logger configuration once
+    logger->init(appConfig);  // Initialize logger configuration once
 
     logger->log("main"); 
     logger->log( "Port: " +std::to_string( configFile.port));
