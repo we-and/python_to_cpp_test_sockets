@@ -882,7 +882,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
 
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
-void handleClient(int new_socket, struct sockaddr_in address,Logger * logger) {
+void handleClient(int new_socket, struct sockaddr_in address,std::string sessionToken,const Config& appConfig,Logger * logger) {
     std::vector<char> buffer(1024); // Start with an initial size
     int totalBytesRead = 0;
     int bytesRead = 0;
@@ -946,10 +946,10 @@ void handleClient(int new_socket, struct sockaddr_in address,Logger * logger) {
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(std::string sessionToken,const Config& appConfig,const ConfigFile& configFile){
+void startServer(std::string sessionToken,const Config& appConfig){
     Logger* logger = Logger::getInstance();
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
-    int port = configFile.port;  // Port number on which the server will listen for connections
+    int port = appConfig.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
     struct sockaddr_in address;  // Structure to store the server's address information
     int opt = 1;  // Option value for setsockopt to enable certain socket properties
@@ -995,7 +995,7 @@ void startServer(std::string sessionToken,const Config& appConfig,const ConfigFi
             exit(EXIT_FAILURE);  // Exit program with a failure return code
         }
 
-         handleClient(new_socket, address,logger);
+         handleClient(new_socket, address,sessionToken,appConfig,logger);
         // Close the client socket after handling the connection
         close(new_socket);
     }
@@ -1154,7 +1154,7 @@ int main() {
         std::cout<<"Exiting program..."<<std::endl;
         return 1;
     }else{
-        startServer(accessToken,appConfig,configFile);
+        startServer(accessToken,appConfig);
         return 0;
     }
 }
