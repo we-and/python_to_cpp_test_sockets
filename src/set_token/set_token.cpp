@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
     
     std::string configFilePath;
 
-    std::cout << "Reading args" << argc  <<std::endl;
+    std::cout << "Reading args count=" << argc  <<std::endl;
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
     std::cout << "Reading arg" <<i<< argv[i]  <<std::endl;
@@ -279,7 +279,6 @@ int main(int argc, char* argv[]) {
     if (argc==1){
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
             return 1;
-
     }
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
