@@ -21,6 +21,7 @@
 #include <cryptopp/hex.h>
 #include <cstdlib>
 #include <sys/stat.h> 
+#include "config.hpp"    
 
 // Retrieve the current system time as a time_t object
 auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
