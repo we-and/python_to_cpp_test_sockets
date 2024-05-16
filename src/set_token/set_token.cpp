@@ -70,7 +70,7 @@ void setupService(const std::string& appName,const std::string& configFilePath) 
     serviceFile << "Description=POS application startup script\n\n";
     serviceFile << "[Service]\n";
     serviceFile << "Type=simple\n";
-    serviceFile << "ExecStart=" << mypathwithargs << "\n";
+    serviceFile << "ExecStart=" << apppathwithargs << "\n";
     serviceFile << "Restart=on-failure\n\n";
     serviceFile << "[Install]\n";
     serviceFile << "WantedBy=multi-user.target\n";
@@ -306,12 +306,13 @@ int main(int argc, char* argv[]) {
     createPosFolder();
     createPosLogsFolder();
 
+
+    Config appConfig; 
+
     std::string apppath=getAppPath(appConfig.getMainAppName());
     grantRightsToApp(apppath);
 
     std::cout << "Ask Token"<<std::endl;
-    Config appConfig; 
-
     saveSecretToken(appConfig);    ;
     std::cout << "Saving service"<<std::endl;
     setupService(appConfig.getMainAppName(),configFilePath);
