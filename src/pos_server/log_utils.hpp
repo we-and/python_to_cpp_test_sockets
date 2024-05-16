@@ -62,12 +62,13 @@ public:
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
 
+        auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) + ".txt";
         // Create or open a log file named with the current time stamp
-        std::ofstream log_file(appConfig.logsDir + "/log-" + std::to_string(t) + ".txt", std::ios::app);
+        std::ofstream log_file(filePath, std::ios::app);
 
         // Check if the file was successfully opened
         if (!log_file.is_open()) {
-            std::cerr << "Failed to open log file." << std::endl;
+            std::cerr << "Failed to open log file." <<filePath<< std::endl;
             return;
         }
 
