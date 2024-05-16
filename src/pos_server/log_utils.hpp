@@ -26,6 +26,52 @@ auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 namespace fs = std::filesystem;
 
+class Logger {
+private:
+    static Logger* instance;
+    static std::mutex mutex;
+    Config appConfig;  // Configuration instance as a class member
+
+protected:
+    Logger() {}  // Constructor is protected
+
+public:
+    // Prevent copying
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
+
+    static Logger* getInstance() {
+        std::lock_guard<std::mutex> lock(mutex);
+        if (instance == nullptr) {
+            instance = new Logger();
+        }
+        return instance;
+    }
+
+    // Initialization method for setting up the configuration
+    void init(const Config& config) {
+        appConfig = config;
+    }
+
+    void log(const std::string& text) {
+        // Retrieve the current system time as a time_t object
+        auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
+
+        // Create or open a log file named with the current time stamp
+        std::ofstream log_file(appConfig.logsDir + "/log-" + std::to_string(tt) + ".txt", std::ios::app);
+
+        // Check if the file was successfully opened
+        if (!log_file.is_open()) {
+            std::cerr << "Failed to open log file." << std::endl;
+            return;
+        }
+
+        // Write the current time and the log message to the file
+        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << text << "\n";
+    }
+};
+
 /**
  * Logs a message to a uniquely named file with a timestamp.
  * 
@@ -39,7 +85,7 @@ namespace fs = std::filesystem;
  * 
  * Output File Example: log-1700819387.txt
  * Contents of log-1700819387.txt: 2024-04-30 12:34:56 - Application has started.
- */
+
 using json = nlohmann::json;
 void log_to_file(const std::string& text) {
 
@@ -53,6 +99,6 @@ void log_to_file(const std::string& text) {
     // Write the current time and the log message to the file
     log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << text << "\n";
 }
-
+*/
 
 #endif

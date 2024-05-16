@@ -22,6 +22,9 @@
 namespace fs = std::filesystem;
 
 
+// Initialize static members
+Logger* Logger::instance = nullptr;
+std::mutex Logger::mutex;
 
 
 struct ConfigFile {
@@ -84,7 +87,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
  * @param text The message to be logged. It should be a string containing the text that needs to be recorded in the log file.
  * 
  * Usage Example:
- * log_to_file("Application has started.");
+ * logger->log("Application has started.");
  * 
  * Output File Example: log-1700819387.txt
  * Contents of log-1700819387.txt: 2024-04-30 12:34:56 - Application has started.
@@ -95,7 +98,7 @@ using json = nlohmann::json;
 
 //return the payload to the requestor
 void resendToRequestor(int socket, std::string data){
-    log_to_file("resendToRequestor"+ data);
+    logger->log("resendToRequestor"+ data);
     send(socket,data.c_str(),data.size(), 0);  // Send data back to client
 
 }
@@ -127,7 +130,7 @@ void resendToRequestor(int socket, std::string data){
  *   library for JSON parsing.
  */
 json activateDevice(const std::string& secret, const Config& appConfig) {
-    log_to_file("activateDevice");
+    logger->log("activateDevice");
     CURL *curl;
     CURLcode res;
     std::string readBuffer; 
@@ -138,7 +141,7 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
 
         // Set the URL that receives the POST data
         std::string url = appConfig.baseURL + "/device/activateDevice?Secret="+secret;
-        log_to_file("activateDevice: url="+url);
+        logger->log("activateDevice: url="+url);
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
         // Specify the POST data
@@ -149,22 +152,22 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
         // Perform the request, and get the response code
         res = curl_easy_perform(curl);
         if(res != CURLE_OK) {
-            log_to_file("Failed");
+            logger->log("Failed");
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }else{
-            log_to_file("activateDevice: has response");
+            logger->log("activateDevice: has response");
               // Try to parse the response as JSON
             try {
                 json j = json::parse(readBuffer);
-                log_to_file( "activateDevice: JSON response start: "  ); // Pretty print the JSON
-                log_to_file(  j.dump(4) ); // Pretty print the JSON
-                log_to_file( "activateDevice: JSON response end." ); // Pretty print the JSON
+                logger->log( "activateDevice: JSON response start: "  ); // Pretty print the JSON
+                logger->log(  j.dump(4) ); // Pretty print the JSON
+                logger->log( "activateDevice: JSON response end." ); // Pretty print the JSON
                 curl_easy_cleanup(curl);
                 return j;
             } catch(json::parse_error &e) {
                 std::cerr << "JSON parsing error: " << e.what() << '\n';
-                log_to_file( "activateDevice: JSON parsing error " );
-                log_to_file( e.what() );
+                logger->log( "activateDevice: JSON parsing error " );
+                logger->log( e.what() );
             }
         }
 
@@ -329,10 +332,10 @@ std::string inputSecretToken(){
  * Notes:
  * - This function uses the Crypto++ library to perform SHA-256 hashing.
  * - Exception handling should be added to manage potential std::stoi conversion failures.
- * - Ensure that proper logging mechanisms are set up to handle the output from `log_to_file`.
+ * - Ensure that proper logging mechanisms are set up to handle the output from `log`.
  */
 std::string calculateHash(const std::string& currentSequenceValue, const std::string& deviceKey) {
-    log_to_file("Calculating hash... Current Sequence Value: " + currentSequenceValue + ", Device Key: " + deviceKey);
+    logger->log("Calculating hash... Current Sequence Value: " + currentSequenceValue + ", Device Key: " + deviceKey);
 
     // Convert string to integer and increment
     int currentValue = std::stoi(currentSequenceValue);
@@ -343,7 +346,7 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
     ss << deviceKey << nextSequenceValue;
     std::string data_to_hash = ss.str();
 
-    log_to_file("Data to hash: " + data_to_hash);
+    logger->log("Data to hash: " + data_to_hash);
 
     // SHA-256 Hash calculation
     CryptoPP::SHA256 hash;
@@ -357,7 +360,7 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
         )
     );
 
-    log_to_file("Sequence Hash: " + digest);
+    logger->log("Sequence Hash: " + digest);
     return digest;
 }
 
@@ -390,10 +393,10 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
  */
 json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig) {
     std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
-    log_to_file(logMessage);
+    logger->log(logMessage);
 
     std::string url = appConfig.baseURL+ "/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
-    log_to_file("URL: " + url);
+    logger->log("URL: " + url);
 
     json payload; // Assuming an empty JSON object is needed
     CURL* curl = curl_easy_init();
@@ -413,9 +416,9 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
         fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
     }
     curl_easy_cleanup(curl);
-    log_to_file("Response: " + response_string);
+    logger->log("Response: " + response_string);
     json response_json = json::parse(response_string);
-    log_to_file("Response JSON: " + response_json.dump());
+    logger->log("Response JSON: " + response_json.dump());
     return response_json;
     
 
@@ -443,8 +446,8 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
     std::string url = appConfig.baseURL + "/posCommand";
        
-    log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
-    log_to_file("URL: " + url);
+    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
+    logger->log("URL: " + url);
 
     CURL* curl = curl_easy_init();
     std::string response_string;
@@ -467,7 +470,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
     CURLcode res = curl_easy_perform(curl);
     if (res == CURLE_OK) {
-        log_to_file("Response: " + response_string);
+        logger->log("Response: " + response_string);
         std::cout << "Request successful." << std::endl;
         std::cout << "Response from server: " << response_string << std::endl;
     } else {
@@ -568,7 +571,7 @@ void executeTokenExpiry(int requestorSocket, std::string accessToken){
       <field id="32" value="TOKEN EXPIRY"/>
     </isomsg>
     )";
-    log_to_file("Send to ")
+    logger->log("Send to ")
     auto response=sendPlainText(requestorSocket, accessToken,payload);
     if (response=="TOKEN EXPIRY"){
         std::string payload = R"(
@@ -604,7 +607,7 @@ void executeTokenExpiry(int requestorSocket, std::string accessToken){
  * - Proper error handling is implemented for date parsing and time comparison.
  */
 bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt) {
-           log_to_file( "is_valid_access_token" ); 
+           logger->log( "is_valid_access_token" ); 
 
     const char* access_token = std::getenv("ACCESS_TOKEN");
     const char* expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
@@ -645,7 +648,7 @@ bool isValidSecretToken(std::string token){
     return !token.empty();
 }
 int saveSecretToken(std::string secret,std::string posDirectory,std::string secretTokenFilename){
-    log_to_file( "saveSecretToken"); 
+    logger->log( "saveSecretToken"); 
         // Define the file path
     std::string filePath = posDirectory+secretTokenFilename;
 
@@ -662,20 +665,20 @@ int saveSecretToken(std::string secret,std::string posDirectory,std::string secr
 
     // Close the file
     outFile.close();
-    log_to_file( "saveSecretToken chmod"); 
+    logger->log( "saveSecretToken chmod"); 
  // Set file permissions to read and write for owner only
     chmod(filePath.c_str(), S_IRUSR | S_IWUSR);
     return 0;
 }
 
 bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
-    log_to_file( "hasValidSecretToken"); 
+    logger->log( "hasValidSecretToken"); 
     bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
         secretToken=readStringFromFile(secretTokenPath);
-        log_to_file( "hasValidSecretToken true"); 
+        logger->log( "hasValidSecretToken true"); 
         return isValidSecretToken(secretToken);
     }else{
         
@@ -684,12 +687,12 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         if(allowUserToEnterToken){
             secretToken=inputSecretToken();
             saveSecretToken(secretToken,posDirectory,secretTokenFilename);
-            log_to_file( "hasValidSecretToken false"); 
+            logger->log( "hasValidSecretToken false"); 
             return isValidSecretToken(secretToken);
         }else{
             */
              std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
-            log_to_file("hasValidSecretToken false");
+            logger->log("hasValidSecretToken false");
         
             return false;
        // }
@@ -697,30 +700,30 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
 }
 //used at the request phase
 bool hasValidSessionToken(int requestorSocket){
-    log_to_file("hasValidSessionToken");
+    logger->log("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
-            log_to_file("hasValidSessionToken: has ACCESS_TOKEN");
+            logger->log("hasValidSessionToken: has ACCESS_TOKEN");
             return is_valid_access_token( requestorSocket);
     }else{
-            log_to_file("hasValidSessionToken: no ACCESS_TOKEN");
+            logger->log("hasValidSessionToken: no ACCESS_TOKEN");
         return false;
     }
 }
 //used for the setup phase
 bool hasValidSessionTokenInit(){
-    log_to_file("hasValidSessionToken");
+    logger->log("hasValidSessionToken");
     bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
     if(sessionTokenExists){
-            log_to_file("hasValidSessionToken: has ACCESS_TOKEN");
+            logger->log("hasValidSessionToken: has ACCESS_TOKEN");
             return is_valid_access_token(); //-1 means no resend to sender if token is invalid. 
     }else{
-            log_to_file("hasValidSessionToken: no ACCESS_TOKEN");
+            logger->log("hasValidSessionToken: no ACCESS_TOKEN");
         return false;
     }
 }
 void saveJsonToFile(const json& j, const std::string& filePath) {
-   log_to_file( "saveJsonToFile"  );
+   logger->log( "saveJsonToFile"  );
     std::ofstream file(filePath);
     if (!file) {
         std::cerr << "Error opening file for writing: " << filePath << std::endl;
@@ -729,7 +732,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
     file << j.dump(4); // Serialize the JSON with an indentation of 4 spaces
     file.close();
     if (file.good()) {
-        log_to_file( "JSON data successfully saved to " + filePath );
+        logger->log( "JSON data successfully saved to " + filePath );
     } else {
         std::cerr << "Error occurred during file write operation." << std::endl;
     }
@@ -738,10 +741,10 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 // Function to process a one-time POS token for device activation and session creation
 std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, const Config &config ){
-    log_to_file( "requestAccessTokenFromSecretToken" ); 
+    logger->log( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
     json activationResult = activateDevice(secretToken,config);
-    log_to_file("requestAccessTokenFromSecretToken: has activationResult");
+    logger->log("requestAccessTokenFromSecretToken: has activationResult");
 
     // Save the activation result to a JSON file
     saveJsonToFile(activationResult, config.deviceSecurityParametersPath);
@@ -749,11 +752,11 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
     if(activationResult.contains("message")){
          if (activationResult["message"]=="Invalid Credentials"){
                 std::cerr <<activationResult["message"]<<std::endl;
-                log_to_file("Exiting after 'Invalid Credentials'");
+                logger->log("Exiting after 'Invalid Credentials'");
                 std::exit(EXIT_FAILURE);
          }else if (activationResult["message"]=="Invalid secret token"){
                 std::cerr <<activationResult["message"]<<std::endl;
-                log_to_file("Exiting after 'Invalid secret token'");
+                logger->log("Exiting after 'Invalid secret token'");
                 std::exit(EXIT_FAILURE);
          }else{
              std::cerr <<"Message "<< activationResult["message"]<<std::endl;
@@ -806,7 +809,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     auto posDirectory=appConfig.getPosDirectory();
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
     
-    log_to_file( "Setup"  );     
+    logger->log( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
     bool hasValidSessionToken_=hasValidSessionTokenInit();
     if(hasValidSecretToken_){
@@ -816,13 +819,13 @@ std::pair<int,std::string> setup(const Config& appConfig){
        
             return {0,access_token};
         }else{
-            log_to_file( "Requesting access_token from secret."  );
+            logger->log( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
             return requestAccessTokenFromSecretToken(secretToken,appConfig);
         }
     }else{
-        log_to_file( "Setup failed, no secret token"  );
+        logger->log( "Setup failed, no secret token"  );
         
         return {1,""};
     }
@@ -832,7 +835,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
 
 // The execute function orchestrates the communication with the API.
 void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload,const Config& appConfig) {
-    log_to_file("execute");  // Log the action of echoing data
+    logger->log("execute");  // Log the action of echoing data
 
     //if the remote server endpoint determines the Session Token is not valid it will send an
     //ISO8583 response with the response code "TOKEN EXPIRY" in the ISO8583 message
@@ -939,8 +942,8 @@ void startServer(std::string sessionToken,const Config& appConfig,const ConfigFi
         long valread = read(new_socket, buffer, 1024);  // Read up to 1024 bytes from the client
         std::string data(buffer, valread);  // Convert read data to a C++ string
         std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
-        log_to_file("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
-        log_to_file("Received data from client: " + data);  // Log received data
+        logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
+        logger->log("Received data from client: " + data);  // Log received data
 
         // If data was received, echo it back to the client
         if (!data.empty()) {
@@ -1061,14 +1064,9 @@ ConfigFile readIniFile(const std::string& filename) {
  * Main function to set up and run a TCP echo server.
  */
 int main() {
-    log_to_file("main"); 
 
     //read config ini file
     ConfigFile configFile=readIniFile("settings.ini");
-    log_to_file( "Port: " +std::to_string( configFile.port));
-    log_to_file( "Base URL: " + configFile.baseURL);
-    log_to_file( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
-    log_to_file( "logsDir: " + configFile.logsDir);
 
     //set appConfig
     Config appConfig;
@@ -1078,11 +1076,22 @@ int main() {
     appConfig.baseURL=configFile.baseURL; 
     appConfig.logsDir=configFile.logsDir;
     appConfig.deviceSecurityParametersPath=configFile.deviceSecurityParametersPath;
-    
+
+    //create logger
+    Logger* logger = Logger::getInstance();
+    logger->init(config);  // Initialize logger configuration once
+
+    logger->log("main"); 
+    logger->log( "Port: " +std::to_string( configFile.port));
+    logger->log( "Base URL: " + configFile.baseURL);
+    logger->log( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
+    logger->log( "logsDir: " + configFile.logsDir);
+
+
     //setup app: check secret tokens, activation, access token, etc 
     auto [setupResult,accessToken]=setup(appConfig);
     if (setupResult>0){
-        log_to_file("Exiting program as setup failed");
+        logger->log("Exiting program as setup failed");
         std::cout<<"Exiting program..."<<std::endl;
         return 1;
     }else{
