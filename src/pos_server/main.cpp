@@ -27,6 +27,8 @@ namespace fs = std::filesystem;
 struct ConfigFile {
     int port;
     std::string endpoint;
+    std::string logsDir;
+    std::string deviceSecurityParametersPath;
 };
 
 // Retrieve the current system time as a time_t object
@@ -130,10 +132,13 @@ json activateDevice(const std::string& secret, const Config& config) {
     CURLcode res;
     std::string readBuffer; 
     curl = curl_easy_init();
-    if(curl) {
+    if (!curl) {
+        return json();  // Early exit if curl initialization fails
+    }
+
         // Set the URL that receives the POST data
         std::string endpoint = config.endpoint + "/device/activateDevice?Secret="+secret;
-        log_to_file("activateDevice endpoint="+endpoint);
+        log_to_file("activateDevice: endpoint="+endpoint);
         curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
 
         // Specify the POST data
@@ -147,28 +152,24 @@ json activateDevice(const std::string& secret, const Config& config) {
             log_to_file("Failed");
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }else{
-            log_to_file("activateDevice has response");
+            log_to_file("activateDevice: has response");
               // Try to parse the response as JSON
             try {
                 json j = json::parse(readBuffer);
-                log_to_file( "activateDevice JSON response start: "  ); // Pretty print the JSON
+                log_to_file( "activateDevice: JSON response start: "  ); // Pretty print the JSON
                 log_to_file(  j.dump(4) ); // Pretty print the JSON
-                log_to_file( "activateDevice JSON response end." ); // Pretty print the JSON
-               curl_easy_cleanup(curl);
+                log_to_file( "activateDevice: JSON response end." ); // Pretty print the JSON
+                curl_easy_cleanup(curl);
                 return j;
             } catch(json::parse_error &e) {
                 std::cerr << "JSON parsing error: " << e.what() << '\n';
                 log_to_file( "activateDevice: JSON parsing error " );
                 log_to_file( e.what() );
-                
-                curl_easy_cleanup(curl);
-               return  json();
             }
         }
 
         // Always cleanup
         curl_easy_cleanup(curl);
-    }
     return json();
 }
 
@@ -441,10 +442,11 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - This function is dependent on the libcurl library for handling HTTP communications.
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
-std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload) {
-    std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/posCommand";
+std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& config) {
+    std::string endpoint = config.endpoint + "/posCommand";
+       
     log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
-    log_to_file("URL: " + url);
+    log_to_file("URL: " + endpoint);
 
     CURL* curl = curl_easy_init();
     std::string response_string;
@@ -735,23 +737,28 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 
 
 // Function to process a one-time POS token for device activation and session creation
-std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, std::string activationResultFilename,const Config &config ){
+std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, const Config &config ){
     log_to_file( "requestAccessTokenFromSecretToken" ); 
     // Activate the device using the POS token and receive the activation result as a JSON object
     json activationResult = activateDevice(secretToken,config);
-    log_to_file("activationResult");
+    log_to_file("requestAccessTokenFromSecretToken: has activationResult");
 
     // Save the activation result to a JSON file
-    saveJsonToFile(activationResult, activationResultFilename);
+    saveJsonToFile(activationResult, config.deviceSecurityParametersPath);
 
     if(activationResult.contains("message")){
          if (activationResult["message"]=="Invalid Credentials"){
                 std::cerr <<activationResult["message"]<<std::endl;
+                log_to_file("Exiting after 'Invalid Credentials'");
+                std::exit(EXIT_FAILURE);
+         }else if (activationResult["message"]=="Invalid secret token"){
+                std::cerr <<activationResult["message"]<<std::endl;
+                log_to_file("Exiting after 'Invalid secret token'");
                 std::exit(EXIT_FAILURE);
          }else{
              std::cerr <<"Message "<< activationResult["message"]<<std::endl;
          }
-            return {1,""}; // Return an error code
+         return {1,""}; // Return an error code
     }
 
     if(activationResult.contains("deviceId")){
@@ -798,7 +805,6 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
 std::pair<int,std::string> setup(const Config& appConfig){
     auto posDirectory=appConfig.getPosDirectory();
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
-    auto activationResultFilename=appConfig.getActivationResultFilename();
     
     log_to_file( "Setup"  );     
     bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
@@ -813,7 +819,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
             log_to_file( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath);
-            return requestAccessTokenFromSecretToken(secretToken,activationResultFilename,appConfig);
+            return requestAccessTokenFromSecretToken(secretToken,appConfig);
         }
     }else{
         log_to_file( "Setup failed, no secret token"  );
@@ -1037,6 +1043,10 @@ ConfigFile readIniFile(const std::string& filename) {
                     config.port = std::stoi(value);
                 } else if (key == "ENDPOINT") {
                     config.endpoint = value;
+                }else if (key == "LOGS_DIR") {
+                    config.logsDir = value;
+                }else if (key == "DEVICE_SECURITY_PARAMETERS_PATH") {
+                    config.deviceSecurityParametersPath = value;
                 }
             }
         }
@@ -1057,12 +1067,17 @@ int main() {
     ConfigFile configFile=readIniFile("settings.ini");
     log_to_file( "Port: " +std::to_string( configFile.port));
     log_to_file( "Endpoint: " + configFile.endpoint);
+    log_to_file( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
+    log_to_file( "logsDir: " + configFile.logsDir);
 
     //set appConfig
     Config appConfig;
 
-    //add config params from settings.ini    appConfig.port=configFile.port;
+    //add config params from settings.ini   
+    appConfig.port=configFile.port;
     appConfig.endpoint=configFile.endpoint; 
+    appConfig.logsDir=configFile.logsDir;
+    appConfig.deviceSecurityParametersPath=configFile.deviceSecurityParametersPath;
     
     //setup app: check secret tokens, activation, access token, etc 
     auto [setupResult,accessToken]=setup(appConfig);

@@ -191,6 +191,26 @@ int createPosFolder() {
 
     return 0;
 }
+int createPosLog() {
+    std::string folderPath = "~/pos/logs";
+     bool exists=fs::exists(folderPath);
+    
+ // Check if the directory exists
+    if (!fs::exists(folderPath)) {
+     std::cout << "createPosFolder folder not existing" << std::endl;
+        // Create the directory since it does not exist
+        if (fs::create_directory(folderPath)) {
+            std::cout << "Pos directory created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create pos directory." << std::endl;
+        }
+    } else {
+        std::cout << "Pos directory already exists." << std::endl;
+    }
+
+
+    return 0;
+}
 
 // Function to execute a systemd command
 bool executeSystemdCommand(const std::string& command) {
@@ -244,6 +264,7 @@ bool reloadSystemdService(const std::string& serviceName) {
 int main(int argc, char* argv[]) {
     std::cout << "Setting up server"<<std::endl;
     createPosFolder();
+    createPosLogsFolder();
     
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 

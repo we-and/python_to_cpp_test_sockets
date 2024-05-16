@@ -12,6 +12,8 @@ private:
 public:
     int port;
     std::string endpoint;
+    std::string logsDir;
+    std::string deviceSecurityParametersPath;
 
 public:
     // Constructor to initialize the settings
