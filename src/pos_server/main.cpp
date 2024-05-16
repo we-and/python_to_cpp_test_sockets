@@ -761,8 +761,6 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
     json activationResult = activateDevice(secretToken,config);
     logger->log("requestAccessTokenFromSecretToken: has activationResult");
 
-    // Save the activation result to a JSON file
-    saveJsonToFile(activationResult, config.deviceSecurityParametersPath);
 
     if(activationResult.contains("message")){
          if (activationResult["message"]=="Invalid Credentials"){
@@ -774,12 +772,16 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
                 logger->log("Exiting after 'Invalid secret token'");
                 std::exit(EXIT_FAILURE);
          }else{
-             std::cerr <<"Message "<< activationResult["message"]<<std::endl;
+                std::cerr <<"Message "<< activationResult["message"]<<std::endl;
          }
          return {1,""}; // Return an error code
     }
+              
 
     if(activationResult.contains("deviceId")){
+        // Save the activation result to a JSON file
+        saveJsonToFile(activationResult, config.deviceSecurityParametersPath);
+
         // Extract deviceId, deviceKey, and deviceSequence from the activation result
         auto deviceId = activationResult["deviceId"];
         auto deviceKey = activationResult["deviceKey"];
