@@ -158,7 +158,8 @@ json activateDevice(const std::string& secret, const Config& config) {
                 return j;
             } catch(json::parse_error &e) {
                 std::cerr << "JSON parsing error: " << e.what() << '\n';
-                log_to_file( "JSON parsing error: " +e.what() );
+                log_to_file( "activateDevice: JSON parsing error " );
+                log_to_file( e.what() );
                 
                 curl_easy_cleanup(curl);
                return  json();
@@ -686,7 +687,7 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
         }else{
             */
              std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
-            log_to_file("hasValidSecretToken false")
+            log_to_file("hasValidSecretToken false");
         
             return false;
        // }
