@@ -149,6 +149,7 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
         // Specify the POST data
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
