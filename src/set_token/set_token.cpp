@@ -276,6 +276,11 @@ int main(int argc, char* argv[]) {
     std::cout << "Reading arg" <<i<< argv[i]  <<std::endl;
     }
     // Parse command-line arguments
+    if (argc==1){
+            std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
+            return 1;
+
+    }
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "-f" && i + 1 < argc) { // Make sure we do not go out of bounds
