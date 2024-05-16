@@ -882,7 +882,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
 
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
-void handleClient(int new_socket, struct sockaddr_in address) {
+void handleClient(int new_socket, struct sockaddr_in address,Logger * logger) {
     std::vector<char> buffer(1024); // Start with an initial size
     int totalBytesRead = 0;
     int bytesRead = 0;
@@ -995,7 +995,7 @@ void startServer(std::string sessionToken,const Config& appConfig,const ConfigFi
             exit(EXIT_FAILURE);  // Exit program with a failure return code
         }
 
-         handleClient(new_socket, address);
+         handleClient(new_socket, address,logger);
         // Close the client socket after handling the connection
         close(new_socket);
     }
