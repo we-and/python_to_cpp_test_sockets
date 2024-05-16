@@ -766,11 +766,11 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
 
     if(activationResult.contains("message")){
          if (activationResult["message"]=="Invalid Credentials"){
-                std::cerr <<activationResult["message"]<<std::endl;
+                std::cerr <<"requestAccessTokenFromSecretToken:  exit with " << activationResult["message"]<<std::endl;
                 logger->log("Exiting after 'Invalid Credentials'");
                 std::exit(EXIT_FAILURE);
          }else if (activationResult["message"]=="Invalid secret token"){
-                std::cerr <<activationResult["message"]<<std::endl;
+                std::cerr <<"requestAccessTokenFromSecretToken: exit with "<< activationResult["message"]<<std::endl;
                 logger->log("Exiting after 'Invalid secret token'");
                 std::exit(EXIT_FAILURE);
          }else{
