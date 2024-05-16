@@ -26,7 +26,7 @@ namespace fs = std::filesystem;
 
 struct ConfigFile {
     int port;
-    std::string endpoint;
+    std::string baseURL;
     std::string logsDir;
     std::string deviceSecurityParametersPath;
 };
@@ -137,9 +137,9 @@ json activateDevice(const std::string& secret, const Config& config) {
     }
 
         // Set the URL that receives the POST data
-        std::string endpoint = config.endpoint + "/device/activateDevice?Secret="+secret;
-        log_to_file("activateDevice: endpoint="+endpoint);
-        curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
+        std::string url = config.baseURL + "/device/activateDevice?Secret="+secret;
+        log_to_file("activateDevice: url="+url);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
         // Specify the POST data
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
@@ -392,35 +392,33 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
     std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
     log_to_file(logMessage);
 
-    std::string url = "https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
+    std::string url = config.baseURL+ "/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
     log_to_file("URL: " + url);
 
     json payload; // Assuming an empty JSON object is needed
     CURL* curl = curl_easy_init();
     std::string response_string;
     std::string header_string;
-
-    if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.dump().c_str()); // sending the payload as a string
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
-
-        CURLcode res = curl_easy_perform(curl);
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        }
-        curl_easy_cleanup(curl);
-
-        log_to_file("Response: " + response_string);
-        json response_json = json::parse(response_string);
-        log_to_file("Response JSON: " + response_json.dump());
-
-        return response_json;
+    if (!curl) {
+        return json();  // Early exit if curl initialization fails
     }
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.dump().c_str()); // sending the payload as a string
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
 
-    return json(); // Return empty json object if curl initialization failed
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    }
+    curl_easy_cleanup(curl);
+    log_to_file("Response: " + response_string);
+    json response_json = json::parse(response_string);
+    log_to_file("Response JSON: " + response_json.dump());
+    return response_json;
+    
+
 }
 
 /**
@@ -443,73 +441,75 @@ json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequ
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& config) {
-    std::string endpoint = config.endpoint + "/posCommand";
+    std::string url = config.endpoint + "/posCommand";
        
     log_to_file("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
-    log_to_file("URL: " + endpoint);
+    log_to_file("URL: " + url);
 
     CURL* curl = curl_easy_init();
     std::string response_string;
     std::string header_string;
+    if (!curl) {
+        return json();  // Early exit if curl initialization fails
+    }
+    
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, ("Content-Type: text/plain"));
+    headers = curl_slist_append(headers, ("Accept: text/plain"));
+    headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
 
-    if (curl) {
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, ("Content-Type: text/plain"));
-        headers = curl_slist_append(headers, ("Accept: text/plain"));
-        headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
 
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+    CURLcode res = curl_easy_perform(curl);
+    if (res == CURLE_OK) {
+        log_to_file("Response: " + response_string);
+        std::cout << "Request successful." << std::endl;
+        std::cout << "Response from server: " << response_string << std::endl;
+    } else {
+        std::cout << "Request failed." << std::endl;
+        std::cout << "Error: " << curl_easy_strerror(res) << std::endl;
+    }
 
-        CURLcode res = curl_easy_perform(curl);
-        if (res == CURLE_OK) {
-            log_to_file("Response: " + response_string);
-            std::cout << "Request successful." << std::endl;
-            std::cout << "Response from server: " << response_string << std::endl;
-        } else {
-            std::cout << "Request failed." << std::endl;
-            std::cout << "Error: " << curl_easy_strerror(res) << std::endl;
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+
+
+
+    //parse and check for token expiry
+    std::string isoMessage=response_string;
+    try {
+        auto parsedFields = parseISO8583(isoMessage);
+
+        for (const auto& field : parsedFields) {
+            std::cout << "Field " << field.first << ": " << field.second << std::endl;
         }
-
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-
-
-
-        //parse and check for token expiry
-        std::string isoMessage=response_string;
-        try {
-            auto parsedFields = parseISO8583(isoMessage);
-
-            for (const auto& field : parsedFields) {
-                std::cout << "Field " << field.first << ": " << field.second << std::endl;
-            }
-            //parse response for token expiry
-            bool isTokenExpiry=hasResponseTokenExpiry(parsedFields);
-            if (!isTokenExpiry){
-                //If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
-                //then the ISO8583 message response is to be returned to the requestor unmodified
-                resendToRequestor(requestorSocket,payload);
-                return response_string;
-            }else{
-                //If a "TOKEN EXPIRY" response is received the response code is to be modified to return
-                //"DECLINED" in the ISO8583 message response located in field number 32, and “POS not
-                //authorized to process this request” in field number 33.
-                auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
-                resendToRequestor(requestorSocket,msg);
-                return "";
-            }
-
-        } catch (const std::exception& e) {
-            std::cerr << "Error parsing ISO8583 message: " << e.what() << std::endl;
+        //parse response for token expiry
+        bool isTokenExpiry=hasResponseTokenExpiry(parsedFields);
+        if (!isTokenExpiry){
+            //If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
+            //then the ISO8583 message response is to be returned to the requestor unmodified
+            resendToRequestor(requestorSocket,payload);
+            return response_string;
+        }else{
+            //If a "TOKEN EXPIRY" response is received the response code is to be modified to return
+            //"DECLINED" in the ISO8583 message response located in field number 32, and “POS not
+            //authorized to process this request” in field number 33.
+            auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
+            resendToRequestor(requestorSocket,msg);
             return "";
         }
 
+    } catch (const std::exception& e) {
+        std::cerr << "Error parsing ISO8583 message: " << e.what() << std::endl;
+        return "";
     }
+
+    
     return "";
 
 }
@@ -844,7 +844,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
         auto [isNewSetupValid,newAccessToken]=setup(appConfig);
         //if new setup is valid, process the request
         if (isNewSetupValid){
-            sendPlainText(requestorSocket,newAccessToken, payload);
+            sendPlainText(requestorSocket,newAccessToken, payload,config);
         }else{
             //if failed again, return to user
             resendToRequestor( requestorSocket,payload);
@@ -1041,8 +1041,8 @@ ConfigFile readIniFile(const std::string& filename) {
 
                 if (key == "PORT") {
                     config.port = std::stoi(value);
-                } else if (key == "ENDPOINT") {
-                    config.endpoint = value;
+                } else if (key == "BASE_URL") {
+                    config.baseURL = value;
                 }else if (key == "LOGS_DIR") {
                     config.logsDir = value;
                 }else if (key == "DEVICE_SECURITY_PARAMETERS_PATH") {
@@ -1066,7 +1066,7 @@ int main() {
     //read config ini file
     ConfigFile configFile=readIniFile("settings.ini");
     log_to_file( "Port: " +std::to_string( configFile.port));
-    log_to_file( "Endpoint: " + configFile.endpoint);
+    log_to_file( "Base URL: " + configFile.baseURL);
     log_to_file( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
     log_to_file( "logsDir: " + configFile.logsDir);
 
@@ -1075,7 +1075,7 @@ int main() {
 
     //add config params from settings.ini   
     appConfig.port=configFile.port;
-    appConfig.endpoint=configFile.endpoint; 
+    appConfig.baseURL=configFile.baseURL; 
     appConfig.logsDir=configFile.logsDir;
     appConfig.deviceSecurityParametersPath=configFile.deviceSecurityParametersPath;
     

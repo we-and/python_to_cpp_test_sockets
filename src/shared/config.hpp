@@ -11,7 +11,7 @@ private:
     std::string activationResultFilename;
 public:
     int port;
-    std::string endpoint;
+    std::string baseURL;
     std::string logsDir;
     std::string deviceSecurityParametersPath;
 
