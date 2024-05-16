@@ -57,8 +57,7 @@ public:
     }
 
     void log(const std::string& text) {
-       
-  // Retrieve the current system time as a time_t object
+        // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
 
@@ -68,7 +67,7 @@ public:
 
         // Check if the file was successfully opened
         if (!log_file.is_open()) {
-            std::cerr << "Failed to open log file." <<filePath<< std::endl;
+            std::cerr << "Failed to open log file at " <<filePath<< std::endl;
             return;
         }
 

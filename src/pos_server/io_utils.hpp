@@ -42,21 +42,26 @@ json readJsonFromFile(const std::string& filePath,Logger * logger) {
 
 
 
-
-
 std::string readStringFromFile(const std::string& filePath) {
-    std::ifstream file(filePath);
-    std::string token;
-    if (file) {
+    try {
+        std::ifstream file(filePath);
+        std::string token;
+
+        if (!file) {
+            throw std::runtime_error("Failed to open file: " + filePath);
+        }
+
         std::getline(file, token);
         file.close();
+
         if (!token.empty()) {
             return token;
         }
+    } catch (const std::exception& e) {
+        std::cerr << "Exception occurred: " << e.what() << std::endl;
     }
-    return ""; // Return empty string if file does not exist or is empty
+    return ""; // Return empty string if there was an error
 }
-
 
 // Function to check if the one time exists
 bool checkFileExists(const std::string& folderPath,const std::string filename,Logger * logger) {
