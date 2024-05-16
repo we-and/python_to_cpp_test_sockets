@@ -29,8 +29,7 @@ void chmod777(const std::string& filePath) {
     }
 }
 
-
-void setupService(const std::string& appName,const std::string& configFilePath) {
+std::string getAppPath(const std::string& appName){
     // Get the current working directory
     fs::path currentPath = fs::current_path();
 
@@ -43,7 +42,14 @@ void setupService(const std::string& appName,const std::string& configFilePath) 
 
     // Construct mypath string
     std::string mypath = execStartPath.string();
-    std::string mypathwithargs = mypath + " -f "+configFilePath;
+    return mypath;
+}
+void setupService(const std::string& appName,const std::string& configFilePath) {
+    // Get the current working directory
+    fs::path currentPath = fs::current_path();
+
+    std::string apppath=getAppPath(appName);
+    std::string apppathwithargs = apppath + " -f "+configFilePath;
     
 
     // Name of the service file
@@ -80,6 +86,19 @@ void setupService(const std::string& appName,const std::string& configFilePath) 
     } else {
         std::cout << "Service file installed successfully." << std::endl;
     }
+}
+
+void grantRightsToApp(std::string appPath){
+    std::cout << "Grant app rights to" <<appPath<<std::endl;
+        // Copy the service file to /etc/systemd/system
+    std::string copyCmd = "sudo setcap 'cap_dac_override=eip' "+appPath;
+    int result = system(copyCmd.c_str());
+    if (result != 0) {
+        std::cerr << "Failed to give app rights to"<<appPath << std::endl;
+    } else {
+        std::cout << "App rights set successfully." << std::endl;
+    }
+
 }
 
 int removeTokenIfExists(const Config& appConfig){
@@ -234,6 +253,7 @@ bool reloadSystemdService(const std::string& serviceName) {
         }
     }
 
+
     std::string reloadCmd = "sudo systemctl daemon-reload";
     std::string enableCmd = "sudo systemctl enable " + serviceName;
     std::string startCmd = "sudo systemctl start " + serviceName;
@@ -286,6 +306,8 @@ int main(int argc, char* argv[]) {
     createPosFolder();
     createPosLogsFolder();
 
+    std::string apppath=getAppPath(appConfig.getMainAppName());
+    grantRightsToApp(apppath);
 
     std::cout << "Ask Token"<<std::endl;
     Config appConfig; 
