@@ -883,6 +883,9 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
 void handleClient(int new_socket, struct sockaddr_in address,std::string sessionToken,const Config& appConfig,Logger * logger) {
+    std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
+    logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
+
     std::vector<char> buffer(1024); // Start with an initial size
     int totalBytesRead = 0;
     int bytesRead = 0;
@@ -900,13 +903,12 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
         return;
     }
 
-    std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
-        logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established.");  // Log connection
-        logger->log("Received data from client: " + data);  // Log received data
-
-
     std::string data(buffer.begin(), buffer.begin() + totalBytesRead);
     std::cout << "Received data: " << data << std::endl;
+
+    logger->log("Received data from client: " + data);  // Log received data
+
+
     // Process the data...
     // If data was received, echo it back to the client
     if (!data.empty()) {
