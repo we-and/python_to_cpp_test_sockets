@@ -61,8 +61,8 @@ std::string readStringFromFile(const std::string& filePath,Logger * logger)) {
         }
     } catch (const std::exception& e) {
         std::cerr << "Exception occurred: " << e.what() << std::endl;
-    logger->log( "readStringFromFile: exception"); 
-    logger->log(e.what());
+        logger->log( "readStringFromFile: exception"); 
+        logger->log(e.what());
     }
     return ""; // Return empty string if there was an error
 }
