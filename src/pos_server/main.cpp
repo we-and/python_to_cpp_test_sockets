@@ -388,7 +388,7 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
  * - The function uses the libcurl library for HTTP communications and the nlohmann::json library for JSON handling.
  * - Proper error handling is implemented for CURL failures.
  */
-json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash) {
+json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& config) {
     std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
     log_to_file(logMessage);
 
@@ -772,7 +772,7 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
 
         // Send the calculated sequence hash along with device details to create a session
         // Receive session creation result as a JSON object
-        json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash);
+        json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash,config);
         std::cout <<"createSessionResult"<< createSessionResult<<std::endl;
 
         // Extract the access token and its expiry time from the session result
