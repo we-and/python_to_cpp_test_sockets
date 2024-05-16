@@ -147,19 +147,20 @@ json activateDevice(const std::string& secret, const Config& config) {
             log_to_file("Failed");
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }else{
-            log_to_file("OK");
+            log_to_file("activateDevice has response");
               // Try to parse the response as JSON
             try {
                 json j = json::parse(readBuffer);
-                log_to_file( "JSON response: "  ); // Pretty print the JSON
+                log_to_file( "activateDevice JSON response start: "  ); // Pretty print the JSON
                 log_to_file(  j.dump(4) ); // Pretty print the JSON
-                log_to_file( "Done" ); // Pretty print the JSON
+                log_to_file( "activateDevice JSON response end." ); // Pretty print the JSON
                curl_easy_cleanup(curl);
                 return j;
             } catch(json::parse_error &e) {
                 std::cerr << "JSON parsing error: " << e.what() << '\n';
-              
-              curl_easy_cleanup(curl);
+                log_to_file( "JSON parsing error: " +e.what() );
+                
+                curl_easy_cleanup(curl);
                return  json();
             }
         }
@@ -302,22 +303,6 @@ std::string inputSecretToken(){
         return userString;
 }
 
-// Function to check if the one time exists
-bool checkFileExists(const std::string& folderPath,const std::string filename) {
-    log_to_file( "checkFileExists"+folderPath+filename); 
-    
-    fs::path myFile = folderPath+filename;
-    bool exists= fs::exists(myFile);
-
-    if (exists) {
-        log_to_file("File exists at"+folderPath+filename);
-        return true;
-    } else {
-        log_to_file("File does not exists at"+folderPath+filename);
-        return false;
-    }
-
-}
 
 
 

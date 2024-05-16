@@ -57,6 +57,22 @@ std::string readStringFromFile(const std::string& filePath) {
 }
 
 
+// Function to check if the one time exists
+bool checkFileExists(const std::string& folderPath,const std::string filename) {
+    log_to_file( "checkFileExists: "+folderPath+filename); 
+    
+    fs::path myFile = folderPath+filename;
+    bool exists= fs::exists(myFile);
+
+    if (exists) {
+        log_to_file("checkFileExists: File exists at "+folderPath+filename);
+        return true;
+    } else {
+        log_to_file("checkFileExists: File does not exists at"+folderPath+filename);
+        return false;
+    }
+
+}
 
 // Function to check if the one time exists
 bool checkEnvVarExists(const std::string& envVar) {
@@ -65,10 +81,10 @@ bool checkEnvVarExists(const std::string& envVar) {
 
     // Check if the environment variable exists
     if (value) {
-       log_to_file(  envVar + " exists with value: " + value );
+       log_to_file("Env var "+  envVar + " exists with value: " + value );
         return true;
     } else {
-        log_to_file( envVar + " does not exist." );
+        log_to_file("Env var "+ envVar + " does not exist." );
         return false;
     }
 
