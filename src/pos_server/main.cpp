@@ -683,7 +683,7 @@ int saveSecretToken(std::string secret,std::string posDirectory,std::string secr
 bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
     Logger* logger = Logger::getInstance();
     logger->log( "hasValidSecretToken"); 
-    bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename);
+    bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename,logger);
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
@@ -712,7 +712,7 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
 bool hasValidSessionToken(int requestorSocket){
     Logger* logger = Logger::getInstance();
     logger->log("hasValidSessionToken");
-    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN");
+    bool sessionTokenExists=checkEnvVarExists("ACCESS_TOKEN",logger);
     if(sessionTokenExists){
             logger->log("hasValidSessionToken: has ACCESS_TOKEN");
             return is_valid_access_token( requestorSocket);
