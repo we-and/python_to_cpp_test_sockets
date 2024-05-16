@@ -58,6 +58,9 @@ public:
 
     void log(const std::string& text) {
        
+  // Retrieve the current system time as a time_t object
+        auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
 
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(appConfig.logsDir + "/log-" + std::to_string(t) + ".txt", std::ios::app);
