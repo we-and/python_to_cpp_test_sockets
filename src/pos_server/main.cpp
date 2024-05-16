@@ -686,7 +686,7 @@ std::pair<bool,bool> hasValidSecretToken(std::string posDirectory,std::string se
     Logger* logger = Logger::getInstance();
     logger->log( "hasValidSecretToken"); 
     auto [checkSuccess,secretTokenExists]= checkFileExists(posDirectory,secretTokenFilename,logger);
-    if (!checkSuccess) {return {false,false}}
+    if (!checkSuccess) {return {false,false};}
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
@@ -832,7 +832,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     
     logger->log( "Setup"  );     
     auto [isSuccess,hasValidSecretToken_]=hasValidSecretToken(posDirectory,secretTokenFilename);
-    if (!isSuccess){ return {1,""}}
+    if (!isSuccess){ return {1,""};}
     bool hasValidSessionToken_=hasValidSessionTokenInit();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
