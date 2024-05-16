@@ -194,7 +194,7 @@ int createPosFolder() {
     return 0;
 }
 int createPosLogsFolder() {
-    std::string folderPath = "~/pos/logs";
+    std::string folderPath = "/home/ubuntu/pos/logs";
      bool exists=fs::exists(folderPath);
     
  // Check if the directory exists
