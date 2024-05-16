@@ -8,6 +8,8 @@
 #include <curl/curl.h>
 #include <filesystem>
 #include "json.hpp"
+
+#include <mutex>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
