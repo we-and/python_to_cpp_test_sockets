@@ -681,16 +681,18 @@ int saveSecretToken(std::string secret,std::string posDirectory,std::string secr
     return 0;
 }
 
-bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
+//return isSuccess,hasValidSecretToken
+std::pair<bool,bool> hasValidSecretToken(std::string posDirectory,std::string secretTokenFilename){
     Logger* logger = Logger::getInstance();
     logger->log( "hasValidSecretToken"); 
-    bool secretTokenExists=checkFileExists(posDirectory,secretTokenFilename,logger);
+    auto [checkSuccess,secretTokenExists]= checkFileExists(posDirectory,secretTokenFilename,logger);
+    if (!checkSuccess) {return {false,false}}
     std::string secretToken;    
     if(secretTokenExists){
         fs::path secretTokenPath = posDirectory+secretTokenFilename;
         secretToken=readStringFromFile(secretTokenPath,logger);
         logger->log( "hasValidSecretToken true"); 
-        return isValidSecretToken(secretToken);
+        return {true,isValidSecretToken(secretToken)};
     }else{
         
         /*
@@ -705,7 +707,7 @@ bool hasValidSecretToken(std::string posDirectory,std::string secretTokenFilenam
              std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
             logger->log("hasValidSecretToken false");
         
-            return false;
+            return {true,false};
        // }
     }
 }
@@ -821,14 +823,16 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
 
 
 
-
+//return {0,accesstoken} if success and has a token
+//return {1,""} otherwise 
 std::pair<int,std::string> setup(const Config& appConfig){
     Logger* logger = Logger::getInstance();
     auto posDirectory=appConfig.getPosDirectory();
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
     
     logger->log( "Setup"  );     
-    bool hasValidSecretToken_=hasValidSecretToken(posDirectory,secretTokenFilename);
+    auto [isSuccess,hasValidSecretToken_]=hasValidSecretToken(posDirectory,secretTokenFilename);
+    if (!isSuccess){ return {1,""}}
     bool hasValidSessionToken_=hasValidSessionTokenInit();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
