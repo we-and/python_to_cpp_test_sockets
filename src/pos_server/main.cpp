@@ -1112,22 +1112,22 @@ ConfigFile readIniFile(const std::string& filename) {
  */
 int main() {
 
-/*
-    std::string filePath;
+
+    std::string configFilePath="settings.ini";
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "-f" && i + 1 < argc) { // Make sure we do not go out of bounds
-            filePath = argv[++i]; // Increment 'i' to skip the file path in the next loop iteration
+            configFilePath = argv[++i]; // Increment 'i' to skip the file path in the next loop iteration
         } else {
-            std::cerr << "Usage: " << argv[0] << " -f <file_path>" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
             return 1;
         }
     }
-*/
+
 
     //read config ini file
-    ConfigFile configFile=readIniFile("settings.ini");
+    ConfigFile configFile=readIniFile(configFilePath);
 
     //set appConfig
     Config appConfig;
