@@ -60,7 +60,7 @@ std::string readStringFromFile(const std::string& filePath,Logger * logger) {
             return token;
         }
     } catch (const std::exception& e) {
-        std::cerr << "Exception occurred: " << e.what() << std::endl;
+        std::cerr << "readStringFromFile: Exception occurred: " << e.what() << std::endl;
         logger->log( "readStringFromFile: exception"); 
         logger->log(e.what());
     }
@@ -72,7 +72,8 @@ bool checkFileExists(const std::string& folderPath,const std::string filename,Lo
     logger->log( "checkFileExists: "+folderPath+filename); 
     
     fs::path myFile = folderPath+filename;
-    bool exists= fs::exists(myFile);
+     try {
+        bool exists= fs::exists(myFile);
 
     if (exists) {
         logger->log("checkFileExists: File exists at "+folderPath+filename);
@@ -81,7 +82,11 @@ bool checkFileExists(const std::string& folderPath,const std::string filename,Lo
         logger->log("checkFileExists: File does not exists at"+folderPath+filename);
         return false;
     }
-
+ } catch (const std::exception& e) {
+        std::cerr << "checkFileExists: Exception occurred: " << e.what() << std::endl;
+        logger->log( "checkFileExists: exception"); 
+        logger->log(e.what());
+    }
 }
 
 // Function to check if the one time exists
