@@ -21,8 +21,8 @@
 #include "json.hpp"
 
 // Function to read a JSON file and return a JSON object
-json readJsonFromFile(const std::string& filePath) {
-     log_to_file( "readJsonFromFile"); 
+json readJsonFromFile(const std::string& filePath,Logger * logger) {
+     logger->log( "readJsonFromFile"); 
    std::ifstream file(filePath);
     json j;
 
@@ -58,33 +58,33 @@ std::string readStringFromFile(const std::string& filePath) {
 
 
 // Function to check if the one time exists
-bool checkFileExists(const std::string& folderPath,const std::string filename) {
-    log_to_file( "checkFileExists: "+folderPath+filename); 
+bool checkFileExists(const std::string& folderPath,const std::string filename,Logger * logger) {
+    logger->log_to_file( "checkFileExists: "+folderPath+filename); 
     
     fs::path myFile = folderPath+filename;
     bool exists= fs::exists(myFile);
 
     if (exists) {
-        log_to_file("checkFileExists: File exists at "+folderPath+filename);
+        logger->log("checkFileExists: File exists at "+folderPath+filename);
         return true;
     } else {
-        log_to_file("checkFileExists: File does not exists at"+folderPath+filename);
+        logger->log("checkFileExists: File does not exists at"+folderPath+filename);
         return false;
     }
 
 }
 
 // Function to check if the one time exists
-bool checkEnvVarExists(const std::string& envVar) {
+bool checkEnvVarExists(const std::string& envVar,Logger * logger) {
    // Use getenv to get the environment variable value
     const char* value = std::getenv(envVar.c_str());
 
     // Check if the environment variable exists
     if (value) {
-       log_to_file("Env var "+  envVar + " exists with value: " + value );
+       logger->log("Env var "+  envVar + " exists with value: " + value );
         return true;
     } else {
-        log_to_file("Env var "+ envVar + " does not exist." );
+        logger->log("Env var "+ envVar + " does not exist." );
         return false;
     }
 
