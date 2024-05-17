@@ -610,10 +610,13 @@ std::pair<int,std::string> processSessionResponseErrorMessage(SessionAPIResponse
 // returns { 0 , accesstoken } if success
 //         { 1, ""}            if not
 std::pair<int,std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse,Logger * logger, const Config &config){
+     logger->log("processActivateResponseOK");
      // Extract deviceId, deviceKey, and deviceSequence from the activation result
         int deviceId = activateResponse.getDeviceId();
         std::string deviceKey = activateResponse.getDeviceKey();
         int deviceSequence = activateResponse.getDeviceSequence();
+     logger->log("processActivateResponseOK 1");
+            
 
         // Calculate a hash using the device sequence and device key
         auto sequenceHash = calculateHash(deviceSequence, deviceKey);
@@ -706,6 +709,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
             ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
           std::string jsonstr = std::string("{    \"deviceId\": 8,    \"deviceKey\": \"2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3\", \"deviceSequence\": 1}");
          std::cout << "Debug parse" <<std::endl;
+            logger->log("Force activation from"+jsonstr);
            bool isValid=response.parseFromJsonString(jsonstr);
             std::cout << "Debug"<<isValid <<std::endl;
             if (isValid){
