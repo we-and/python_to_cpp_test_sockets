@@ -81,7 +81,7 @@ public:
          Logger* logger = Logger::getInstance();
          logger->log("ActivateDeviceAPIResponse parseFromJsonString:"+jsonstr);
 
-        bool isValid=parseAndValidate(jsonResponse);
+        bool isValid=parseAndValidate(jsonstr);
         logger->log("ActivateDeviceAPIResponse parseFromJsonString parsed");
 
         return isValid;
