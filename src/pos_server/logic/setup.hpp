@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <sys/stat.h> 
 #include "config.hpp"
-#include "../configfile.hpp"
+#include "../utils/configfile.hpp"
 
 #include "accesstoken.hpp"
 //GET PATH OF CURRENT EXECUTABLE, used to find settings.ini 
