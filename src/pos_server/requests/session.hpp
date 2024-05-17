@@ -35,7 +35,7 @@ json sendSequenceHash(const int deviceId, const int deviceSequence, const std::s
     std::string logMessage = "Sending sequence hash... Device ID: " + std::to_string(deviceId) + ", Device Sequence: " +std::to_string( deviceSequence) + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
     logger->log(logMessage);
 
-    std::string url = appConfig.baseURL+ "/device/session?deviceId=" +std::to_string( deviceId) + "&deviceSequence=" + std::to_string(deviceSequence) + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
+    std::string url = appConfig.baseURL+ "device/session?deviceId=" +std::to_string( deviceId) + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
     logger->log("URL: " + url);
 
     json payload; // Assuming an empty JSON object is needed

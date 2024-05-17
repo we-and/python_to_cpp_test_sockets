@@ -42,7 +42,7 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
     }
 
         // Set the URL that receives the POST data
-        std::string url = appConfig.baseURL + "/device/activateDevice?Secret="+secret;
+        std::string url = appConfig.baseURL + "device/activateDevice?Secret="+secret;
         logger->log("activateDevice: url="+url);
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 

@@ -1,9 +1,0 @@
-2024-05-08 11:16:41 - main
-2024-05-08 11:16:41 - Port: 6000
-2024-05-08 11:16:41 - Endpoint: https://dev.bit.cullinangroup.net:5443/bit-dps-webservices/
-2024-05-08 11:16:41 - Setup
-2024-05-08 11:16:41 - hasValidSecretToken
-2024-05-08 11:16:41 - checkFileExists/root/pos/secrettoken.txt
-2024-05-08 11:16:41 - hasValidSessionToken
-2024-05-08 11:16:41 - ACCESS_TOKEN does not exist.
-2024-05-08 11:16:41 - hasValidSessionToken: no ACCESS_TOKEN
