@@ -15,12 +15,19 @@ cd src/set_token
 g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
 cd ../..
 
-
+#SET TOKEN
 cd dist
-sudo ./set_token
+sudo ./set_token -f /home/ubuntu/pos/conf/dev.ini
+
+#CHECKS
 sudo ls /root/pos
 sudo cat /root/pos/secrettoken.txt
-sudo cat /etc/systemd/system/pos.service 
+sudo cat /etc/systemd/system/pos.service
+
+#RUN
+sudo ./pos -f /home/ubuntu/pos/conf/dev.ini
+
+
 ```
 
 This repository contains a C++ application designed to handle device activation through a REST API, compute SHA-256 hashes for sequence validation, and manage network communications through a simple TCP server. The application uses various libraries such as Crypto++, cURL, and nlohmann/json for its operations.
