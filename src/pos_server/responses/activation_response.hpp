@@ -19,16 +19,23 @@ public:
 
     // Function to parse JSON and validate the required fields
     bool parseAndValidate(const std::string& jsonString) {
+        Logger* logger = Logger::getInstance();
+        logger->log("ActivateDeviceAPIResponse parseAndValidate");
+
         try {
             json j = json::parse(jsonString);
 
-
+            logger->log("ActivateDeviceAPIResponse parseAndValidate parsed");
             if (!j.contains("message")){
+            logger->log("ActivateDeviceAPIResponse parseAndValidate parsed message");
+            
                 if (!j["message"].is_string()){
                     return false;
                 }
                 message = j["message"];
             }else if  (j.contains("deviceId") && !j["deviceId"].is_number_integer()){
+                logger->log("ActivateDeviceAPIResponse parseAndValidate parsed device");
+            
                 // Check if all required fields are present and are of the correct type
                 if (!j.contains("deviceId") || !j["deviceId"].is_number_integer())
                     return false;
@@ -37,6 +44,8 @@ public:
                 if (!j.contains("deviceSequence") || !j["deviceSequence"].is_number_integer())
                     return false;
 
+logger->log("ActivateDeviceAPIResponse parseAndValidate parsed assign");
+            
                 // Assign the values from JSON to the member variables
                 deviceId = j["deviceId"];
                 deviceKey = j["deviceKey"];
@@ -65,7 +74,11 @@ public:
     json getRawJson() const { return raw;}
 
     bool parseFromJsonString(std::string jsonstr){
-        json jsonResponse = json::parse(jsonstr);
+         Logger* logger = Logger::getInstance();
+         logger->log("ActivateDeviceAPIResponse parseFromJsonString:"+jsonstr);
+         json jsonResponse = json::parse(jsonstr);
+        logger->log("ActivateDeviceAPIResponse parseFromJsonString parsed");
+
         bool isValid=parseAndValidate(jsonResponse);
         return isValid;
     }
