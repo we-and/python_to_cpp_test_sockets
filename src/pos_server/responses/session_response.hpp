@@ -23,12 +23,12 @@ public:
             json j = json::parse(jsonString);
 
 
-            if (!j.contains("message")){
+            if (j.contains("message")){
                 if (!j["message"].is_string()){
                     return false;
                 }
                 message = j["message"];
-            }else if  (j.contains("accessToken") && !j["accessToken"].is_string()){
+            }else if  (j.contains("accessToken") && j["accessToken"].is_string()){
                 // Check if all required fields are present and are of the correct type
                 if (!j.contains("accessToken") || !j["accessToken"].is_string())
                     return false;

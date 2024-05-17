@@ -26,14 +26,14 @@ public:
             json j = json::parse(jsonString);
 
             logger->log("ActivateDeviceAPIResponse parseAndValidate parsed");
-            if (!j.contains("message")){
+            if (j.contains("message")){
             logger->log("ActivateDeviceAPIResponse parseAndValidate parsed message");
             
                 if (!j["message"].is_string()){
                     return false;
                 }
                 message = j["message"];
-            }else if  (j.contains("deviceId") && !j["deviceId"].is_number_integer()){
+            }else if  (j.contains("deviceId") && j["deviceId"].is_number_integer()){
                 logger->log("ActivateDeviceAPIResponse parseAndValidate parsed device");
             
                 // Check if all required fields are present and are of the correct type
