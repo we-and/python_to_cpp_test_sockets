@@ -8,20 +8,26 @@ git clone https://github.com/we-and/python_to_cpp_test_sockets
 cd python_to_cpp_test_sockets/
 
 cd src/pos_server
-g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
- 
+g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -I./requests -lcryptopp -lcurl -lstdc++fs 
 cd ../..
 
 cd src/set_token
 g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
 cd ../..
 
-
+#SET TOKEN
 cd dist
-sudo ./set_token
+sudo ./set_token -f /home/ubuntu/pos/conf/dev.ini
+
+#CHECKS
 sudo ls /root/pos
 sudo cat /root/pos/secrettoken.txt
-sudo cat /etc/systemd/system/pos.service 
+sudo cat /etc/systemd/system/pos.service
+
+#RUN
+sudo ./pos -f /home/ubuntu/pos/conf/dev.ini
+
+
 ```
 
 This repository contains a C++ application designed to handle device activation through a REST API, compute SHA-256 hashes for sequence validation, and manage network communications through a simple TCP server. The application uses various libraries such as Crypto++, cURL, and nlohmann/json for its operations.
@@ -51,10 +57,10 @@ Function Flow:
  * 7. Close the connection and wait for another.
 
 ## Features
-Device Activation: Communicates with a remote API to activate devices using a unique secret key.
-Hash Calculation: Calculates SHA-256 hashes for given sequence values and device keys to ensure integrity and security.
-TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
-Logging: Logs important events and data to files, helping in debugging and record-keeping.
+ * Device Activation: Communicates with a remote API to activate devices using a unique secret key.
+ * Hash Calculation: Calculates SHA-256 hashes for given sequence values and device keys to ensure integrity and security.
+ * TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
+ * Logging: Logs important events and data to files, helping in debugging and record-keeping.
 
 ## Relies on
 ```
