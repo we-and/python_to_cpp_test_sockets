@@ -57,10 +57,10 @@ Function Flow:
  * 7. Close the connection and wait for another.
 
 ## Features
-Device Activation: Communicates with a remote API to activate devices using a unique secret key.
-Hash Calculation: Calculates SHA-256 hashes for given sequence values and device keys to ensure integrity and security.
-TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
-Logging: Logs important events and data to files, helping in debugging and record-keeping.
+ * Device Activation: Communicates with a remote API to activate devices using a unique secret key.
+ * Hash Calculation: Calculates SHA-256 hashes for given sequence values and device keys to ensure integrity and security.
+ * TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
+ * Logging: Logs important events and data to files, helping in debugging and record-keeping.
 
 ## Relies on
 ```
