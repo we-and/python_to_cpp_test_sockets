@@ -1,3 +1,6 @@
+#ifndef IO_UTILS_H
+#define IO_UTILS_H
+
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -20,6 +23,25 @@
 #include <sys/stat.h>
 #include "json.hpp"
 using json = nlohmann::json;
+
+
+void saveJsonToFile(const json& j, const std::string& filePath) {
+   Logger* logger = Logger::getInstance();
+    logger->log( "saveJsonToFile"  );
+    std::ofstream file(filePath);
+    if (!file) {
+        std::cerr << "Error opening file for writing: " << filePath << std::endl;
+        return;
+    }
+    file << j.dump(4); // Serialize the JSON with an indentation of 4 spaces
+    file.close();
+    if (file.good()) {
+        logger->log( "JSON data successfully saved to " + filePath );
+    } else {
+        std::cerr << "Error occurred during file write operation." << std::endl;
+    }
+}
+
 
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string &filePath, Logger *logger)
@@ -126,3 +148,5 @@ bool checkEnvVarExists(const std::string &envVar, Logger *logger)
         return false;
     }
 }
+
+#endif
