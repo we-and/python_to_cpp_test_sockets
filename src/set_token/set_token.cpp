@@ -253,20 +253,45 @@ bool reloadSystemdService(const std::string& serviceName) {
         }
     }
 
-
     std::string reloadCmd = "sudo systemctl daemon-reload";
     std::string enableCmd = "sudo systemctl enable " + serviceName;
-    std::string startCmd = "sudo systemctl start " + serviceName;
-    std::string statusCmd = "sudo systemctl status " + serviceName + " --no-pager";
 
     if (!executeSystemdCommand(reloadCmd)) return false;
     if (!executeSystemdCommand(enableCmd)) return false;
+    
+}
+
+
+
+
+// Main function to reload systemd, enable and start a service, and then check its status
+bool startSystemdService(const std::string& serviceName) {
+    // Sanitize the input to prevent injection attacks
+    for (char c : serviceName) {
+        if (!(isalnum(c) || c == '-' || c == '_')) {
+            std::cerr << "Invalid service name: " << serviceName << std::endl;
+            return false; // Return failure on invalid input
+        }
+    }
+
+    std::string startCmd = "sudo systemctl start " + serviceName;
+    std::string statusCmd = "sudo systemctl status " + serviceName + " --no-pager";
+
     if (!executeSystemdCommand(startCmd)) return false;
     
     // Execute the status command and directly output its result to the terminal
     std::cout << "Current status of the service:" << std::endl;
     return executeSystemdCommand(statusCmd);
 }
+
+
+
+
+
+
+
+
+
 
 
 /**
@@ -318,8 +343,9 @@ int main(int argc, char* argv[]) {
     setupService(appConfig.getMainAppName(),configFilePath);
 
     std::cout << "Reloading service manager"<<std::endl;
+    reloadSystemdService("pos");
     if(restartServer){
-        reloadSystemdService("pos");
+        startSystemdService("pos");
     }
     return 0;
 }
