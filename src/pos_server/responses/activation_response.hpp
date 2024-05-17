@@ -56,6 +56,9 @@ logger->log("ActivateDeviceAPIResponse parseAndValidate parsed assign");
         } catch (const json::parse_error& e) {
             // Handle parsing errors (e.g., malformed JSON)
             std::cerr << "JSON parse error: " << e.what() << '\n';
+logger->log("ActivateDeviceAPIResponse parseAndValidate error");
+logger->log(e.what());
+
             return false;
         }
     }
