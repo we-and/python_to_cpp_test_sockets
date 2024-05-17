@@ -57,11 +57,13 @@ TCP Server: Listens for incoming connections and handles data reception and tran
 Logging: Logs important events and data to files, helping in debugging and record-keeping.
 
 ## Relies on
+```
 G++ Compiler (version 5.0 or later to allow for C++17)
 Crypto++ Library
 cURL Library
 nlohmann/json Library
 Linux Environment (developed and tested on Ubuntu 16.04)
+```
 
 ## Dependencies for compilation
 Install Dependencies
