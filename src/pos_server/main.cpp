@@ -21,6 +21,8 @@
 #include "log_utils.hpp"
 #include "io_utils.hpp"
 #include "config.hpp"
+#include "responses/activation_response.hpp"
+#include "responses/session_response.hpp"
 namespace fs = std::filesystem;
 
 
@@ -40,44 +42,6 @@ struct ConfigFile {
 //auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 bool is_verbose=false;
-/**
- * Callback function for handling data received from a CURL request.
- * 
- * This function is designed to be used with the libcurl easy interface as a write callback function.
- * It is triggered by CURL during data transfer operations, specifically when data is received from a server.
- * The function writes the received data into a provided std::string buffer. It ensures that the buffer is
- * resized to accommodate the incoming data and then copies the data into the buffer.
- * 
- * @param contents Pointer to the data received from the server. This data needs to be appended to the existing buffer.
- * @param size Size of each data element received in bytes.
- * @param nmemb Number of data elements received.
- * @param s Pointer to the std::string that will store the received data. This string is resized and filled with the data.
- * 
- * @return The total number of bytes processed in this call. If a memory allocation failure occurs (std::bad_alloc),
- *         the function returns 0, signaling to CURL that an error occurred.
- * 
- * Usage Example:
- * std::string response_data;
- * curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteCallback);
- * curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &response_data);
- * 
- * Notes:
- * - This function should be used carefully within a multithreaded context as it modifies the content of the passed std::string.
- * - Proper exception handling for std::bad_alloc is crucial to avoid crashes due to memory issues.
- */
-static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* s) {
-    size_t newLength = size * nmemb;
-    size_t oldLength = s->size();
-    try {
-        s->resize(oldLength + newLength);
-    } catch (std::bad_alloc& e) {
-        // handle memory problem
-        return 0;
-    }
-
-    std::copy((char*)contents, (char*)contents + newLength, s->begin() + oldLength);
-    return size * nmemb;
-}
 
 
 /**
@@ -105,82 +69,6 @@ void resendToRequestor(int socket, std::string data){
     send(socket,data.c_str(),data.size(), 0);  // Send data back to client
 
 }
-
-/**
- * Activates a device by making an HTTP POST request to a specific URL with a provided secret.
- * 
- * This function initializes a CURL session, constructs a request URL by appending a secret parameter,
- * and sends a POST request to the server to activate a device. If the request succeeds, it parses the
- * response into a JSON object which is then returned.
- * 
- * @param secret A std::string containing the secret key used to authorize the device activation.
- * 
- * @return A JSON object representing the server's response. If the CURL operation fails or if
- *         initialization fails, an empty JSON object is returned.
- * 
- * Usage Example:
- * json response = activateDevice("12345secret");
- * 
- * Expected JSON Response:
- * {
- *   "status": "success",
- *   "message": "Device activated"
- * }
- * 
- * Notes:
- * - Ensure the server endpoint is correct and reachable.
- * - This function depends on the libcurl library for HTTP communications and the nlohmann::json
- *   library for JSON parsing.
- */
-json activateDevice(const std::string& secret, const Config& appConfig) {
-    Logger* logger = Logger::getInstance();
-    logger->log("activateDevice");
-    CURL *curl;
-    CURLcode res;
-    std::string readBuffer; 
-    curl = curl_easy_init();
-    if (!curl) {
-        return json();  // Early exit if curl initialization fails
-    }
-
-        // Set the URL that receives the POST data
-        std::string url = appConfig.baseURL + "/device/activateDevice?Secret="+secret;
-        logger->log("activateDevice: url="+url);
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-
-        // Specify the POST data
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-
-        // Perform the request, and get the response code
-        res = curl_easy_perform(curl);
-        if(res != CURLE_OK) {
-            logger->log("Failed");
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
-        }else{
-            logger->log("activateDevice: has response");
-              // Try to parse the response as JSON
-            try {
-                json j = json::parse(readBuffer);
-                logger->log( "activateDevice: JSON response start: "  ); // Pretty print the JSON
-                logger->log(  j.dump(4) ); // Pretty print the JSON
-                logger->log( "activateDevice: JSON response end." ); // Pretty print the JSON
-                curl_easy_cleanup(curl);
-                return j;
-            } catch(json::parse_error &e) {
-                std::cerr << "JSON parsing error: " << e.what() << '\n';
-                logger->log( "activateDevice: JSON parsing error " );
-                logger->log( e.what() );
-            }
-        }
-
-        // Always cleanup
-        curl_easy_cleanup(curl);
-    return json();
-}
-
 
 //Helper function to pad or trim a string to a specified fixed length
 std::string formatFixedField(const std::string& value, size_t length) {
@@ -339,13 +227,13 @@ std::string inputSecretToken(){
  * - Exception handling should be added to manage potential std::stoi conversion failures.
  * - Ensure that proper logging mechanisms are set up to handle the output from `log`.
  */
-std::string calculateHash(const std::string& currentSequenceValue, const std::string& deviceKey) {
+std::string calculateHash( int deviceSequence, const std::string& deviceKey) {
     Logger* logger = Logger::getInstance();
-    logger->log("Calculating hash... Current Sequence Value: " + currentSequenceValue + ", Device Key: " + deviceKey);
+    logger->log("Calculating hash... Current Sequence Value: " +std::to_string( deviceSequence) + ", Device Key: " + deviceKey);
 
     // Convert string to integer and increment
-    int currentValue = std::stoi(currentSequenceValue);
-    int nextSequenceValue = currentValue + 1;
+    
+    int nextSequenceValue = deviceSequence + 1;
 
     // Concatenate device key with next sequence value
     std::stringstream ss;
@@ -371,65 +259,6 @@ std::string calculateHash(const std::string& currentSequenceValue, const std::st
 }
 
 
-/**
- * Sends a sequence hash and other device information to a specified server endpoint via HTTP POST.
- * 
- * This function logs relevant information about the process, constructs a URL with query parameters,
- * sends a JSON payload, and processes the server's response. It uses CURL for the HTTP request,
- * handling both the response payload and headers. The function logs each significant step, including
- * URL creation, CURL execution results, and the response data. If successful, it parses the response
- * into a JSON object which is then returned. If CURL fails to initialize, or the request itself fails,
- * an empty JSON object is returned.
- * 
- * @param deviceId A std::string representing the device ID.
- * @param deviceSequence A std::string representing the sequence number of the device.
- * @param deviceKey A std::string representing the device key.
- * @param sequenceHash A std::string representing the computed sequence hash.
- * 
- * @return A JSON object representing the server's response. If an error occurs or CURL fails to initialize,
- *         an empty JSON object is returned.
- * 
- * Usage Example:
- * json response = sendSequenceHash("12345", "1", "deviceKey123", "abc123def456");
- * 
- * Notes:
- * - Ensure the server endpoint URL is correct and reachable.
- * - The function uses the libcurl library for HTTP communications and the nlohmann::json library for JSON handling.
- * - Proper error handling is implemented for CURL failures.
- */
-json sendSequenceHash(const std::string& deviceId, const std::string& deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig) {
-    Logger* logger = Logger::getInstance();
-    std::string logMessage = "Sending sequence hash... Device ID: " + deviceId + ", Device Sequence: " + deviceSequence + ", Device Key: " + deviceKey + ", Sequence Hash: " + sequenceHash;
-    logger->log(logMessage);
-
-    std::string url = appConfig.baseURL+ "/device/session?deviceId=" + deviceId + "&deviceSequence=" + deviceSequence + "&deviceKey=" + deviceKey + "&sequenceHash=" + sequenceHash;
-    logger->log("URL: " + url);
-
-    json payload; // Assuming an empty JSON object is needed
-    CURL* curl = curl_easy_init();
-    std::string response_string;
-    std::string header_string;
-    if (!curl) {
-        return json();  // Early exit if curl initialization fails
-    }
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.dump().c_str()); // sending the payload as a string
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
-
-    CURLcode res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    }
-    curl_easy_cleanup(curl);
-    logger->log("Response: " + response_string);
-    json response_json = json::parse(response_string);
-    logger->log("Response JSON: " + response_json.dump());
-    return response_json;
-    
-
-}
 
 /**
  * Sends a plain text payload to a specified server endpoint using HTTP POST with custom headers.
@@ -755,51 +584,53 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 }
 
 
-// Function to process a one-time POS token for device activation and session creation
-std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, const Config &config ){
-    Logger* logger = Logger::getInstance();
-    logger->log( "requestAccessTokenFromSecretToken" ); 
-    // Activate the device using the POS token and receive the activation result as a JSON object
-    json activationResult = activateDevice(secretToken,config);
-    logger->log("requestAccessTokenFromSecretToken: has activationResult");
-
-
-    if(activationResult.contains("message")){
-         if (activationResult["message"]=="Invalid Credentials"){
-                std::cerr <<"requestAccessTokenFromSecretToken:  exit with " << activationResult["message"]<<std::endl;
+ 
+std::pair<int,std::string> processActivateResponseErrorMessage(ActivateDeviceAPIResponse &response,Logger * logger){
+    if (response.getMessage()=="Invalid Credentials"){
+                std::cerr <<"processActivateResponseErrorMessage:  exit with " << response.getMessage()<<std::endl;
                 logger->log("Exiting after 'Invalid Credentials'");
                 std::exit(EXIT_FAILURE);
-         }else if (activationResult["message"]=="Invalid secret token"){
-                std::cerr <<"requestAccessTokenFromSecretToken: exit with "<< activationResult["message"]<<std::endl;
+         }else if (response.getMessage()=="Invalid secret token"){
+                std::cerr <<"processActivateResponseErrorMessage: exit with "<< response.getMessage()<<std::endl;
                 logger->log("Exiting after 'Invalid secret token'");
                 std::exit(EXIT_FAILURE);
          }else{
-                std::cerr <<"Message "<< activationResult["message"]<<std::endl;
+                std::cerr <<"Message "<< response.getMessage()<<std::endl;
          }
          return {1,""}; // Return an error code
-    }
-              
+}
 
-    if(activationResult.contains("deviceId")){
-        // Save the activation result to a JSON file
-        saveJsonToFile(activationResult, config.deviceSecurityParametersPath);
+std::pair<int,std::string> processSessionResponseErrorMessage(SessionAPIResponse &response,Logger * logger){
+                std::cerr <<"processSessionResponseErrorMessage:  exit with " << response.getMessage()<<std::endl;
+                logger->log("Exiting after session request message "+response.getMessage());
+                std::exit(EXIT_FAILURE);
+         return {1,""}; // Return an error code
+}
 
-        // Extract deviceId, deviceKey, and deviceSequence from the activation result
-        auto deviceId = activationResult["deviceId"];
-        auto deviceKey = activationResult["deviceKey"];
-        auto deviceSequence = activationResult["deviceSequence"];
+// returns { 0 , accesstoken } if success
+//         { 1, ""}            if not
+std::pair<int,std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse,Logger * logger, const Config &config){
+     // Extract deviceId, deviceKey, and deviceSequence from the activation result
+        int deviceId = activateResponse.getDeviceId();
+        std::string deviceKey = activateResponse.getDeviceKey();
+        int deviceSequence = activateResponse.getDeviceSequence();
 
         // Calculate a hash using the device sequence and device key
         auto sequenceHash = calculateHash(deviceSequence, deviceKey);
 
         // Send the calculated sequence hash along with device details to create a session
         // Receive session creation result as a JSON object
-        json createSessionResult = sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash,config);
-        std::cout <<"createSessionResult"<< createSessionResult<<std::endl;
+        SessionAPIResponse response=SessionAPIResponse();
+        bool isValid=response.session(deviceId, deviceSequence, deviceKey, sequenceHash,config);
+        std::cout <<"sessionResult"<< response.getRawJson()<<std::endl;
 
+         if(response.hasMessage()){
+         return processSessionResponseErrorMessage(response,logger);
+    }
+    if(response.hasAccessToken()){
         // Extract the access token and its expiry time from the session result
-        std::string accessToken = createSessionResult["accessToken"];
-        std::string expiresIn = createSessionResult["expiresIn"];
+        std::string accessToken = response.getAccessToken();
+        std::string expiresIn = response.getExpiresIn();
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         //saveJsonToFile(createSessionResult, accessTokenFilename);
@@ -814,15 +645,38 @@ std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretT
         }
         // Assuming function should return a bool, add return value here.
         // For example, you might return true if everything succeeds:
-        return {0,accessToken}; // You might want to add error handling and return false if any step fails.
-    }else{
-            return {1,""}; // Return an error code
+        return {0,accessToken};
     }
+           return {1,""}; // Return an error code
+     
 }
 
 
+// Function to process a one-time POS token for device activation and session creation
+// returns { 0 , accesstoken } if success
+//         { 1, ""}            if not
+std::pair<int,std::string> requestAccessTokenFromSecretToken(std::string secretToken, const Config &config ){
+    Logger* logger = Logger::getInstance();
+    logger->log( "requestAccessTokenFromSecretToken" ); 
+    // Activate the device using the POS token and receive the activation result as a JSON object
+    auto response=ActivateDeviceAPIResponse();
+    bool isValid=response.activate(secretToken,config);
+    //    json activationResult = activateDevice(secretToken,config);
+    logger->log("requestAccessTokenFromSecretToken: has activationResult");
 
+    if(response.hasMessage()){
+         return processActivateResponseErrorMessage(response,logger);
+    }
+    if(response.hasDeviceId()){
+        // Save the activation result to a JSON file
+        saveJsonToFile(response.getRawJson(), config.deviceSecurityParametersPath);
 
+        return processActivateResponseOK(response,logger,config);
+        
+    }else{
+        return {1,""}; // Return an error code
+    }
+}
 //return {0,accesstoken} if success and has a token
 //return {1,""} otherwise 
 std::pair<int,std::string> setup(const Config& appConfig){
@@ -836,15 +690,33 @@ std::pair<int,std::string> setup(const Config& appConfig){
     bool hasValidSessionToken_=hasValidSessionTokenInit();
     if(hasValidSecretToken_){
         if(hasValidSessionToken_){
-             std::cout << "App setup and ready."  << std::endl;     
+            std::cout << "App setup and ready."  << std::endl;     
             const char* access_token = std::getenv("ACCESS_TOKEN");
-       
             return {0,access_token};
         }else{
             logger->log( "Requesting access_token from secret."  );
             fs::path secretTokenPath = posDirectory+secretTokenFilename;
             std::string secretToken=readStringFromFile(secretTokenPath,logger);
-            return requestAccessTokenFromSecretToken(secretToken,appConfig);
+
+
+            //debug
+            //send sequence hash directly
+                            std::cout << "Debug send hash directly" <<std::endl;
+
+            ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
+          std::string jsonstr = std::string("{    \"deviceId\": 8,    \"deviceKey\": \"2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3\", \"deviceSequence\": 1}");
+         std::cout << "Debug parse" <<std::endl;
+           bool isValid=response.parseFromJsonString(jsonstr);
+            std::cout << "Debug"<<isValid <<std::endl;
+            if (isValid){
+                auto [success,sessiontoken]=processActivateResponseOK(response,logger,appConfig);
+                std::cout << sessiontoken <<std::endl; 
+                return {success,sessiontoken};
+            }else{
+                 return {1,""};
+            }
+            //end debug
+//            return requestAccessTokenFromSecretToken(secretToken,appConfig);
         }
     }else{
         logger->log( "Setup failed, no secret token"  );

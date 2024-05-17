@@ -94,10 +94,10 @@ Ask admin to run set_token first, as in:
 ```
 #one time config
 cd dist
-sudo ./set_token
+sudo ./set_token -f configfile.ini
 
 # run server
-./pos_server
+./pos -f configfile.ini
 ```
 
 
