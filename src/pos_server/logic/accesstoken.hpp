@@ -219,12 +219,12 @@ bool hasValidSessionToken(int requestorSocket)
     bool sessionTokenExists = checkEnvVarExists("ACCESS_TOKEN", logger);
     if (sessionTokenExists)
     {
-        logger->log("hasValidSessionToken: has ACCESS_TOKEN");
+        logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
         return is_valid_access_token(requestorSocket);
     }
     else
     {
-        logger->log("hasValidSessionToken: no ACCESS_TOKEN");
+        logger->log("    hasValidSessionToken: no ACCESS_TOKEN");
         return false;
     }
 }

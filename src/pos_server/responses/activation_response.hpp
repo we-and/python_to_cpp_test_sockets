@@ -12,7 +12,7 @@ private:
     int deviceSequence;
 
     std::string message;
-    json raw;
+    json rawJson;
 public:
     // Constructor to initialize the members with default values
     ActivateDeviceAPIResponse() : deviceId(-1), deviceSequence(-1),message("") {}
@@ -37,16 +37,16 @@ public:
 
         try {
 
-            logger->log("ActivateDeviceAPIResponse parseAndValidate parsed");
+            logger->log("    ActivateDeviceAPIResponse parseAndValidate parsed");
             if (j.contains("message")){
-            logger->log("ActivateDeviceAPIResponse parseAndValidate parsed message");
+            logger->log("    ActivateDeviceAPIResponse parseAndValidate parsed message");
             
                 if (!j["message"].is_string()){
                     return false;
                 }
                 message = j["message"];
             }else if  (j.contains("deviceId") && j["deviceId"].is_number_integer()){
-                logger->log("ActivateDeviceAPIResponse parseAndValidate parsed device");
+                logger->log("    ActivateDeviceAPIResponse parseAndValidate parsed device");
             
                 // Check if all required fields are present and are of the correct type
                 if (!j.contains("deviceId") || !j["deviceId"].is_number_integer())
@@ -56,7 +56,7 @@ public:
                 if (!j.contains("deviceSequence") || !j["deviceSequence"].is_number_integer())
                     return false;
 
-                logger->log("ActivateDeviceAPIResponse parseAndValidate parsed assign");
+                logger->log("    ActivateDeviceAPIResponse parseAndValidate parsed assign");
             
                 // Assign the values from JSON to the member variables
                 deviceId = j["deviceId"];
@@ -64,12 +64,12 @@ public:
                 deviceSequence = j["deviceSequence"];
 
             }
-            logger->log("ActivateDeviceAPIResponse parseAndValidate parsed returns");
+            logger->log("    ActivateDeviceAPIResponse parseAndValidate parsed returns");
             return true;
         } catch (const json::parse_error& e) {
             // Handle parsing errors (e.g., malformed JSON)
             std::cerr << "JSON parse error: " << e.what() << '\n';
-            logger->log("ActivateDeviceAPIResponse parseAndValidate error");
+            logger->log("    ActivateDeviceAPIResponse parseAndValidate error");
             logger->log(e.what());
 
             return false;
@@ -87,7 +87,7 @@ public:
     std::string getDeviceKey() const { return deviceKey; }
     std::string getMessage() const { return message; }
     int getDeviceSequence() const { return deviceSequence; }
-    json getRawJson() const { return raw;}
+    json getRawJson() const { return rawJson;}
 
     bool parseFromJsonString(std::string jsonstr){
          Logger* logger = Logger::getInstance();
@@ -101,7 +101,7 @@ public:
 
     bool activate(const std::string& secret, const Config& appConfig){
         json jsonResponse=activateDevice(secret,appConfig);
-        raw=jsonResponse;
+        rawJson=jsonResponse;
         bool isValid=parseAndValidate(jsonResponse);
         return isValid;
     }

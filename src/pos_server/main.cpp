@@ -61,11 +61,11 @@ int main(int argc, char* argv[]) {
     Logger* logger = Logger::getInstance();
     logger->init(appConfig);  // Initialize logger configuration once
 
-    logger->log("main"); 
-    logger->log( "Port: " +std::to_string( configFile.port));
-    logger->log( "Base URL: " + configFile.baseURL);
+    logger->log("POS SERVER"); 
+    logger->log( "Port                        : " +std::to_string( configFile.port));
+    logger->log( "Base URL                    : " + configFile.baseURL);
     logger->log( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
-    logger->log( "logsDir: " + configFile.logsDir);
+    logger->log( "logsDir                     : " + configFile.logsDir);
 
 
     //setup app: check secret tokens, activation, access token, etc 

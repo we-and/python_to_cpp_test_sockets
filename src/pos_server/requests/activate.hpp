@@ -43,7 +43,7 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
 
         // Set the URL that receives the POST data
         std::string url = appConfig.baseURL + "device/activateDevice?Secret="+secret;
-        logger->log("activateDevice: url="+url);
+        logger->log("    activateDevice: url="+url);
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
         // Specify the POST data
@@ -58,18 +58,18 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
             logger->log("Failed");
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }else{
-            logger->log("activateDevice: has response");
+            logger->log("    activateDevice: has response");
               // Try to parse the response as JSON
             try {
                 json j = json::parse(readBuffer);
-                logger->log( "activateDevice: JSON response start: "  ); // Pretty print the JSON
+                logger->log( "    activateDevice: JSON response start: "  ); // Pretty print the JSON
                 logger->log(  j.dump(4) ); // Pretty print the JSON
-                logger->log( "activateDevice: JSON response end." ); // Pretty print the JSON
+                logger->log( "    activateDevice: JSON response end." ); // Pretty print the JSON
                 curl_easy_cleanup(curl);
                 return j;
             } catch(json::parse_error &e) {
                 std::cerr << "JSON parsing error: " << e.what() << '\n';
-                logger->log( "activateDevice: JSON parsing error " );
+                logger->log( "    activateDevice: JSON parsing error " );
                 logger->log( e.what() );
             }
         }

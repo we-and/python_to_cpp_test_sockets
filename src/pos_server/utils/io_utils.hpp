@@ -70,7 +70,7 @@ json readJsonFromFile(const std::string &filePath, Logger *logger)
 
 std::string readStringFromFile(const std::string &filePath, Logger *logger)
 {
-    logger->log("readStringFromFile: " + filePath);
+    logger->log("    readStringFromFile: " + filePath);
 
     try
     {
@@ -92,8 +92,8 @@ std::string readStringFromFile(const std::string &filePath, Logger *logger)
     }
     catch (const std::exception &e)
     {
-        std::cerr << "readStringFromFile: Exception occurred: " << e.what() << std::endl;
-        logger->log("readStringFromFile: exception");
+        std::cerr << "    readStringFromFile: Exception occurred: " << e.what() << std::endl;
+        logger->log("    readStringFromFile: exception");
         logger->log(e.what());
     }
     return ""; // Return empty string if there was an error
@@ -102,7 +102,7 @@ std::string readStringFromFile(const std::string &filePath, Logger *logger)
 // Function to check if the one time exists
 std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::string filename, Logger *logger)
 {
-    logger->log("checkFileExists: " + folderPath + filename);
+    logger->log("    checkFileExists: " + folderPath + filename);
 
     fs::path myFile = folderPath + filename;
     try
@@ -111,19 +111,19 @@ std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::s
 
         if (exists)
         {
-            logger->log("checkFileExists: File exists at " + folderPath + filename);
+            logger->log("    checkFileExists: File exists at " + folderPath + filename);
             return {true,true};
         }
         else
         {
-            logger->log("checkFileExists: File does not exists at" + folderPath + filename);
+            logger->log("    checkFileExists: File does not exists at" + folderPath + filename);
             return {true,false};
         }
     }
     catch (const std::exception &e)
     {
-        std::cerr << "checkFileExists: Exception occurred: " << e.what() << std::endl;
-        logger->log("checkFileExists: exception");
+        std::cerr << "    checkFileExists: Exception occurred: " << e.what() << std::endl;
+        logger->log("    checkFileExists: exception");
         logger->log(e.what());
         return {false,false};
     }
@@ -139,12 +139,12 @@ bool checkEnvVarExists(const std::string &envVar, Logger *logger)
     // Check if the environment variable exists
     if (value)
     {
-        logger->log("Env var " + envVar + " exists with value: " + value);
+        logger->log("    Env var " + envVar + " exists with value: " + value);
         return true;
     }
     else
     {
-        logger->log("Env var " + envVar + " does not exist.");
+        logger->log("    Env var " + envVar + " does not exist.");
         return false;
     }
 }
