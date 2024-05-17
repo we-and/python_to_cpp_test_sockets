@@ -8,8 +8,7 @@ git clone https://github.com/we-and/python_to_cpp_test_sockets
 cd python_to_cpp_test_sockets/
 
 cd src/pos_server
-g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
- 
+g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -I./requests -lcryptopp -lcurl -lstdc++fs 
 cd ../..
 
 cd src/set_token
