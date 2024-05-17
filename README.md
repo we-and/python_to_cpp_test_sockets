@@ -29,6 +29,13 @@ This repository contains a C++ application designed to handle device activation 
 ![](https://github.com/we-and/python_to_cpp_test_sockets/blob/main/screenshot.png?raw=true)
 
 
+## User rights
+Ideally we want to deny access of secret tokens to the user but allow to app to read them. Set_token sets rights with
+```
+sudo setcap 'cap_dac_override=eip' ../../dist/pos
+```
+Rerun this command if you recompile and don't want to run set_token again
+
 ## Tasks
 The main function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
  * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
@@ -49,14 +56,16 @@ Hash Calculation: Calculates SHA-256 hashes for given sequence values and device
 TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
 Logging: Logs important events and data to files, helping in debugging and record-keeping.
 
-## Requirements
-C++ Compiler (C++11 or later)
+## Relies on
+```
+G++ Compiler (version 5.0 or later to allow for C++17)
 Crypto++ Library
 cURL Library
 nlohmann/json Library
-Linux Environment (developed and tested on Ubuntu)
+Linux Environment (developed and tested on Ubuntu 16.04)
+```
 
-## Installation
+## Dependencies for compilation
 Install Dependencies
 Crypto++ Library
 
@@ -101,14 +110,3 @@ sudo ./set_token -f configfile.ini
 ```
 
 
-
-The server will start listening on the specified port for incoming TCP connections.
-
-## Code Structure
- - log_to_file: Logs messages to a dynamically named file based on the current date.
- - activateDevice: Sends a device activation request to a remote API.
- - calculateHash: Computes a SHA-256 hash from a device key and a sequence value.
- - sendSequenceHash: Submits the computed hash to a remote server for validation.
- - sendPlainText: Sends plain text data to a specified API endpoint using cURL.
- - is_valid_access_token: Validates an access token based on its expiry time.
- - main: Initializes a TCP server that handles incoming connections and data transmissions.
