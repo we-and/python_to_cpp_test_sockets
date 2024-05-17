@@ -29,6 +29,13 @@ This repository contains a C++ application designed to handle device activation 
 ![](https://github.com/we-and/python_to_cpp_test_sockets/blob/main/screenshot.png?raw=true)
 
 
+## User rights
+Ideally we want to deny access of secret tokens to the user but allow to app to read them. Set_token sets rights with
+```
+sudo setcap 'cap_dac_override=eip' ../../dist/pos
+```
+Rerun this command if you recompile and don't want to run set_token again
+
 ## Tasks
 The main function initializes a server socket, binds it to a specified host and port, listens for incoming connections,
  * and handles them by echoing back any received data. The server runs indefinitely until it encounters a failure in
