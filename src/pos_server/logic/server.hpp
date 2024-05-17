@@ -7,6 +7,7 @@
 #include <sstream>
 #include <curl/curl.h>
 #include <filesystem>
+#include "sendplaintext.hpp"
 
 #include <mutex>
 #include <sys/socket.h>
