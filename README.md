@@ -56,14 +56,14 @@ Hash Calculation: Calculates SHA-256 hashes for given sequence values and device
 TCP Server: Listens for incoming connections and handles data reception and transmission over TCP.
 Logging: Logs important events and data to files, helping in debugging and record-keeping.
 
-## Requirements
-C++ Compiler (C++11 or later)
+## Relies on
+G++ Compiler (version 5.0 or later to allow for C++17)
 Crypto++ Library
 cURL Library
 nlohmann/json Library
-Linux Environment (developed and tested on Ubuntu)
+Linux Environment (developed and tested on Ubuntu 16.04)
 
-## Installation
+## Dependencies for compilation
 Install Dependencies
 Crypto++ Library
 
