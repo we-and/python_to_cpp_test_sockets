@@ -50,10 +50,16 @@ public:
         }
         return instance;
     }
-
+std::string getFilePath(const Config& appConfig){
+      auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) + ".txt";
+      return filePath;
+}
     // Initialization method for setting up the configuration
-    void init(const Config& config) {
-        appConfig = config;
+    void init(const Config& appConfig_) {
+        appConfig = appConfig_;
+          auto filePath=getFilePath(appConfig_);
+        std::cout <<"Log file               :"<< filePath <<std::endl;
+
     }
 
     void log(const std::string& text) {

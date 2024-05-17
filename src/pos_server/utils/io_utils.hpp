@@ -212,7 +212,7 @@ std::string getAbsolutePath(const std::string& filename) {
 
 ConfigFile readIniFile(const std::string& filename) {
    std::string absPath2= getAbsolutePathRelativeToExecutable(filename);
-    std::cout <<"Reading config file from"<< absPath2 <<std::endl;
+    std::cout <<"Config file            :"<< absPath2 <<std::endl;
  //    std::string absolutePath = getAbsolutePath(filename);
    // std::cout << absolutePath <<std::endl;
     std::ifstream file(absPath2);
