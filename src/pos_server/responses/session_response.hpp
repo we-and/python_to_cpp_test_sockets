@@ -62,8 +62,7 @@ public:
     json getRawJson() const { return raw;}
 
     bool parseFromJsonString(std::string jsonstr){
-        json jsonResponse = json::parse(jsonstr);
-        bool isValid=parseAndValidate(jsonResponse);
+        bool isValid=parseAndValidate(jsonstr);
         return isValid;
     }
 
