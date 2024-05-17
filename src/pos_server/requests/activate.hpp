@@ -1,9 +1,9 @@
-#include <iostream>
-#include "../log_utils.hpp"
-#include "../json.hpp"
-#include <string>
-#include "../request_utils.hpp"
-using json = nlohmann::json;
+    #include <iostream>
+    #include "../utils/log_utils.hpp"
+    #include "../utils/json.hpp"
+    #include <string>
+    #include "../utils/request_utils.hpp"
+    using json = nlohmann::json;
 /**
  * Activates a device by making an HTTP POST request to a specific URL with a provided secret.
  * 

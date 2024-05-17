@@ -1,33 +1,22 @@
     #include <iostream>
     #include <fstream>
     #include <chrono>
-    #include <iomanip>
     #include <string>
     #include <stdlib.h>  
     #include <sstream>
-    #include <curl/curl.h>
     #include <filesystem>
-    #include "json.hpp"
 
-    #include <mutex>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <unistd.h>
-    #include <cryptopp/sha.h>
-    #include <cryptopp/hex.h>
-    #include <cstdlib>
-    #include <sys/stat.h> 
 
 #include "configfile.hpp"
-#include "log_utils.hpp"
-#include "io_utils.hpp" 
+#include "utils/log_utils.hpp"
+#include "utils/io_utils.hpp" 
 #include "config.hpp"
 #include "sendplaintext.hpp"
 #include "logic/setup.hpp"
 #include "logic/accesstoken.hpp"
 #include "logic/server.hpp"
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 
 // Initialize static members
@@ -36,40 +25,10 @@ std::mutex Logger::mutex;
 
 
 
-// Retrieve the current system time as a time_t object
-//auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-bool is_verbose=false;
-
-
-/**
- * Logs a message to a uniquely named file with a timestamp.
- * 
- * This function takes a string message and logs it to a text file. The filename is uniquely generated based on the current system time.
- * Each log entry in the file is prefixed with a timestamp in the "YYYY-MM-DD HH:MM:SS" format, followed by the message itself.
- * 
- * @param text The message to be logged. It should be a string containing the text that needs to be recorded in the log file.
- * 
- * Usage Example:
- * logger->log("Application has started.");
- * 
- * Output File Example: log-1700819387.txt
- * Contents of log-1700819387.txt: 2024-04-30 12:34:56 - Application has started.
- */
-using json = nlohmann::json;
-
-
-
-
-
-
-
-
 /**
  * Main function to set up and run a TCP echo server.
  */
 int main(int argc, char* argv[]) {
-
     // Parse command-line arguments
     if (argc==1){
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
@@ -86,7 +45,6 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
-
 
     //read config ini file
     ConfigFile configFile=readIniFile(configFilePath);

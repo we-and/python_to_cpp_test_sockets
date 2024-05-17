@@ -1,8 +1,8 @@
 #include <iostream>
-#include "../log_utils.hpp"
-#include "../json.hpp"
+#include "../utils/log_utils.hpp"
+#include "../utils/json.hpp"
 #include <string>
-#include "../request_utils.hpp"
+#include "../utils/request_utils.hpp"
 using json = nlohmann::json;
 /**
  * Sends a sequence hash and other device information to a specified server endpoint via HTTP POST.

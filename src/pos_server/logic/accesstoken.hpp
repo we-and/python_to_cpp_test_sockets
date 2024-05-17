@@ -9,7 +9,7 @@
 #include <sstream>
 #include <curl/curl.h>
 #include <filesystem>
-#include "../json.hpp"
+#include "../utils/json.hpp"
 
 #include <mutex>
 #include <sys/socket.h>
@@ -20,8 +20,8 @@
 #include <cryptopp/hex.h>
 #include <cstdlib>
 #include <sys/stat.h> 
-#include "../log_utils.hpp"
-#include "../io_utils.hpp" 
+#include "../utils/log_utils.hpp"
+#include "../utils/io_utils.hpp" 
 #include "config.hpp"
 
 #include "../responses/activation_response.hpp"
