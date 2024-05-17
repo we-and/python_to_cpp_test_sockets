@@ -258,7 +258,7 @@ bool reloadSystemdService(const std::string& serviceName) {
 
     if (!executeSystemdCommand(reloadCmd)) return false;
     if (!executeSystemdCommand(enableCmd)) return false;
-    
+    return true;
 }
 
 
