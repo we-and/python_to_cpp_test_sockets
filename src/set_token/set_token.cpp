@@ -71,7 +71,7 @@ void setupService(const std::string& appName,const std::string& configFilePath) 
     serviceFile << "[Service]\n";
     serviceFile << "Type=simple\n";
     serviceFile << "ExecStart=" << apppathwithargs << "\n";
-    serviceFile << "Restart=on-failure\n\n";
+    serviceFile << "Restart=no\n\n";
     serviceFile << "[Install]\n";
     serviceFile << "WantedBy=multi-user.target\n";
 
@@ -286,7 +286,7 @@ bool reloadSystemdService(const std::string& serviceName) {
 int main(int argc, char* argv[]) {
     
     std::string configFilePath;
-
+    bool restartServer=false;
     // Parse command-line arguments
     if (argc==1){
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
@@ -318,6 +318,8 @@ int main(int argc, char* argv[]) {
     setupService(appConfig.getMainAppName(),configFilePath);
 
     std::cout << "Reloading service manager"<<std::endl;
-    reloadSystemdService("pos");
+    if(restartServer){
+        reloadSystemdService("pos");
+    }
     return 0;
 }

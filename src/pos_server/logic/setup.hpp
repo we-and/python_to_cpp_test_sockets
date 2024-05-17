@@ -47,7 +47,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
 
 
             //debug
-            /*
+            
             //send sequence hash directly
                             std::cout << "Debug send hash directly" <<std::endl;
 
@@ -65,8 +65,8 @@ std::pair<int,std::string> setup(const Config& appConfig){
                  return {1,""};
             }
             //end debug
-            */
-            return requestAccessTokenFromSecretToken(secretToken,appConfig);
+            
+            //return requestAccessTokenFromSecretToken(secretToken,appConfig);
         }
     }else{
         logger->log( "Setup failed, no secret token"  );
