@@ -189,7 +189,7 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
     {
         fs::path secretTokenPath = posDirectory + secretTokenFilename;
         secretToken = readStringFromFile(secretTokenPath, logger);
-        logger->log("hasValidSecretToken true");
+        logger->log("    hasValidSecretToken true");
         return {true, isValidSecretToken(secretToken)};
     }
     else
@@ -205,7 +205,7 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
         }else{
             */
         std::cout << "Secret token does not exist. Please run set_token <YOUR_SECRET_TOKEN> beforehand with admin rights." << std::endl;
-        logger->log("hasValidSecretToken false");
+        logger->log("    hasValidSecretToken false");
 
         return {true, false};
         // }
@@ -237,12 +237,12 @@ bool hasValidSessionTokenInit()
     bool sessionTokenExists = checkEnvVarExists("ACCESS_TOKEN", logger);
     if (sessionTokenExists)
     {
-        logger->log("hasValidSessionToken: has ACCESS_TOKEN");
+        logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
         return is_valid_access_token(); //-1 means no resend to sender if token is invalid.
     }
     else
     {
-        logger->log("hasValidSessionToken: no ACCESS_TOKEN");
+        logger->log("    hasValidSessionToken: no ACCESS_TOKEN");
         return false;
     }
 }
