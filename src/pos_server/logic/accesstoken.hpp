@@ -302,16 +302,20 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
     SessionAPIResponse response = SessionAPIResponse();
     bool isValid = response.session(deviceId, deviceSequence, deviceKey, sequenceHash, config);
     std::cout << "sessionResult" << response.getRawJson() << std::endl;
-
+    logger->log("Session has response");
     if (response.hasMessage())
     {
+    logger->log("Session has response message");
         return processSessionResponseErrorMessage(response, logger);
     }
     if (response.hasAccessToken())
     {
+            logger->log("Session has response with access token");
+
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         std::string expiresIn = response.getExpiresIn();
+    logger->log("Session has response "+accessToken + " "+expiresIn);
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
@@ -330,6 +334,8 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // For example, you might return true if everything succeeds:
         return {0, accessToken};
     }
+        logger->log("Session has response other");
+
     return {1, ""}; // Return an error code
 }
 

@@ -12,16 +12,26 @@ private:
     std::string expiresIn;
 
     std::string message;
-    json raw;
+    json rawJson;
 public:
     // Constructor to initialize the members with default values
     SessionAPIResponse() : message("") {}
 
     // Function to parse JSON and validate the required fields
-    bool parseAndValidate(const std::string& jsonString) {
+    bool parseAndValidateFromString(const std::string& jsonString) {
         try {
             json j = json::parse(jsonString);
+            return parseAndValidate(j);
 
+          } catch (const json::parse_error& e) {
+            // Handle parsing errors (e.g., malformed JSON)
+            std::cerr << "JSON parse error: " << e.what() << '\n';
+            return false;
+        }
+    }
+    // Function to parse JSON and validate the required fields
+    bool parseAndValidate(const json& j) {
+        try {
 
             if (j.contains("message")){
                 if (!j["message"].is_string()){
@@ -59,16 +69,17 @@ public:
     std::string getExpiresIn() const { return expiresIn; }
     std::string getMessage() const { return message; }
 
-    json getRawJson() const { return raw;}
+    json getRawJson() const { return rawJson;}
 
-    bool parseFromJsonString(std::string jsonstr){
-        bool isValid=parseAndValidate(jsonstr);
-        return isValid;
-    }
 
     bool session(const int deviceId, const int deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig){
-        auto jsonResponse=sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash,appConfig);
-        raw=jsonResponse;
+        Logger* logger = Logger::getInstance();
+            logger->log("SessionAPIResponse session");
+
+        json jsonResponse=sendSequenceHash(deviceId, deviceSequence, deviceKey, sequenceHash,appConfig);
+            logger->log("SessionAPIResponse hash has response");
+
+        rawJson=jsonResponse;
         bool isValid=parseAndValidate(jsonResponse);
         return isValid;
     }

@@ -17,13 +17,25 @@ public:
     // Constructor to initialize the members with default values
     ActivateDeviceAPIResponse() : deviceId(-1), deviceSequence(-1),message("") {}
 
+ // Function to parse JSON and validate the required fields
+    bool parseAndValidateFromString(const std::string& jsonString) {
+        try {
+            json j = json::parse(jsonString);
+            return parseAndValidate(j);
+
+          } catch (const json::parse_error& e) {
+            // Handle parsing errors (e.g., malformed JSON)
+            std::cerr << "JSON parse error: " << e.what() << '\n';
+            return false;
+        }
+    }
+
     // Function to parse JSON and validate the required fields
-    bool parseAndValidate(const std::string& jsonString) {
+    bool parseAndValidate(const json& j) {
         Logger* logger = Logger::getInstance();
         logger->log("ActivateDeviceAPIResponse parseAndValidate");
 
         try {
-            json j = json::parse(jsonString);
 
             logger->log("ActivateDeviceAPIResponse parseAndValidate parsed");
             if (j.contains("message")){
@@ -88,7 +100,7 @@ public:
     }
 
     bool activate(const std::string& secret, const Config& appConfig){
-        auto jsonResponse=activateDevice(secret,appConfig);
+        json jsonResponse=activateDevice(secret,appConfig);
         raw=jsonResponse;
         bool isValid=parseAndValidate(jsonResponse);
         return isValid;
