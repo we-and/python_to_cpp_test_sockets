@@ -50,6 +50,7 @@ json sendSequenceHash(const int deviceId, const int deviceSequence, const std::s
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {

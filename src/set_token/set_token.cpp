@@ -34,7 +34,7 @@ std::string getAppPath(const std::string& appName){
     fs::path currentPath = fs::current_path();
 
  // Navigate up to the parent of the current path, then to 'mypath'
-    fs::path basePath = currentPath.parent_path().parent_path();
+    fs::path basePath = currentPath.parent_path();
 
 
     // Form the path for ExecStart
@@ -336,7 +336,7 @@ int main(int argc, char* argv[]) {
 
     std::string apppath=getAppPath(appConfig.getMainAppName());
     grantRightsToApp(apppath);
-
+    return 0;
     std::cout << "Ask Token"<<std::endl;
     saveSecretToken(appConfig);    ;
     std::cout << "Saving service"<<std::endl;

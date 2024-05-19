@@ -51,6 +51,7 @@ json activateDevice(const std::string& secret, const Config& appConfig) {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
 
         // Perform the request, and get the response code
         res = curl_easy_perform(curl);
