@@ -309,7 +309,7 @@ bool startSystemdService(const std::string& serviceName) {
  * @return int Returns 0 upon successful completion of all tasks.
  */
 int main(int argc, char* argv[]) {
-    
+    std::cout << "SET TOKEN version 0.8"<<std::endl;
     std::string configFilePath;
     bool restartServer=false;
     // Parse command-line arguments
@@ -326,7 +326,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
-    std::cout << "Config file: "<<configFilePath<<std::endl;
+    std::cout << "Config file             : "<<configFilePath<<std::endl;
     std::cout << "Creating folders"<<std::endl;
     createPosFolder();
     createPosLogsFolder();
@@ -335,7 +335,7 @@ int main(int argc, char* argv[]) {
     Config appConfig; 
 
     std::string apppath=getAppPath(appConfig.getMainAppName());
-    std::cout << "POS Server path: "<<apppath<<std::endl;
+    std::cout << "POS Server path        : "<<apppath<<std::endl;
     grantRightsToApp(apppath);
     return 0;
     std::cout << "Ask Token"<<std::endl;
