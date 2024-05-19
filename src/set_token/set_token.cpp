@@ -335,6 +335,7 @@ int main(int argc, char* argv[]) {
     Config appConfig; 
 
     std::string apppath=getAppPath(appConfig.getMainAppName());
+    std::cout << "POS Server path: "<<apppath<<std::endl;
     grantRightsToApp(apppath);
     return 0;
     std::cout << "Ask Token"<<std::endl;
