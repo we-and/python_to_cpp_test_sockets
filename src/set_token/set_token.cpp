@@ -311,7 +311,7 @@ bool startSystemdService(const std::string& serviceName) {
 int main(int argc, char* argv[]) {
     std::cout << "SET TOKEN version 0.8"<<std::endl;
     std::string configFilePath;
-    bool restartServer=false;
+    bool restartServer=true;
     // Parse command-line arguments
     if (argc==1){
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
