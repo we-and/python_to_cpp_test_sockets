@@ -30,7 +30,8 @@ public:
         }
     }
     // Function to parse JSON and validate the required fields
-    bool parseAndValidate(const json& j) {
+    bool parseAndValidate(const json& j,Logger * logger) {
+        
         try {
 
             if (j.contains("message")){
@@ -42,12 +43,12 @@ public:
                 // Check if all required fields are present and are of the correct type
                 if (!j.contains("accessToken") || !j["accessToken"].is_string())
                     return false;
-                if (!j.contains("expiresIn") || !j["expiresIn"].is_string())
+                if (!j.contains("expiryTime") || !j["expiryTime"].is_number_integer())
                     return false;
 
                 // Assign the values from JSON to the member variables
                 accessToken = j["accessToken"];
-                expiresIn = j["expiresIn"];
+                expiresIn = j["expiryTime"];
 
             }
             return true;
@@ -66,13 +67,13 @@ public:
 
     // Getters for each field
     std::string getAccessToken() const { return accessToken; }
-    std::string getExpiresIn() const { return expiresIn; }
+    std::string getExpiryTime() const { return expiresIn; }
     std::string getMessage() const { return message; }
 
     json getRawJson() const { return rawJson;}
 
 
-    bool session(const int deviceId, const int deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig){
+    bool session(const int deviceId, const int deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig,Logger * logger){
         Logger* logger = Logger::getInstance();
             logger->log("SessionAPIResponse session");
 
@@ -80,7 +81,7 @@ public:
             logger->log("SessionAPIResponse hash has response");
 
         rawJson=jsonResponse;
-        bool isValid=parseAndValidate(jsonResponse);
+        bool isValid=parseAndValidate(jsonResponse,logger);
         return isValid;
     }
 };
