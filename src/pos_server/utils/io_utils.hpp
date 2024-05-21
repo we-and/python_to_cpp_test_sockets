@@ -231,7 +231,7 @@ std::string getAbsolutePath(const std::string& filename) {
 }
 
 
-ConfigFile readIniFile(const std::string& iniFilename) {
+std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
    
    
    
@@ -243,7 +243,7 @@ ConfigFile readIniFile(const std::string& iniFilename) {
     {
         std::cerr << "Ini file not found at " << absPath2 << std::endl;
         std::exit(EXIT_FAILURE);
-        return ConfigFile();
+        return {1,ConfigFile()};
     }
     
     
@@ -256,7 +256,7 @@ ConfigFile readIniFile(const std::string& iniFilename) {
 
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << iniFilename << std::endl;
-        return config; // Return default-initialized config if file opening fails
+        return {1,config}; // Return default-initialized config if file opening fails
     }
 
     while (std::getline(file, line)) {
@@ -283,7 +283,7 @@ ConfigFile readIniFile(const std::string& iniFilename) {
     }
 
     file.close();
-    return config;
+    return {0,config};
 }
 
 
