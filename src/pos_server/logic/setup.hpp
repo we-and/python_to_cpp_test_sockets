@@ -34,10 +34,13 @@ std::pair<int,std::string> setup(const Config& appConfig){
     logger->log( "Setup"  );     
     bool hasValidSessionToken_=hasValidSessionTokenInit();
     if (hasValidSessionToken){
+        logger->log( "Setup hasValidSessionToken_ yes"  );  
         //if already setup
-                const char* access_token = std::getenv("ACCESS_TOKEN");
-                return {0,access_token};
+        const char* access_token = std::getenv("ACCESS_TOKEN");
+        return {0,access_token};
     }else{
+
+        logger->log( "Setup hasValidSessionToken_ no"  );  
         auto [isSuccess,hasValidSecretToken_]=hasValidSecretToken(posDirectory,secretTokenFilename);
         if (!isSuccess){ return {1,""};}
         bool hasValidSessionToken_=hasValidSessionTokenInit();
@@ -50,7 +53,6 @@ std::pair<int,std::string> setup(const Config& appConfig){
                 logger->log( "Requesting access_token from secret."  );
                 fs::path secretTokenPath = posDirectory+secretTokenFilename;
                 std::string secretToken=readStringFromFile(secretTokenPath,logger);
-
 
                 //debug
                 /*

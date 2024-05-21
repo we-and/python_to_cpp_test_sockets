@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     Logger* logger = Logger::getInstance();
     logger->init(appConfig);  // Initialize logger configuration once
 
-    logger->log("POS SERVER"); 
+    logger->log("POS SERVER 0.9"); 
     logger->log( "Port                        : " +std::to_string( configFile.port));
     logger->log( "Base URL                    : " + configFile.baseURL);
     logger->log( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
