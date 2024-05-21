@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     //read config ini file
     auto [readConfigResult,configFile]=readIniFile(configFilePath);
     if (readConfigResult>0){
-            std::cerr << "Config file not found at  "<< configFilePath<<". Try with an absolute path." << std::endl;
+            std::cerr << "Config file not found at  "<< configFilePath<<". Check within /home/ubuntu/pos/conf or try with an absolute path." << std::endl;
         return 1;
     }
 
