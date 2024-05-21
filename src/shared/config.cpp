@@ -2,16 +2,12 @@
 
 Config::Config()
     : posDirectory("/root/pos/"),
-      mainAppName("pos"),
       secretTokenFilename("secrettoken.txt")    {}
 
 std::string Config::getPosDirectory() const {
     return posDirectory;
 }
 
-std::string Config::getMainAppName() const {
-    return mainAppName;
-}
 
 std::string Config::getSecretTokenFilename() const {
     return secretTokenFilename;

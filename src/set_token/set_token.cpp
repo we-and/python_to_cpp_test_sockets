@@ -354,7 +354,7 @@ int main(int argc, char* argv[]) {
 
 
     Config appConfig; 
-    std::string apppath=getAppPath(appConfig.getMainAppName());
+    std::string apppath=configFile.appDir+configFile.serverExecutable;
     std::cout << "POS Server path         : "<<apppath<<std::endl;
     grantRightsToApp(apppath);
 

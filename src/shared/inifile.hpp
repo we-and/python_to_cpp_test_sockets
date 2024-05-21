@@ -135,6 +135,10 @@ std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
                     config.baseURL = value;
                 }else if (key == "LOGS_DIR") {
                     config.logsDir = value;
+                }else if (key == "APP_DIR") {
+                    config.appDir = value;
+                }else if (key == "SERVER_EXECUTABLE") {
+                    config.serverExecutable = value;
                 }else if (key == "DEVICE_SECURITY_PARAMETERS_PATH") {
                     config.deviceSecurityParametersPath = value;
                 }
