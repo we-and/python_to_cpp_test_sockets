@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <sys/stat.h> 
 #include "config.hpp"
-#include "../utils/configfile.hpp"
+#include "configfile.hpp"
 
 #include "accesstoken.hpp"
 
