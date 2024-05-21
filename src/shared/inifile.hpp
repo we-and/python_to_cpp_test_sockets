@@ -7,6 +7,8 @@
 #include <sstream>
 #include <curl/curl.h>
 #include <filesystem>
+
+#include <algorithm>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
