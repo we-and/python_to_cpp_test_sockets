@@ -74,7 +74,7 @@ public:
 
     // Getters for each field
     std::string getAccessToken() const { return accessToken; }
-    std::string getExpiryTime() const { return expiresIn; }
+    int getExpiryTime() const { return expiryTime; }
     std::string getMessage() const { return message; }
 
     json getRawJson() const { return rawJson;}
