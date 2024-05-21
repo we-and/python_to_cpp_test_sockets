@@ -20,7 +20,6 @@ public:
     Config();
 
     // Getters
-    std::string getMainAppName() const;
     std::string getPosDirectory() const;
     std::string getSecretTokenFilename() const;
     std::string getActivationResultFilename() const;
