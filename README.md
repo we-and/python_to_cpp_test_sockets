@@ -23,7 +23,7 @@ sudo ./set_token -f /home/ubuntu/pos/conf/dev.ini
 #ini file from /home/ubuntu/pos/conf
 sudo ./set_token -f settings.ini
 
-#ini file without running the server 
+#use --nostart to change token without running the server 
 sudo ./set_token -f settings.ini --nostart
 
 #CHECKS
