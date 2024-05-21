@@ -1,4 +1,4 @@
-# Device Activation and Logging Server
+# POS Server
 ## Quick start
 
 ```
