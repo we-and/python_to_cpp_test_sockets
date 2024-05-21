@@ -117,7 +117,9 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
  */
 
 void startServer(std::string sessionToken,const Config& appConfig){
+    
     Logger* logger = Logger::getInstance();
+    logger->log("StartServer");
     const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = appConfig.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
@@ -126,6 +128,7 @@ void startServer(std::string sessionToken,const Config& appConfig){
     int addrlen = sizeof(address);  // Length of the address data structure
     char buffer[1024] = {0};  // Buffer to store incoming data from clients
 
+    logger->log("StartServer 1");
     // Create socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");  // Print error message if socket creation fails
