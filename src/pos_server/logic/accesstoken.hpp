@@ -321,7 +321,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         std::string expiryTime = response.getExpiryTime();
-        logger->log("Session has response accessToken="+accessToken + " expiresTime="+expiresTime);
+        logger->log("Session has response accessToken="+accessToken + " expiryTime="+expiryTime);
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
