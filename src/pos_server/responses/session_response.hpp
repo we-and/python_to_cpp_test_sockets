@@ -30,16 +30,19 @@ public:
         }
     }
     // Function to parse JSON and validate the required fields
-    bool parseAndValidate(const json& j,Logger * logger) {
-        
+    bool parseAndValidate(const json& j) {
+        Logger* logger = Logger::getInstance();
         try {
-
+            logger->log("Parse session");
             if (j.contains("message")){
+            logger->log("Parse session message");
                 if (!j["message"].is_string()){
                     return false;
                 }
                 message = j["message"];
             }else if  (j.contains("accessToken") && j["accessToken"].is_string()){
+                logger->log("Parse session accesstoken");
+
                 // Check if all required fields are present and are of the correct type
                 if (!j.contains("accessToken") || !j["accessToken"].is_string())
                     return false;
@@ -49,10 +52,14 @@ public:
                 // Assign the values from JSON to the member variables
                 accessToken = j["accessToken"];
                 expiresIn = j["expiryTime"];
-
-            }
+            }else{            
+                logger->log("Parse session other");
+}
             return true;
         } catch (const json::parse_error& e) {
+                        logger->log("Parse session error");
+                        logger->log(e.what());
+
             // Handle parsing errors (e.g., malformed JSON)
             std::cerr << "JSON parse error: " << e.what() << '\n';
             return false;
@@ -73,7 +80,7 @@ public:
     json getRawJson() const { return rawJson;}
 
 
-    bool session(const int deviceId, const int deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig,Logger * logger){
+    bool session(const int deviceId, const int deviceSequence, const std::string& deviceKey, const std::string& sequenceHash, const Config& appConfig){
         Logger* logger = Logger::getInstance();
             logger->log("SessionAPIResponse session");
 
@@ -81,7 +88,7 @@ public:
             logger->log("SessionAPIResponse hash has response");
 
         rawJson=jsonResponse;
-        bool isValid=parseAndValidate(jsonResponse,logger);
+        bool isValid=parseAndValidate(jsonResponse);
         return isValid;
     }
 };
