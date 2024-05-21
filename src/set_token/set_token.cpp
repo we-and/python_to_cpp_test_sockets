@@ -326,8 +326,23 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
+    
+    
+    //search in pos folder if not a full abs path
+    if (!isFullPath(configFilePath)){
+        configFilePath="/home/ubuntu/pos/conf/"+configFilePath;
+    }
+    //read config ini file
+    auto [readConfigResult,configFile]=readIniFile(configFilePath);
+    if (readConfigResult>0){
+            std::cerr << "Config file not found at  "<< configFilePath<<". Check within /home/ubuntu/pos/conf or try with an absolute path." << std::endl;
+        return 1;
+    }
+
+    
     std::cout << "Config file             : "<<configFilePath<<std::endl;
     std::cout << "Creating folders"<<std::endl;
+    
     createPosFolder();
     createPosLogsFolder();
 
