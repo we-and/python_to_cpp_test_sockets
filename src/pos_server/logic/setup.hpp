@@ -38,7 +38,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         //if already setup
         const char* access_token = std::getenv("ACCESS_TOKEN");
         logger->log( "Setup hasValidSessionToken_ yes read"  );  
-        logger->log( "Setup hasValidSessionToken_ yes read return"+access_token  );  
+        logger->log( "Setup hasValidSessionToken_ yes read return"+std::string(access_token)  );  
         return {0,access_token};
     }else{
 
