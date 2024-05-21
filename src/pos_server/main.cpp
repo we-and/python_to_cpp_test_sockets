@@ -14,6 +14,7 @@
 #include "logic/setup.hpp"
 #include "logic/accesstoken.hpp"
 #include "logic/server.hpp"
+#include "inifile.hpp"
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
