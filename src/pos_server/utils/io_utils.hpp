@@ -237,7 +237,6 @@ ConfigFile readIniFile(const std::string& iniFilename) {
    
 
     std::string absPath2= getAbsolutePathRelativeToExecutable(iniFilename);
-    logger->log("Reading config file            :" absPath2);
     
     auto [checkIniFileExistsSuccess, iniFileExists] = checkFileExistsAbsPath(iniFilename);
     if (!checkIniFileExistsSuccess)
