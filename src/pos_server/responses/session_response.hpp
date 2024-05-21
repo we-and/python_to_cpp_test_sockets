@@ -9,7 +9,7 @@ using json = nlohmann::json;
 class SessionAPIResponse {
 private:
     std::string accessToken;
-    std::string expiresIn;
+    int expiryTime;
 
     std::string message;
     json rawJson;
@@ -51,7 +51,7 @@ public:
 
                 // Assign the values from JSON to the member variables
                 accessToken = j["accessToken"];
-                expiresIn = j["expiryTime"];
+                expiryTime = j["expiryTime"];
             }else{            
                 logger->log("Parse session other");
 }
