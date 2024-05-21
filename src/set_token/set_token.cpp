@@ -45,17 +45,17 @@ std::string getAppPath(const std::string& appName){
     std::string mypath = execStartPath.string();
     return mypath;
 }
-void setupService(const std::string& appName,const std::string& configFilePath) {
+void setupService(const std::string& apppath,const std::string& appdir,const std::string& configFilePath) {
     // Get the current working directory
-    fs::path currentPath = fs::current_path();
+    
 
-    std::string apppath=getAppPath(appName);
     std::string apppathwithargs = apppath + " -f "+configFilePath;
     
 
+    fs::path appdirPath = appdir;
     // Name of the service file
     std::string serviceFilename = "pos.service";
-    fs::path serviceFilePath = currentPath / serviceFilename;
+    fs::path serviceFilePath = appdirPath / serviceFilename;
 
     // Create and open a text file
     std::ofstream serviceFile(serviceFilePath);
@@ -361,7 +361,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Ask Token"<<std::endl;
     saveSecretToken(appConfig);    ;
     std::cout << "Saving service"<<std::endl;
-    setupService(appConfig.getMainAppName(),configFilePath);
+    setupService(apppath,configFile.appDir, configFilePath);
 
     std::cout << "Reloading service manager"<<std::endl;
     reloadSystemdService("pos");
