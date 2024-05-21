@@ -139,7 +139,11 @@ std::string calculateHash(int deviceSequence, const std::string &deviceKey)
                                                     new CryptoPP::HexEncoder(
                                                         new CryptoPP::StringSink(digest))));
 
+    //make lowercase
+    std::transform(digest.begin(), digest.end(), digest.begin(),
+                   [](unsigned char c) -> unsigned char { return std::tolower(c); });
     logger->log("Sequence Hash: " + digest);
+    
     return digest;
 }
 
