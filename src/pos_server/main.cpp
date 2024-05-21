@@ -75,8 +75,8 @@ int main(int argc, char* argv[]) {
     logger->log( "Base URL                    : " + configFile.baseURL);
     logger->log( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
     logger->log( "logsDir                     : " + configFile.logsDir);
-    logger->log( "appDir                     : " + configFile.appDir);
-    logger->log( "serverExecutable                     : " + configFile.serverExecutable);
+    logger->log( "appDir                      : " + configFile.appDir);
+    logger->log( "serverExecutable            : " + configFile.serverExecutable);
 
 
     //setup app: check secret tokens, activation, access token, etc 
