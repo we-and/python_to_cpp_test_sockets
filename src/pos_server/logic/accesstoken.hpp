@@ -56,6 +56,9 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
 
     if (access_token != nullptr && expiration_time_str != nullptr)
     {
+     logger->log("is_valid_access_token has both");
+     logger->log(access_token);
+     logger->log(expiration_time_str);
         std::tm tm = {};
         std::istringstream ss(expiration_time_str);
 
@@ -74,10 +77,12 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         // Compare current time with expiration time
         if (current_time < expiration_time)
         {
+            logger->log("Time ok");
             return true;
         }
         else
         {
+            logger->log("Time expired");
             // optional:
             // the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
             // if you want to check token expiration before the api, uncomment below
@@ -87,6 +92,9 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
             //}
             return false;
         }
+    }else{
+                    logger->log("No env");
+
     }
     return false;
 }

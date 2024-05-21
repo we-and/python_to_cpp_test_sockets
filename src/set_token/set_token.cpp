@@ -70,6 +70,7 @@ void setupService(const std::string& apppath,const std::string& appdir,const std
     serviceFile << "[Unit]\n";
     serviceFile << "Description=POS application startup script\n\n";
     serviceFile << "[Service]\n";
+    serviceFile << "EnvironmentFile=/home/ubuntu/pos/env/env.txt";
     serviceFile << "Type=simple\n";
     serviceFile << "User=ubuntu\n";
     serviceFile << "ExecStart=" << apppathwithargs << "\n";
@@ -239,6 +240,26 @@ int createPosLogsFolder() {
 
     return 0;
 }
+int createPosEnvFolder() {
+    std::string folderPath = "/home/ubuntu/pos/env";
+     bool exists=fs::exists(folderPath);
+    
+ // Check if the directory exists
+    if (!fs::exists(folderPath)) {
+     std::cout << "createPosFolder folder not existing" << std::endl;
+        // Create the directory since it does not exist
+        if (fs::create_directory(folderPath)) {
+            std::cout << "Env directory created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create env directory." << std::endl;
+        }
+    } else {
+        std::cout << "Env directory already exists." << std::endl;
+    }
+
+
+    return 0;
+}
 
 // Function to execute a systemd command
 bool executeSystemdCommand(const std::string& command) {
@@ -299,7 +320,27 @@ bool startSystemdService(const std::string& serviceName) {
 
 
 
+bool createAndWriteFile(const std::string& path, const std::string& content) {
+    // Create an ofstream instance that will create the file if it doesn't exist
+    std::ofstream outputFile(path);
 
+    // Check if the file was opened successfully
+if (!outputFile.is_open()) {
+std::cerr << "Failed to open or create the file: " << path << std::endl;
+return false;
+}
+// Write the content to the file
+outputFile << content;
+if (outputFile.fail()) {
+    std::cerr << "Failed to write to the file: " << path << std::endl;
+    outputFile.close();
+    return false;
+}
+
+// Close the file
+outputFile.close();
+return true;
+}
 
 /**
  * Main entry point for the application which handles initializing configurations,
@@ -355,6 +396,8 @@ int main(int argc, char* argv[]) {
     
     createPosFolder();
     createPosLogsFolder();
+    createPosEnvFolder();
+    createAndWriteFile("/home/ubuntu/pos/env/env.txt","");
 
 
     Config appConfig; 
