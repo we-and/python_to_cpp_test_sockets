@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "configfile.hpp"
+namespace fs = std::filesystem;
 
 
 //GET PATH OF CURRENT EXECUTABLE, used to find settings.ini 
