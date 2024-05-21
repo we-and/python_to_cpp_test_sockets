@@ -71,6 +71,7 @@ void setupService(const std::string& apppath,const std::string& appdir,const std
     serviceFile << "Description=POS application startup script\n\n";
     serviceFile << "[Service]\n";
     serviceFile << "Type=simple\n";
+    serviceFile << "User=ubuntu\n";
     serviceFile << "ExecStart=" << apppathwithargs << "\n";
     serviceFile << "Restart=no\n\n";
     serviceFile << "[Install]\n";
