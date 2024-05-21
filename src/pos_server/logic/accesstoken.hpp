@@ -100,8 +100,8 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         else
         {
             logger->log("Time expired");
-            logger->log("Current time "+std::to_string(cur_time_str));
-            logger->log("Expiration time"+std::to_string(exp_time_str));
+            logger->log("Current time "+(cur_time_str));
+            logger->log("Expiration time"+(exp_time_str));
             // optional:
             // the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
             // if you want to check token expiration before the api, uncomment below
