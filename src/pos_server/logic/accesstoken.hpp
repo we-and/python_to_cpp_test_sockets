@@ -304,7 +304,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
     // Send the calculated sequence hash along with device details to create a session
     // Receive session creation result as a JSON object
     SessionAPIResponse response = SessionAPIResponse();
-    bool isValid = response.session(deviceId, deviceSequence, deviceKey, sequenceHash, config);
+    bool isValid = response.session(deviceId, deviceSequence, deviceKey, sequenceHash, config,logger);
     std::cout << "sessionResult" << response.getRawJson() << std::endl;
     logger->log("Session has response");
     if (response.hasMessage())
@@ -313,7 +313,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         return processSessionResponseErrorMessage(response, logger);
     }
 
-    logger->log("Response > accessToken="+accessToken + " expiresTime="+expiresTime);
+    logger->log("Response > accessToken="+response.getAccessToken() + " expiresTime="+response.getExpiryTime());
     logger->log("Response > valid="+(isValid?"true":"false"));
     if (response.hasAccessToken()){
         logger->log("Session has response with access token");
