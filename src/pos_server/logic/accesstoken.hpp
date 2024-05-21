@@ -313,7 +313,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         return processSessionResponseErrorMessage(response, logger);
     }
 
-    logger->log("Response > accessToken="+response.getAccessToken() + " expiresTime="+response.getExpiryTime());
+    logger->log("Response > accessToken="+response.getAccessToken() + " expiresTime="+std::to_string(response.getExpiryTime()));
     logger->log("Response > valid="+(isValid));
     if (response.hasAccessToken()){
         logger->log("Session has response with access token");
@@ -321,7 +321,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
-        logger->log("Session has response accessToken="+accessToken + " expiryTime="+expiryTime);
+        logger->log("Session has response accessToken="+accessToken + " expiryTime="+std::to_string(expiryTime));
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
@@ -331,7 +331,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
-        if (setenv("TOKEN_EXPIRY_TIME", expiryTime.c_str(), 1) != 0)
+        if (setenv("TOKEN_EXPIRY_TIME", std::string(expiryTime).c_str(), 1) != 0)
         {
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
@@ -340,7 +340,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // For example, you might return true if everything succeeds:
         return {0, accessToken};
     }
-        logger->log("Session has response other");
+    logger->log("Session has response other");
 
     return {1, ""}; // Return an error code
 }
