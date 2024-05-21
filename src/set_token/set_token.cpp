@@ -64,13 +64,13 @@ void setupService(const std::string& apppath,const std::string& appdir,const std
     if (!serviceFile) {
         std::cerr << "Failed to create " << serviceFilePath << std::endl;
         return;
-    }
+    }//82e750bfd8246d90134cc359e6e59949e788f6ee5ed2282b758df646e30dff3c
 
     // Write the contents of the systemd service file
     serviceFile << "[Unit]\n";
     serviceFile << "Description=POS application startup script\n\n";
     serviceFile << "[Service]\n";
-    serviceFile << "EnvironmentFile=/home/ubuntu/pos/env/env.txt";
+    serviceFile << "EnvironmentFile=/home/ubuntu/pos/env/env.txt\n";
     serviceFile << "Type=simple\n";
     serviceFile << "User=ubuntu\n";
     serviceFile << "ExecStart=" << apppathwithargs << "\n";
