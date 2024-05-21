@@ -28,6 +28,21 @@
 #include "../responses/session_response.hpp"
 namespace fs = std::filesystem;
 
+std::string timePointToString(const std::chrono::system_clock::time_point& time_point) {
+    // Convert time_point to time_t for easier formatting
+    std::time_t time = std::chrono::system_clock::to_time_t(time_point);
+
+    // Convert time_t to tm as local time
+    std::tm tm = *std::localtime(&time);
+
+    // Use stringstream to format the date and time
+    std::stringstream ss;
+    ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+    // Return the formatted string
+    return ss.str();
+}
+
 /**
  * Validates an access token based on its expiration time.
  *
@@ -74,6 +89,8 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
         auto current_time = std::chrono::system_clock::now();
 
+ std::string exp_time_str = timePointToString(expiration_time);
+  std::string cur_time_str = timePointToString(current_time);
         // Compare current time with expiration time
         if (current_time < expiration_time)
         {
@@ -83,8 +100,8 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         else
         {
             logger->log("Time expired");
-            logger->log("Current time "+std::to_string(current_time));
-            logger->log("Expiration time"+std::to_string(expiration_time));
+            logger->log("Current time "+std::to_string(cur_time_str));
+            logger->log("Expiration time"+std::to_string(exp_time_str));
             // optional:
             // the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
             // if you want to check token expiration before the api, uncomment below
