@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "config.hpp"
+#include "inifile.hpp"
 
 namespace fs = std::filesystem;
 
