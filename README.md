@@ -13,14 +13,18 @@ cd ../..
 
 cd src/set_token
 g++ --std=c++17 -o ../../dist/set_token set_token.cpp ../shared/config.cpp -I../shared -lcryptopp -lcurl -lstdc++fs
-cd ../..
+cd ../../dist
 
+#RUN COMMANDS
 #SET TOKEN
-cd dist
 #ini file from an absolute path
 sudo ./set_token -f /home/ubuntu/pos/conf/dev.ini
+
 #ini file from /home/ubuntu/pos/conf
 sudo ./set_token -f settings.ini
+
+#ini file without running the server 
+sudo ./set_token -f settings.ini --nostart
 
 #CHECKS
 sudo ls /root/pos
