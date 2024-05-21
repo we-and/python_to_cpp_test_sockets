@@ -137,12 +137,12 @@ std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath, Logger
 
         if (exists)
         {
-            logger->log("    checkFileExists: File exists at " + folderPath + filename);
+            logger->log("    checkFileExists: File exists at " + filepath);
             return {true,true};
         }
         else
         {
-            logger->log("    checkFileExists: File does not exists at" + folderPath + filename);
+            logger->log("    checkFileExists: File does not exists at" + filepath);
             return {true,false};
         }
     }
