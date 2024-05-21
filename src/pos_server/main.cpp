@@ -46,7 +46,11 @@ int main(int argc, char* argv[]) {
     }
 
     //read config ini file
-    ConfigFile configFile=readIniFile(configFilePath);
+    auto [readConfigResult,configFile]=readIniFile(configFilePath);
+    if readConfigResult>0{
+            std::cerr << "Config file not found at  "<< configFilePathh". Try with an absolute path." << std::endl;
+        return 1;
+    }
 
     //set appConfig
     Config appConfig;
