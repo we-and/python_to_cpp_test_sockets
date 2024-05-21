@@ -100,11 +100,37 @@ std::string readStringFromFile(const std::string &filePath, Logger *logger)
 }
 
 // Function to check if the one time exists
-std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::string filename, Logger *logger)
-{
+std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::string filename, Logger *logger){
     logger->log("    checkFileExists: " + folderPath + filename);
-
     fs::path myFile = folderPath + filename;
+    try
+    {
+        bool exists = fs::exists(myFile);
+
+        if (exists)
+        {
+            logger->log("    checkFileExists: File exists at " + folderPath + filename);
+            return {true,true};
+        }
+        else
+        {
+            logger->log("    checkFileExists: File does not exists at" + folderPath + filename);
+            return {true,false};
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "    checkFileExists: Exception occurred: " << e.what() << std::endl;
+        logger->log("    checkFileExists: exception");
+        logger->log(e.what());
+        return {false,false};
+    }
+    return {false,false};
+}
+// Function to check if the one time exists
+std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath, Logger *logger){
+    logger->log("    checkFileExists: " + folderPath + filename);
+    fs::path myFile = filepath;
     try
     {
         bool exists = fs::exists(myFile);
@@ -210,17 +236,33 @@ std::string getAbsolutePath(const std::string& filename) {
 }
 
 
-ConfigFile readIniFile(const std::string& filename) {
-   std::string absPath2= getAbsolutePathRelativeToExecutable(filename);
-    std::cout <<"Config file            :"<< absPath2 <<std::endl;
- //    std::string absolutePath = getAbsolutePath(filename);
-   // std::cout << absolutePath <<std::endl;
+ConfigFile readIniFile(const std::string& iniFilename) {
+   
+   
+   
+
+    std::string absPath2= getAbsolutePathRelativeToExecutable(iniFilename);
+    logger->log("Reading config file            :" absPath2);
+    
+    auto [checkIniFileExistsSuccess, iniFileExists] = checkFileExistsAbsPath(iniFilename);
+    if (!checkIniFileExistsSuccess)
+    {
+        std::cerr << "Ini file not found at " << absPath2 << std::endl;
+        logger->log("Exiting after ini config file not found");
+        std::exit(EXIT_FAILURE);
+        return ConfigFile();
+    }
+    
+    
+    
+    
+    
     std::ifstream file(absPath2);
     ConfigFile config;
     std::string line;
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
+        std::cerr << "Failed to open file: " << iniFilename << std::endl;
         return config; // Return default-initialized config if file opening fails
     }
 
