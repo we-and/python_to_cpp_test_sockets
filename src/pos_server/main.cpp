@@ -44,6 +44,10 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
+    //search in pos folder if not a full abs path
+    if (!isFullPath(configFilePath)){
+        configFilePath="/home/ubuntu/pos/conf/"+configFilePath;
+    }
 
     //read config ini file
     auto [readConfigResult,configFile]=readIniFile(configFilePath);

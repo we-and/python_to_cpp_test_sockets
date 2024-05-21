@@ -230,7 +230,10 @@ std::string getAbsolutePath(const std::string& filename) {
     }
 }
 
-
+bool isFullPath(const std::string& path) {
+    // Check if path contains any directory delimiters
+    return path.find('/') != std::string::npos || path.find('\\') != std::string::npos;
+}
 std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
    
    
