@@ -128,8 +128,7 @@ std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::s
     return {false,false};
 }
 // Function to check if the one time exists
-std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath, Logger *logger){
-    logger->log("    checkFileExists: " + filepath);
+std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath){
     fs::path myFile = filepath;
     try
     {
@@ -137,20 +136,16 @@ std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath, Logger
 
         if (exists)
         {
-            logger->log("    checkFileExists: File exists at " + filepath);
             return {true,true};
         }
         else
         {
-            logger->log("    checkFileExists: File does not exists at" + filepath);
             return {true,false};
         }
     }
     catch (const std::exception &e)
     {
         std::cerr << "    checkFileExists: Exception occurred: " << e.what() << std::endl;
-        logger->log("    checkFileExists: exception");
-        logger->log(e.what());
         return {false,false};
     }
     return {false,false};
