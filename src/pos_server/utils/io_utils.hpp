@@ -243,7 +243,6 @@ ConfigFile readIniFile(const std::string& iniFilename) {
     if (!checkIniFileExistsSuccess)
     {
         std::cerr << "Ini file not found at " << absPath2 << std::endl;
-        logger->log("Exiting after ini config file not found");
         std::exit(EXIT_FAILURE);
         return ConfigFile();
     }
