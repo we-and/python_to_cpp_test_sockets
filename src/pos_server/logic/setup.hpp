@@ -57,26 +57,6 @@ std::pair<int,std::string> setup(const Config& appConfig){
                 fs::path secretTokenPath = posDirectory+secretTokenFilename;
                 std::string secretToken=readStringFromFile(secretTokenPath,logger);
 
-                //debug
-                /*
-                //send sequence hash directly
-                                std::cout << "Debug send hash directly" <<std::endl;
-
-                ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
-            std::string jsonstr = std::string("{    \"deviceId\": 8,    \"deviceKey\": \"2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3\", \"deviceSequence\": 1}");
-            std::cout << "Debug parse" <<std::endl;
-                logger->log("Force activation from"+jsonstr);
-            bool isValid=response.parseAndValidateFromString(jsonstr);
-                std::cout << "Debug"<<isValid <<std::endl;
-                if (isValid){
-                    auto [success,sessiontoken]=processActivateResponseOK(response,logger,appConfig);
-                    std::cout << sessiontoken <<std::endl; 
-                    return {success,sessiontoken};
-                }else{
-                    return {1,""};
-                }
-                //end debug
-                */
                 return requestAccessTokenFromSecretToken(secretToken,appConfig);
             }
         }else{

@@ -7,6 +7,7 @@ class Config {
 private:
     std::string posDirectory;
     std::string mainAppName;
+    
     std::string secretTokenFilename;
     std::string activationResultFilename;
 public:
@@ -14,7 +15,7 @@ public:
     std::string baseURL;
     std::string logsDir;
     std::string deviceSecurityParametersPath;
-
+std::string envFilePath;
 public:
     // Constructor to initialize the settings
     Config();

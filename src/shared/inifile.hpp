@@ -139,6 +139,8 @@ std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
                     config.appDir = value;
                 }else if (key == "SERVER_EXECUTABLE") {
                     config.serverExecutable = value;
+                }else if (key == "ENVFILE_PATH") {
+                    config.envfilePath = value;
                 }else if (key == "DEVICE_SECURITY_PARAMETERS_PATH") {
                     config.deviceSecurityParametersPath = value;
                 }

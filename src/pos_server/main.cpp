@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
 
     //add config params from settings.ini   
     appConfig.port=configFile.port;
+    appConfig.envFilePath=configFile.envfilePath;
     appConfig.baseURL=configFile.baseURL; 
     appConfig.logsDir=configFile.logsDir;
     appConfig.deviceSecurityParametersPath=configFile.deviceSecurityParametersPath;
@@ -81,11 +82,13 @@ int main(int argc, char* argv[]) {
 
     //setup app: check secret tokens, activation, access token, etc 
     auto [setupResult,accessToken]=setup(appConfig);
+        logger->log("Setup done");
     if (setupResult>0){
         logger->log("Exiting program as setup failed");
         std::cout<<"Exiting program..."<<std::endl;
         return 1;
     }else{
+
         startServer(accessToken,appConfig);
         return 0;
     }

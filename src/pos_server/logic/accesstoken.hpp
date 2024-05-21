@@ -300,6 +300,33 @@ std::string getFutureTime(int seconds) {
     // Return the formatted string
     return ss.str();
 }
+bool storeEnvironmentVariables(const std::string& filePath, const std::string& accessToken, const std::string& expiryTime) {
+    // Try to create the directory first (requires #include <sys/stat.h> and #include <sys/types.h>)
+    // This step is optional based on whether directory exists or needs to be created by this function.
+    system(("mkdir -p " + filePath.substr(0, filePath.find_last_of('/'))).c_str());
+
+    // Open or create the file to write the environment variables
+    std::ofstream outputFile(filePath, std::ios::out | std::ios::trunc);  // Open in write mode and truncate existing
+    if (!outputFile.is_open()) {
+        std::cerr << "Failed to open or create the file: " << filePath << std::endl;
+        return false;
+    }
+
+    // Write the environment variables to the file
+    outputFile << "ACCESS_TOKEN=" << accessToken << std::endl;
+    outputFile << "TOKEN_EXPIRY_TIME=" << expiryTime << std::endl;
+
+    if (outputFile.fail()) {
+        std::cerr << "Failed to write to the file: " << filePath << std::endl;
+        outputFile.close();
+        return false;
+    }
+
+    // Close the file
+    outputFile.close();
+    return true;
+}
+
 std::pair<int, std::string> processActivateResponseErrorMessage(ActivateDeviceAPIResponse &response, Logger *logger)
 {
     if (response.getMessage() == "Invalid Credentials")
@@ -339,7 +366,7 @@ std::pair<int, std::string> processSessionResponseErrorMessage(SessionAPIRespons
 
 // returns { 0 , accesstoken } if success
 //         { 1, ""}            if not
-std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse, Logger *logger, const Config &config){
+std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse, Logger *logger, const Config &appConfig){
     logger->log("processActivateResponseOK");
     // Extract deviceId, deviceKey, and deviceSequence from the activation result
     int deviceId = activateResponse.getDeviceId();
@@ -353,7 +380,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
     // Send the calculated sequence hash along with device details to create a session
     // Receive session creation result as a JSON object
     SessionAPIResponse response = SessionAPIResponse();
-    bool isValid = response.session(deviceId, deviceSequence, deviceKey, sequenceHash, config);
+    bool isValid = response.session(deviceId, deviceSequence, deviceKey, sequenceHash, appConfig);
     std::cout << "sessionResult" << response.getRawJson() << std::endl;
     logger->log("Session has response");
     if (response.hasMessage())
@@ -390,6 +417,8 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         }
         // Assuming function should return a bool, add return value here.
         // For example, you might return true if everything succeeds:
+
+        storeEnvironmentVariables(appConfig.envFilePath, accessToken, expiryTimeStr);
         return {0, accessToken};
     }
     logger->log("Session has response other");
