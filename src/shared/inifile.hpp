@@ -13,6 +13,81 @@
 #include <unistd.h>
 #include "configfile.hpp"
 
+
+//GET PATH OF CURRENT EXECUTABLE, used to find settings.ini 
+#if defined(_WIN32)
+#include <windows.h>
+std::string getExecutablePath() {
+    char path[MAX_PATH] = { 0 };
+    if (GetModuleFileNameA(NULL, path, MAX_PATH) > 0) {
+        return std::filesystem::path(path).parent_path().string();
+    }
+    return std::string();
+}
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+std::string getExecutablePath() {
+    char path[1024];
+    uint32_t size = sizeof(path);
+    if (_NSGetExecutablePath(path, &size) == 0) {
+        return std::filesystem::path(path).parent_path().string();
+    }
+    return std::string();
+}
+#elif defined(__linux__)
+#include <unistd.h>
+#include <linux/limits.h>
+std::string getExecutablePath() {
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    if (count > 0) {
+        // Create a filesystem path from the result buffer and get the parent path
+        std::filesystem::path exePath(result, result + count);
+        return exePath.parent_path().string();
+    }
+    return std::string();  // Return an empty string if failed
+}
+#else
+#error "Unsupported platform."
+#endif
+
+
+std::string getAbsolutePathRelativeToExecutable(const std::string& filename) {
+    std::filesystem::path exePath = getExecutablePath();
+    std::filesystem::path filePath = exePath / filename;
+    try {
+        // Resolve to absolute path and normalize
+        return std::filesystem::absolute(filePath).string();
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+        return std::string();
+    }
+}
+// Function to check if the one time exists
+std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath){
+    fs::path myFile = filepath;
+    try
+    {
+        bool exists = fs::exists(myFile);
+
+        if (exists)
+        {
+            return {true,true};
+        }
+        else
+        {
+            return {true,false};
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "    checkFileExists: Exception occurred: " << e.what() << std::endl;
+        return {false,false};
+    }
+    return {false,false};
+}
+
+
 std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
    
    
