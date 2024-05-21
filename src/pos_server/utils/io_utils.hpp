@@ -129,7 +129,7 @@ std::pair<bool,bool> checkFileExists(const std::string &folderPath, const std::s
 }
 // Function to check if the one time exists
 std::pair<bool,bool> checkFileExistsAbsPath(const std::string & filepath, Logger *logger){
-    logger->log("    checkFileExists: " + folderPath + filename);
+    logger->log("    checkFileExists: " + filepath);
     fs::path myFile = filepath;
     try
     {
