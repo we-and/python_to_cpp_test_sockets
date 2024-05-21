@@ -301,14 +301,17 @@ std::string getFutureTime(int seconds) {
     return ss.str();
 }
 bool storeEnvironmentVariables(const std::string& filePath, const std::string& accessToken, const std::string& expiryTime) {
+    Logger *logger = Logger::getInstance();
+    logger->log("storing env in env file"+filePath);
     // Try to create the directory first (requires #include <sys/stat.h> and #include <sys/types.h>)
     // This step is optional based on whether directory exists or needs to be created by this function.
-    system(("mkdir -p " + filePath.substr(0, filePath.find_last_of('/'))).c_str());
+//    system(("mkdir -p " + filePath.substr(0, filePath.find_last_of('/'))).c_str());
 
     // Open or create the file to write the environment variables
     std::ofstream outputFile(filePath, std::ios::out | std::ios::trunc);  // Open in write mode and truncate existing
     if (!outputFile.is_open()) {
         std::cerr << "Failed to open or create the file: " << filePath << std::endl;
+         logger->log("storing env failed to open");
         return false;
     }
 
@@ -318,12 +321,15 @@ bool storeEnvironmentVariables(const std::string& filePath, const std::string& a
 
     if (outputFile.fail()) {
         std::cerr << "Failed to write to the file: " << filePath << std::endl;
+         logger->log("storing env failed");
         outputFile.close();
+
         return false;
     }
 
     // Close the file
     outputFile.close();
+     logger->log("stored env in env file"+filePath);
     return true;
 }
 
