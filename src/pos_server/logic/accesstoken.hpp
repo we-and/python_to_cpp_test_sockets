@@ -82,9 +82,10 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         if (ss.fail())
         {
             std::cerr << "Failed to parse time string" << std::endl;
+  logger->log("Token expiry failed");
             return false;
         }
-
+  logger->log("Token expiry parsed");
         // Convert std::tm to std::chrono::system_clock::time_point
         auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
         auto current_time = std::chrono::system_clock::now();
@@ -278,7 +279,27 @@ bool hasValidSessionTokenInit()
         return false;
     }
 }
+std::string getFutureTime(int seconds) {
+    // Get the current time
+    auto now = std::chrono::system_clock::now();
 
+    // Add the specified number of seconds to the current time
+    std::chrono::seconds duration(seconds);
+    auto future_time = now + duration;
+
+    // Convert system_clock::time_point to time_t
+    std::time_t future_time_t = std::chrono::system_clock::to_time_t(future_time);
+
+    // Convert time_t to tm as local time
+    std::tm tm = *std::localtime(&future_time_t);
+
+    // Format the time using stringstream
+    std::stringstream ss;
+    ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+
+    // Return the formatted string
+    return ss.str();
+}
 std::pair<int, std::string> processActivateResponseErrorMessage(ActivateDeviceAPIResponse &response, Logger *logger)
 {
     if (response.getMessage() == "Invalid Credentials")
@@ -350,7 +371,8 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
         
-        std::string  expiryTimeStr= std::to_string(expiryTime);
+        
+        std::string  expiryTimeStr= getFutureTime(expiryTime);
         logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
 
         // Save the session result (which includes the access token and expiry) to a JSON file
