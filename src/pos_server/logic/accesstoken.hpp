@@ -321,7 +321,8 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
-        logger->log("Session has response accessToken="+accessToken + " expiryTime="+std::to_string(expiryTime));
+        std::string  expiryTimeStr= std::to_string(expiryTime);
+        logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
@@ -331,7 +332,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
-        if (setenv("TOKEN_EXPIRY_TIME", std::string(expiryTime).c_str(), 1) != 0)
+        if (setenv("TOKEN_EXPIRY_TIME",expiryTimeStr.c_str(), 1) != 0)
         {
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
