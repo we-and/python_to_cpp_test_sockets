@@ -314,7 +314,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
     }
 
     logger->log("Response > accessToken="+response.getAccessToken() + " expiresTime="+response.getExpiryTime());
-    logger->log("Response > valid="+(isValid?"true":"false"));
+    logger->log("Response > valid="+(isValid?));
     if (response.hasAccessToken()){
         logger->log("Session has response with access token");
 
