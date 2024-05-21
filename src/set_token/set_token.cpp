@@ -144,6 +144,11 @@ std::string getUserInput(const std::string& prompt) {
     std::getline(std::cin, input); // Use getline to read the whole line
     return input;
 }
+
+bool isFullPath(const std::string& path) {
+    // Check if path contains any directory delimiters
+    return path.find('/') != std::string::npos || path.find('\\') != std::string::npos;
+}
 std::string inputSecretToken(){
         // Prompt for user input
         std::string userString = getUserInput("Please enter your secret token: ");
