@@ -327,7 +327,9 @@ int main(int argc, char* argv[]) {
         std::string arg = argv[i];
         if (arg == "-f" && i + 1 < argc) { // Make sure we do not go out of bounds
             configFilePath = argv[++i]; // Increment 'i' to skip the file path in the next loop iteration
-        } else {
+        }else if (arg == "--nostart") {
+            restartServer = false; // Set noStart flag
+        }  else {
             std::cerr << "Usage: " << argv[0] << " -f <config_file_path>" << std::endl;
             return 1;
         }
@@ -347,6 +349,7 @@ int main(int argc, char* argv[]) {
 
     
     std::cout << "Config file             : "<<configFilePath<<std::endl;
+    std::cout << "Start server at the end : "<<restartServer<<std::endl;
     std::cout << "Creating folders"<<std::endl;
     
     createPosFolder();
