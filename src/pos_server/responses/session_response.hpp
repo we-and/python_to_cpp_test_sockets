@@ -43,11 +43,11 @@ public:
             }else if  (j.contains("accessToken") && j["accessToken"].is_string()){
                 logger->log("Parse session accesstoken");
 
-                // Check if all required fields are present and are of the correct type
-                if (!j.contains("accessToken") || !j["accessToken"].is_string())
-                    return false;
-                if (!j.contains("expiryTime") || !j["expiryTime"].is_number_integer())
-                    return false;
+//                // Check if all required fields are present and are of the correct type
+  //              if (!j.contains("accessToken") || !j["accessToken"].is_string())
+    //                return false;
+      //          if (!j.contains("expiryTime") || !j["expiryTime"].is_number_integer())
+        //            return false;
 
                 // Assign the values from JSON to the member variables
                 accessToken = j["accessToken"];
