@@ -17,7 +17,10 @@ cd ../..
 
 #SET TOKEN
 cd dist
+#ini file from an absolute path
 sudo ./set_token -f /home/ubuntu/pos/conf/dev.ini
+#ini file from /home/ubuntu/pos/conf
+sudo ./set_token -f settings.ini
 
 #CHECKS
 sudo ls /root/pos
