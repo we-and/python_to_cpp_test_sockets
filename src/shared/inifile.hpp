@@ -1,3 +1,17 @@
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <string>
+#include <stdlib.h>
+#include <sstream>
+#include <curl/curl.h>
+#include <filesystem>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include "configfile.hpp"
 
 std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
    
