@@ -89,8 +89,11 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
         auto current_time = std::chrono::system_clock::now();
 
- std::string exp_time_str = timePointToString(expiration_time);
-  std::string cur_time_str = timePointToString(current_time);
+        std::string exp_time_str = timePointToString(expiration_time);
+        std::string cur_time_str = timePointToString(current_time);
+            logger->log("Current time "+(cur_time_str));
+            logger->log("Expiration time"+(exp_time_str));
+        
         // Compare current time with expiration time
         if (current_time < expiration_time)
         {
@@ -100,8 +103,6 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         else
         {
             logger->log("Time expired");
-            logger->log("Current time "+(cur_time_str));
-            logger->log("Expiration time"+(exp_time_str));
             // optional:
             // the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
             // if you want to check token expiration before the api, uncomment below
@@ -348,6 +349,7 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
+        
         std::string  expiryTimeStr= std::to_string(expiryTime);
         logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
 
