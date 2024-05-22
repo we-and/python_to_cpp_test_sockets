@@ -29,7 +29,7 @@ using json = nlohmann::json;
  */
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
     Logger* logger = Logger::getInstance();
-    std::string url = appConfig.baseURL + "/posCommand";
+    std::string url = appConfig.baseURL + "posCommand";
        
     logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
     logger->log("URL: " + url);
