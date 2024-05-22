@@ -66,6 +66,7 @@ bool isISO8583(const std::string& str) {
 #include "server_custom.hpp"
 #include "server_threads.hpp"
 #include "server_original.hpp"
+#include "server_libevent.hpp"
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
 void handleClient(int new_socket, struct sockaddr_in address,std::string sessionToken,const Config& appConfig,Logger * logger) {
@@ -150,6 +151,8 @@ void startServer(std::string sessionToken,const Config& appConfig){
         return startServerThreads(sessionToken,appConfig);
     }else if(appConfig.serverDispatchMode=="custom"){
         return startServerCustom(sessionToken,appConfig);
+    }else if(appConfig.serverDispatchMode=="libevent"){
+        return startServerLibevent(sessionToken,appConfig);
         
     }else {
          std::cerr << "Exiting after unknown dispatch mode in ini file " << appConfig.serverDispatchMode << std::endl;
