@@ -27,6 +27,15 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
+#include <event2/event.h>
+#include <event2/bufferevent.h>
+#include <event2/listener.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <unistd.h>
+
 struct CallbackData {
     Logger* logger;
     size_t buffer_size;
