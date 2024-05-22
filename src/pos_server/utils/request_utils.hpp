@@ -2,7 +2,9 @@
 #define REQUEST_UTILS_H
 
 
-
+#include <event2/event.h>
+#include <event2/bufferevent.h>
+#include <event2/listener.h>
 //Helper function to pad or trim a string to a specified fixed length
 std::string formatFixedField(const std::string& value, size_t length) {
     if (value.length() > length) {
