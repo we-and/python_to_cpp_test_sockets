@@ -84,7 +84,9 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
     close(new_socket);
 }
 void startServerCustom(std::string sessionToken,const Config& appConfig){
-     int server_fd, new_socket;
+     Logger* logger = Logger::getInstance();
+    logger->log("StartServer");
+    int server_fd, new_socket;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
@@ -118,10 +120,7 @@ void startServerCustom(std::string sessionToken,const Config& appConfig){
         exit(EXIT_FAILURE);
     }
 
-    Logger logger;
-    Config appConfig;
-    std::string sessionToken = "your_session_token";
-
+   
     while (true) {
         if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
             perror("accept");
@@ -129,7 +128,7 @@ void startServerCustom(std::string sessionToken,const Config& appConfig){
             exit(EXIT_FAILURE);
         }
 
-        std::thread(handleClient, new_socket, address, sessionToken, std::ref(appConfig), &logger).detach();
+        std::thread(handleClient, new_socket, address, sessionToken, std::ref(appConfig), logger).detach();
     }
 
     close(server_fd);

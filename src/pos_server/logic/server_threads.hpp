@@ -65,8 +65,9 @@ void handleClientThreads(int new_socket, struct sockaddr_in address,std::string 
 
 }
 void startServerThreads(std::string sessionToken,const Config& appConfig){
-    Logger* logger = Logger::getInstance();
-     int server_fd, new_socket;
+     Logger* logger = Logger::getInstance();
+    logger->log("StartServer");
+    int server_fd, new_socket;
     struct sockaddr_in address;
     int opt = 1;
     int port = appConfig.port;  // Port number on which the server will listen for connections
