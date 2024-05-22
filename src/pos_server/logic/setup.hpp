@@ -47,9 +47,9 @@ std::pair<int,std::string> setup(const Config& appConfig){
 
         //load into struct
         ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
-        response.setDeviceId(deviceSecurity['deviceId']);
-        response.setDeviceSequence(deviceSecurity['deviceSequence']);
-        response.setDeviceKey(deviceSecurity['deviceKey']);
+        response.setDeviceId(deviceSecurity["deviceId"]);
+        response.setDeviceSequence(deviceSecurity["deviceSequence"]);
+        response.setDeviceKey(deviceSecurity["deviceKey"]);
 
         //increment device sequence 
         response.incrementDeviceSequence();
