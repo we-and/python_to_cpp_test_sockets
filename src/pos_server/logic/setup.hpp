@@ -55,11 +55,11 @@ std::pair<int,std::string> setup(const Config& appConfig){
         response.incrementDeviceSequence();
 
         //send as a REST /session sequest
-        auto [sessionSuccess,sessionToken]=processActivateResponseOK(response, logger, config);
+        auto [sessionSuccess,accessToken]=processActivateResponseOK(response, logger, config);
         if (sessionSuccess){
             //update device security parameters
             saveJsonToFile(response.getRawJson(), config.deviceSecurityParametersPath);
-            return {0,access_token};
+            return {0,accessToken};
         }else{
             return {1,""};
         }
