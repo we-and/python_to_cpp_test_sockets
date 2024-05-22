@@ -77,6 +77,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
         for (const auto& field : parsedFields) {
             std::cout << "Field " << field.first << ": " << field.second << std::endl;
         }
+
         //parse response for token expiry
         bool isTokenExpiry=hasResponseTokenExpiry(parsedFields);
         if (!isTokenExpiry){
@@ -94,7 +95,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
         }
 
     } catch (const std::exception& e) {
-        std::cerr << "Error parsing ISO8583 message: " << e.what() << std::endl;
+        std::cerr << "Error parsing ISO8583 message: " <<  e.what() <<"\n"<<isoMessage<< std::endl;
         return "";
     }
 
