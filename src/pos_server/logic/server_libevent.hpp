@@ -39,7 +39,7 @@
 struct CallbackData {
     Logger* logger;
     int buffer_size;
-    Config* appConfig;
+    const Config* appConfig;
 std::string accessToken;
 };
 
