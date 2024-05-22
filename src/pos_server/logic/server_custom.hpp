@@ -135,7 +135,7 @@ void startServerCustom(std::string sessionToken,const Config& appConfig){
             exit(EXIT_FAILURE);
         }
 
-        std::thread(handleClient, new_socket, address, sessionToken, std::ref(appConfig), logger).detach();
+        std::thread(handleClientCustom, new_socket, address, sessionToken, std::ref(appConfig), logger).detach();
     }
 
     close(server_fd);
