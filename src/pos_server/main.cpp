@@ -64,6 +64,8 @@ int main(int argc, char* argv[]) {
     appConfig.port=configFile.port;
     appConfig.host=configFile.host;
     appConfig.envFilePath=configFile.envfilePath;
+    appConfig.bufferSize=configFile.bufferSize;
+    appConfig.serverDispatchMode=configFile.serverDispatchMode;
     appConfig.baseURL=configFile.baseURL; 
     appConfig.logsDir=configFile.logsDir;
     appConfig.deviceSecurityParametersPath=configFile.deviceSecurityParametersPath;

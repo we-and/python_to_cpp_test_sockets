@@ -16,7 +16,10 @@ public:
     std::string baseURL;
     std::string logsDir;
     std::string deviceSecurityParametersPath;
-std::string envFilePath;
+    std::string envFilePath;
+    int bufferSize;
+    std::string serverDispatchMode;
+
 public:
     // Constructor to initialize the settings
     Config();

@@ -133,6 +133,10 @@ std::pair<int,ConfigFile> readIniFile(const std::string& iniFilename) {
                     config.port = std::stoi(value);
                 } else if (key == "BASE_URL") {
                     config.baseURL = value;
+                }else if (key == "SERVER_DISPATCH_MODE") {
+                    config.serverDispatchMode = value;
+                }else if (key == "BUFFER_SIZE") {
+                    config.bufferSize = std::stoi(value);
                 }else if (key == "LOGS_DIR") {
                     config.logsDir = value;
                 }else if (key == "APP_DIR") {

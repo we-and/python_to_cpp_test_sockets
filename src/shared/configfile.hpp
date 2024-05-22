@@ -11,6 +11,8 @@ struct ConfigFile {
     std::string envfilePath;
     std::string serverExecutable;
     std::string deviceSecurityParametersPath;
+    int bufferSize;
+    std::string serverDispatchMode;
 };
 
 #endif
