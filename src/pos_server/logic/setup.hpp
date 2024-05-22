@@ -43,7 +43,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
         
         //read device parameters 
-        json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath);
+        json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
 
         //load into struct
         ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
