@@ -20,10 +20,6 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
-#include "server_custom.hpp"
-#include "server_threads.hpp"
-#include "server_original.hpp"
-
 // The execute function orchestrates the communication with the API.
 void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload,const Config& appConfig) {
     Logger* logger = Logger::getInstance();
@@ -64,6 +60,12 @@ bool isISO8583(const std::string& str) {
 
     return false;
 }
+
+
+
+#include "server_custom.hpp"
+#include "server_threads.hpp"
+#include "server_original.hpp"
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
 void handleClient(int new_socket, struct sockaddr_in address,std::string sessionToken,const Config& appConfig,Logger * logger) {

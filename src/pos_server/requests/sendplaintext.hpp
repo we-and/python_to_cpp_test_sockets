@@ -1,3 +1,5 @@
+#ifndef SENDPT_H
+#define SENDPT_H
 #include <iostream>
 #include "../utils/log_utils.hpp"
 #include "../utils/json.hpp"
@@ -100,3 +102,4 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     return "";
 
 }
+#endif
