@@ -252,7 +252,7 @@ SessionTokenCheck hasValidSessionToken(int requestorSocket)
     if (sessionTokenExists)
     {
         logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
-        bool isValid= is_valid_access_token(requestorSocket);
+        bool isValid= is_valid_access_token();
         if (isValid){
             return SESSIONTOKENCHECK_FOUND_VALID;
         }else{

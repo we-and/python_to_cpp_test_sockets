@@ -47,7 +47,7 @@ void read_cb(struct bufferevent *bev, void *ctx) {
      CallbackData* cbData = static_cast<CallbackData*>(ctx);
     Logger* logger = cbData->logger;
     int buffer_size = cbData->buffer_size;
-    Config * appConfig=cbData->appConfig;
+    const Config * appConfig=cbData->appConfig;
     std::string accessToken=cbData->accessToken;
 
     char buffer[buffer_size];
