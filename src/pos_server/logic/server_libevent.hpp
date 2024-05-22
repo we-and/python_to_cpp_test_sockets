@@ -38,14 +38,17 @@
 
 struct CallbackData {
     Logger* logger;
-    size_t buffer_size;
+    int buffer_size;
+    Config* appConfig;
+std::string accessToken;
 };
 
 void read_cb(struct bufferevent *bev, void *ctx) {
      CallbackData* cbData = static_cast<CallbackData*>(ctx);
     Logger* logger = cbData->logger;
     int buffer_size = cbData->buffer_size;
-
+Config * appConfig=cbData->appConfig;
+std::string accessToken=cbData->accessToken;
 
     char buffer[buffer_size];
     std::string data;
@@ -59,7 +62,7 @@ void read_cb(struct bufferevent *bev, void *ctx) {
     if (!data.empty()) {
         if (isISO8583(data)) {
             std::string payload = data;
-            checkTokenAndExecute(bev, "your_session_token", payload, Config());
+            checkTokenAndExecute(bev, accessToken, payload, &appConfig);
         } else {
             resendToRequestor(bev, data);
         }
@@ -99,7 +102,9 @@ void startServerLibevent(std::string sessionToken,const Config& appConfig){
 
 
     int buffer_size = appConfig.bufferSize;  // Example buffer size
-    CallbackData cbData = { logger, buffer_size };
+    CallbackData cbData = { logger, buffer_size,
+    &appConfig,sessionToken
+     };
 
     struct event_base *base;
     struct evconnlistener *listener;
