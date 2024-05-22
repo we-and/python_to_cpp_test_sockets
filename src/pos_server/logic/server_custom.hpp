@@ -8,6 +8,13 @@
 #include <curl/curl.h>
 #include <filesystem>
 #include "sendplaintext.hpp"
+#include <vector>
+#include <thread>
+#include <string>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/select.h>
 
 #include <mutex>
 #include <sys/socket.h>
