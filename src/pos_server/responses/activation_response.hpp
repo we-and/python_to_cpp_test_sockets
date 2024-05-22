@@ -104,7 +104,10 @@ public:
     void setDeviceSequence(int sequence) {
         deviceSequence = sequence;
     }
-    
+    void incrementDeviceSequence(){
+        deviceSequence=deviceSequence+1;
+    }
+
     bool parseFromJsonString(std::string jsonstr){
          Logger* logger = Logger::getInstance();
          logger->log("ActivateDeviceAPIResponse parseFromJsonString:"+jsonstr);
