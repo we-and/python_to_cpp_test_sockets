@@ -244,8 +244,14 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
         // }
     }
 }
+enum SessionTokenCheck {
+    SESSIONTOKENCHECK_NOT_FOUND,
+    SESSIONTOKENCHECK_FOUND_EXPIRED,
+    SESSIONTOKENCHECK_FOUND_VALID
+};
+
 // used at the request phase
-bool hasValidSessionToken(int requestorSocket)
+SessionTokenCheck hasValidSessionToken(int requestorSocket)
 {
     Logger *logger = Logger::getInstance();
     logger->log("hasValidSessionToken");
@@ -253,12 +259,17 @@ bool hasValidSessionToken(int requestorSocket)
     if (sessionTokenExists)
     {
         logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
-        return is_valid_access_token(requestorSocket);
+        bool isValid= is_valid_access_token(requestorSocket);
+        if (isValid){
+            return SESSIONTOKENCHECK_FOUND_VALID
+        }else{
+            return SESSIONTOKENCHECK_FOUND_EXPIRED;
+        }
     }
     else
     {
         logger->log("    hasValidSessionToken: no ACCESS_TOKEN");
-        return false;
+        return SESSIONTOKENCHECK_NOT_FOUND;
     }
 }
 
@@ -404,7 +415,6 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
         
-        
         std::string  expiryTimeStr= getFutureTime(expiryTime);
         logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
 
@@ -445,8 +455,7 @@ std::pair<int, std::string> requestAccessTokenFromSecretToken(std::string secret
     //    json activationResult = activateDevice(secretToken,config);
     logger->log("requestAccessTokenFromSecretToken: has activationResult");
 
-    if (response.hasMessage())
-    {
+    if (response.hasMessage()){
         return processActivateResponseErrorMessage(response, logger);
     }
     if (response.hasDeviceId())

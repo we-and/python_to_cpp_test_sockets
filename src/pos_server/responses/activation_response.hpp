@@ -89,6 +89,22 @@ public:
     int getDeviceSequence() const { return deviceSequence; }
     json getRawJson() const { return rawJson;}
 
+
+     // Setter for deviceId
+    void setDeviceId(int id) {
+        deviceId = id;
+    }
+
+    // Setter for deviceKey
+    void setDeviceKey(const std::string& key) {
+        deviceKey = key;
+    }
+
+    // Setter for deviceSequence
+    void setDeviceSequence(int sequence) {
+        deviceSequence = sequence;
+    }
+    
     bool parseFromJsonString(std::string jsonstr){
          Logger* logger = Logger::getInstance();
          logger->log("ActivateDeviceAPIResponse parseFromJsonString:"+jsonstr);

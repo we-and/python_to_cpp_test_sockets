@@ -32,17 +32,40 @@ std::pair<int,std::string> setup(const Config& appConfig){
     auto secretTokenFilename=appConfig.getSecretTokenFilename();
     
     logger->log( "Setup"  );     
-    bool hasValidSessionToken_=hasValidSessionTokenInit();
-    if (hasValidSessionToken_){
+    SessionTokenCheck hasValidSessionToken_=hasValidSessionTokenInit();
+    if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_VALID){
         logger->log( "Setup hasValidSessionToken_ yes"  );  
         //if already setup
         const char* access_token = std::getenv("ACCESS_TOKEN");
         logger->log( "Setup hasValidSessionToken_ yes read"  );  
-        logger->log( "Setup hasValidSessionToken_ yes value="  );  
         logger->log( std::string(access_token)  );  
         return {0,access_token};
-    }else{
+    }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
+        
+        //read device parameters 
+        json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath);
 
+        //load into struct
+        ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
+        response.setDeviceId(deviceSecurity['deviceId']);
+        response.setDeviceSequence(deviceSecurity['deviceSequence']);
+        response.setDeviceKey(deviceSecurity['deviceKey']);
+
+        //increment device sequence 
+        response.incrementDeviceSequence();
+
+        //send as a REST /session sequest
+        auto [sessionSuccess,sessionToken]=processActivateResponseOK(response, logger, config);
+        if (sessionSuccess){
+            //update device security parameters
+            saveJsonToFile(response.getRawJson(), config.deviceSecurityParametersPath);
+            return {0,access_token};
+        }else{
+            return {1,""};
+        }
+
+
+    }else{//if not found
         logger->log( "Setup hasValidSessionToken_ no"  );  
         auto [isSuccess,hasValidSecretToken_]=hasValidSecretToken(posDirectory,secretTokenFilename);
         if (!isSuccess){ return {1,""};}
