@@ -62,9 +62,9 @@ void read_cb(struct bufferevent *bev, void *ctx) {
     if (!data.empty()) {
         if (isISO8583(data)) {
             std::string payload = data;
-            checkTokenAndExecute(bev, accessToken, payload, *appConfig);
+            checkTokenAndExecuteLibevent(bev, accessToken, payload, *appConfig);
         } else {
-            resendToRequestor(bev, data);
+            resendToRequestorLibevent(bev, data);
         }
     }
 }

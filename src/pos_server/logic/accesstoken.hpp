@@ -61,7 +61,7 @@ std::string timePointToString(const std::chrono::system_clock::time_point& time_
  *   'ACCESS_TOKEN' and 'TOKEN_EXPIRY_TIME', respectively.
  * - Proper error handling is implemented for date parsing and time comparison.
  */
-bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
+bool is_valid_access_token()
 {
     Logger *logger = Logger::getInstance();
     logger->log("is_valid_access_token");
@@ -104,13 +104,6 @@ bool is_valid_access_token(std::optional<int> requestorSocket = std::nullopt)
         else
         {
             logger->log("Time expired");
-            // optional:
-            // the program checks token expiry at startup and when API returns TOKEN EXPIRY in field 32
-            // if you want to check token expiration before the api, uncomment below
-            // if expired, send TOKEN EXPIRY and manage its reponse
-            // if (requestorSocket.has_value()) {
-            //   executeTokenExpiry(*requestorSocket,access_token);
-            //}
             return false;
         }
     }else{

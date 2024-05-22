@@ -159,7 +159,11 @@ void resendToRequestor(int socket, std::string data){
     send(socket,data.c_str(),data.size(), 0);  // Send data back to client
 
 }
-
+void resendToRequestorLibevent(struct bufferevent *bev, const std::string& data) {
+    Logger* logger = Logger::getInstance();
+    logger->log("resendToRequestor: " + data);
+    bufferevent_write(bev, data.c_str(), data.size());  // Send data back to client
+}
 // Utility function to check if field 32 contains "TOKEN EXPIRY"
 bool hasResponseTokenExpiry(const std::map<int, std::string>& fields) {
     auto it = fields.find(32);

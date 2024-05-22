@@ -106,4 +106,84 @@ logger->log("Error parsing ISO8583 message: " +isoMessage);
     return "";
 
 }
+
+std::string sendPlainTextLibevent(struct bufferevent *bev, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
+    Logger* logger = Logger::getInstance();
+    std::string url = appConfig.baseURL + "posCommand";
+       
+    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
+    logger->log("URL: " + url);
+
+    CURL* curl = curl_easy_init();
+    std::string response_string;
+    std::string header_string;
+    if (!curl) {
+        return json();  // Early exit if curl initialization fails
+    }
+     
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, ("Content-Type: text/plain"));
+    headers = curl_slist_append(headers, ("Accept: text/plain"));
+    headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
+
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res == CURLE_OK) {
+        logger->log("Request successful ");
+        logger->log("Response: " + response_string);
+        std::cout << "Request successful." << std::endl;
+        std::cout << "Response from server: " << response_string << std::endl;
+    } else {
+        std::cout << "Request failed." << std::endl;
+        std::cout << "Error: " << curl_easy_strerror(res) << std::endl;
+    }
+
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+
+
+
+    //parse and check for token expiry
+    std::string isoMessage=response_string;
+    try {
+        auto parsedFields = parseISO8583(isoMessage);
+
+        for (const auto& field : parsedFields) {
+            std::cout << "Field " << field.first << ": " << field.second << std::endl;
+        }
+
+        //parse response for token expiry
+        bool isTokenExpiry=hasResponseTokenExpiry(parsedFields);
+        if (!isTokenExpiry){
+            //If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
+            //then the ISO8583 message response is to be returned to the requestor unmodified
+            resendToRequestorLibevent(requestorSocket,payload);
+            return response_string;
+        }else{
+            //If a "TOKEN EXPIRY" response is received the response code is to be modified to return
+            //"DECLINED" in the ISO8583 message response located in field number 32, and “POS not
+            //authorized to process this request” in field number 33.
+            auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
+            resendToRequestorLibevent(bev,msg);
+            return "";
+        }
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error parsing ISO8583 message: " <<  e.what() <<"\n"<<isoMessage<< std::endl;
+        logger->log("Error parsing ISO8583 message: " +isoMessage);
+        logger->log( e.what() );
+        return "";
+    }
+
+    
+    return "";
+
+}
 #endif
