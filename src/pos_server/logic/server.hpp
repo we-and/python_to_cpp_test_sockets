@@ -126,7 +126,6 @@ void startServer(std::string sessionToken,const Config& appConfig){
     struct sockaddr_in address;  // Structure to store the server's address information
     int opt = 1;  // Option value for setsockopt to enable certain socket properties
     int addrlen = sizeof(address);  // Length of the address data structure
-    char buffer[1024] = {0};  // Buffer to store incoming data from clients
 
     logger->log("StartServer 1");
     // Create socket file descriptor

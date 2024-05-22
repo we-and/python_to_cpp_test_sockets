@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
 
     //add config params from settings.ini   
     appConfig.port=configFile.port;
+    appConfig.host=configFile.host;
     appConfig.envFilePath=configFile.envfilePath;
     appConfig.baseURL=configFile.baseURL; 
     appConfig.logsDir=configFile.logsDir;
@@ -71,10 +72,11 @@ int main(int argc, char* argv[]) {
     Logger* logger = Logger::getInstance();
     logger->init(appConfig);  // Initialize logger configuration once
 
-    logger->log("POS SERVER 0.9"); 
+    logger->log("POS SERVER 0.91"); 
     logger->log( "Port                        : " +std::to_string( configFile.port));
     logger->log( "Base URL                    : " + configFile.baseURL);
     logger->log( "deviceSecurityParametersPath: " + configFile.deviceSecurityParametersPath);
+    logger->log( "Host                        : " + configFile.host);
     logger->log( "logsDir                     : " + configFile.logsDir);
     logger->log( "appDir                      : " + configFile.appDir);
     logger->log( "serverExecutable            : " + configFile.serverExecutable);
