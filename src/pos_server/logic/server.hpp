@@ -48,6 +48,19 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     }
 }
 
+bool isISO8583(const std::string& str) {
+    // Constants for the start and end tags
+    const std::string startTag = "<isomsg>";
+    const std::string endTag = "</isomsg>";
+
+    // Check if the string starts with the start tag and ends with the end tag
+    if (str.substr(0, startTag.length()) == startTag &&
+        str.substr(str.length() - endTag.length(), endTag.length()) == endTag) {
+        return true;
+    }
+
+    return false;
+}
 
 // Dynamic Buffer Resizing to handle reading for a TCP socket 
 void handleClient(int new_socket, struct sockaddr_in address,std::string sessionToken,const Config& appConfig,Logger * logger) {
@@ -91,19 +104,6 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
         }
     }
 
-}
-bool isISO8583(const std::string& str) {
-    // Constants for the start and end tags
-    const std::string startTag = "<isomsg>";
-    const std::string endTag = "</isomsg>";
-
-    // Check if the string starts with the start tag and ends with the end tag
-    if (str.substr(0, startTag.length()) == startTag &&
-        str.substr(str.length() - endTag.length(), endTag.length()) == endTag) {
-        return true;
-    }
-
-    return false;
 }
 /**
  * Runs a TCP echo server.
