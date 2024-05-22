@@ -97,7 +97,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
     } catch (const std::exception& e) {
         std::cerr << "Error parsing ISO8583 message: " <<  e.what() <<"\n"<<isoMessage<< std::endl;
-logger->log("Error parsing ISO8583 message: " +  e.what() +"\n"+isoMessage);
+logger->log("Error parsing ISO8583 message: " +  std::to_string(e.what()) +"\n"+isoMessage);
         return "";
     }
 
