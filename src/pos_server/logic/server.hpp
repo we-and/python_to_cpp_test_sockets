@@ -80,12 +80,31 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
     // Process the data...
     // If data was received, echo it back to the client
     if (!data.empty()) {
-        std::string payload=data;
-        checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
+        //check if message is a valid isomsg
+        bool isValidIsoMsg=isISO8583(data);
+        if (isValidIsoMsg){
+            std::string payload=data;
+            checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
+        }else{
+            //reject if not a valid 
+            resendToRequestor(new_socket,data);
+        }
     }
 
 }
+bool isISO8583(const std::string& str) {
+    // Constants for the start and end tags
+    const std::string startTag = "<isomsg>";
+    const std::string endTag = "</isomsg>";
 
+    // Check if the string starts with the start tag and ends with the end tag
+    if (str.substr(0, startTag.length()) == startTag &&
+        str.substr(str.length() - endTag.length(), endTag.length()) == endTag) {
+        return true;
+    }
+
+    return false;
+}
 /**
  * Runs a TCP echo server.
  * 
@@ -120,7 +139,7 @@ void startServer(std::string sessionToken,const Config& appConfig){
     
     Logger* logger = Logger::getInstance();
     logger->log("StartServer");
-    const char* host = "0.0.0.0";  // Host IP address for the server (0.0.0.0 means all available interfaces)
+    const char* host = appConfig.host;  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = appConfig.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
     struct sockaddr_in address;  // Structure to store the server's address information
