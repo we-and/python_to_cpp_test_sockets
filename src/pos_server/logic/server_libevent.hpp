@@ -27,7 +27,10 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
-
+struct CallbackData {
+    Logger* logger;
+    size_t buffer_size;
+};
 
 void read_cb(struct bufferevent *bev, void *ctx) {
      CallbackData* cbData = static_cast<CallbackData*>(ctx);
