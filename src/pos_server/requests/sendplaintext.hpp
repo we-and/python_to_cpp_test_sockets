@@ -164,7 +164,7 @@ std::string sendPlainTextLibevent(struct bufferevent *bev, const std::string& ac
         if (!isTokenExpiry){
             //If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
             //then the ISO8583 message response is to be returned to the requestor unmodified
-            resendToRequestorLibevent(requestorSocket,payload);
+            resendToRequestorLibevent(bev,payload);
             return response_string;
         }else{
             //If a "TOKEN EXPIRY" response is received the response code is to be modified to return
