@@ -55,7 +55,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         response.incrementDeviceSequence();
 
         //send as a REST /session sequest
-        auto [sessionSuccess,accessToken]=processActivateResponseOK(response, logger, config);
+        auto [sessionSuccess,accessToken]=processActivateResponseOK(response, logger, appConfig);
         if (sessionSuccess){
             //update device security parameters
             saveJsonToFile(response.getRawJson(), config.deviceSecurityParametersPath);

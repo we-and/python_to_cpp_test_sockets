@@ -139,7 +139,7 @@ void startServer(std::string sessionToken,const Config& appConfig){
     
     Logger* logger = Logger::getInstance();
     logger->log("StartServer");
-    const char* host = appConfig.host;  // Host IP address for the server (0.0.0.0 means all available interfaces)
+    const char* host = appConfig.host.c_str();  // Host IP address for the server (0.0.0.0 means all available interfaces)
     int port = appConfig.port;  // Port number on which the server will listen for connections
     int server_fd, new_socket;  // Socket file descriptors: one for the server, one for client connections
     struct sockaddr_in address;  // Structure to store the server's address information
