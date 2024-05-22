@@ -150,8 +150,10 @@ void startServer(std::string sessionToken,const Config& appConfig){
     }else if(appConfig.serverDispatchMode=="custom"){
         return startServerCustom(sessionToken,appConfig);
         
-    }else if(){
-
+    }else {
+         std::cerr << "Exiting after unknown dispatch mode in ini file " << appConfig.serverDispatchMode << std::endl;
+        logger->log("Exiting after unknown dispatch mode in ini file " + appConfig.serverDispatchMode);
+        std::exit(EXIT_FAILURE);
     }
 }
 /*

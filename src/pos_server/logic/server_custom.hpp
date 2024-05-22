@@ -139,5 +139,4 @@ void startServerCustom(std::string sessionToken,const Config& appConfig){
     }
 
     close(server_fd);
-    return 0;
 }
