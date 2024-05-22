@@ -113,7 +113,7 @@ void startServerLibevent(std::string sessionToken,const Config& appConfig){
     base = event_base_new();
     if (!base) {
         fprintf(stderr, "Could not initialize libevent!\n");
-        return 1;
+        exit(EXIT_FAILURE); 
     }
 
     memset(&sin, 0, sizeof(sin));
@@ -127,7 +127,7 @@ void startServerLibevent(std::string sessionToken,const Config& appConfig){
 
     if (!listener) {
         perror("Could not create a listener!");
-        return 1;
+        exit(EXIT_FAILURE); 
     }
     evconnlistener_set_error_cb(listener, accept_error_cb);
 
@@ -135,5 +135,5 @@ void startServerLibevent(std::string sessionToken,const Config& appConfig){
 
     evconnlistener_free(listener);
     event_base_free(base);
-    return 0;
+   
 }
