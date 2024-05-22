@@ -261,7 +261,7 @@ SessionTokenCheck hasValidSessionToken(int requestorSocket)
         logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
         bool isValid= is_valid_access_token(requestorSocket);
         if (isValid){
-            return SESSIONTOKENCHECK_FOUND_VALID
+            return SESSIONTOKENCHECK_FOUND_VALID;
         }else{
             return SESSIONTOKENCHECK_FOUND_EXPIRED;
         }
@@ -274,7 +274,7 @@ SessionTokenCheck hasValidSessionToken(int requestorSocket)
 }
 
 // used for the setup phase
-bool hasValidSessionTokenInit()
+SessionTokenCheck hasValidSessionTokenInit()
 {
     Logger *logger = Logger::getInstance();
     logger->log("hasValidSessionTokenInit");
@@ -282,12 +282,17 @@ bool hasValidSessionTokenInit()
     if (sessionTokenExists)
     {
         logger->log("    hasValidSessionTokenInit: has ACCESS_TOKEN");
-        return is_valid_access_token(); //-1 means no resend to sender if token is invalid.
+        bool isValid= is_valid_access_token(); //-1 means no resend to sender if token is invalid.
+        if (isValid){
+                return SESSIONTOKENCHECK_FOUND_VALID;
+            }else{
+                return SESSIONTOKENCHECK_FOUND_EXPIRED;
+            }
     }
     else
     {
         logger->log("    hasValidSessionTokenInit: no ACCESS_TOKEN");
-        return false;
+        return SESSIONTOKENCHECK_NOT_FOUND;
     }
 }
 std::string getFutureTime(int seconds) {
