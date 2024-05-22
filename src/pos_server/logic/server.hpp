@@ -142,6 +142,7 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
  */
 
 void startServer(std::string sessionToken,const Config& appConfig){
+    Logger* logger = Logger::getInstance();
     //start server, choosing mode depending on the value in settings.ini
     if(appConfig.serverDispatchMode=="original"){
         return startServerOriginal(sessionToken,appConfig);
