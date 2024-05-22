@@ -43,7 +43,6 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
     }else{
     // Sends the XML payload using the session's access token.
         sendPlainText(requestorSocket,sessionToken, payload,appConfig);
-
     }
 }
 
