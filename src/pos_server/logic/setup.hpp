@@ -58,7 +58,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         auto [sessionSuccess,accessToken]=processActivateResponseOK(response, logger, appConfig);
         if (sessionSuccess){
             //update device security parameters
-            saveJsonToFile(response.getRawJson(), config.deviceSecurityParametersPath);
+            saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
             return {1,""};
