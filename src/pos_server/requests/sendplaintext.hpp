@@ -56,6 +56,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
     CURLcode res = curl_easy_perform(curl);
     if (res == CURLE_OK) {
+        logger->log("Request successful ");
         logger->log("Response: " + response_string);
         std::cout << "Request successful." << std::endl;
         std::cout << "Response from server: " << response_string << std::endl;
@@ -96,6 +97,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
     } catch (const std::exception& e) {
         std::cerr << "Error parsing ISO8583 message: " <<  e.what() <<"\n"<<isoMessage<< std::endl;
+logger->log("Error parsing ISO8583 message: " +  e.what() +"\n"+isoMessage);
         return "";
     }
 
