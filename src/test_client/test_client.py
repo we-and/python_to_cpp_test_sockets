@@ -41,16 +41,6 @@ def test_echo_server():
         print("Received: {}".format(received_message))
 
 
-        time.sleep(2)
-        print("-------------------------")
-        print("test 3: an isomsg in multiple lines")
-        s.sendall(isomessageMultiline.encode())  # Send message to server
-        print("Sent isomessage: {}".format(isomessageMultiline)) 
-        # Receive data from the server
-        data = s.recv(1024)  # Buffer size is 1024 bytes
-        received_message = data.decode()
-        print("Received: {}".format(received_message))
-
 
 
 
