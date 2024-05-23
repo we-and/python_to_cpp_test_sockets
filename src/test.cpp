@@ -3,7 +3,7 @@
 #include <map>
 #include <iostream>
 #include <tinyxml2.h>
-
+using namespace tinyxml2;
 
 // Helper function to parse variable-length fields
 std::string parseVariableField(const std::string& data, size_t& start, int maxLength) {
