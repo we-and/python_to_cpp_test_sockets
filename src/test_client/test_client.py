@@ -13,6 +13,8 @@ def test_echo_server():
 <field id="23" value="0297"/>
 <field id="55" value="1.2.0.0"/>
 </isomsg>'''
+
+
     # Create a socket object using IPv4 and TCP protocols
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))  # Connect to server
