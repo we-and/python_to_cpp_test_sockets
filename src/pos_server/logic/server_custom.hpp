@@ -71,11 +71,13 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         std::string data(buffer.begin(), buffer.begin() + totalBytesRead);
         if (!data.empty()) {
             logger->log("Received data from client: " + data);  // Log received data
-
+            std::string cleanpayload=removeNewLines(str);
+                logger->log("cleanpayload"+cleanpayload);
+            
             // Process the data...
             // If data was received, echo it back to the client
-            if (isISO8583(data)) {
-                std::string payload = data;
+            if (isISO8583(cleanpayload)) {
+                std::string payload = cleanpayload;
                 logger->log("valid isomsg");
                 checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
             } else {
