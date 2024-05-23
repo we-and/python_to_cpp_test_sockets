@@ -46,6 +46,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     Logger* logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
        
+    payload=removeNewLines(payload);
     logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
     logger->log("URL: " + url);
 
@@ -102,6 +103,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     //parse and check for token expiry
     std::string isoMessage=response_string;
     try {
+         isoMessage=removeNewLines(isoMessage);
         auto parsedFields = parseISO8583(isoMessage);
 
         for (const auto& field : parsedFields) {
@@ -126,8 +128,8 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
     } catch (const std::exception& e) {
         std::cerr << "Error parsing ISO8583 message: " <<  e.what() <<"\n"<<isoMessage<< std::endl;
-logger->log("Error parsing ISO8583 message: " +isoMessage);
- logger->log( e.what() );
+        logger->log("Error parsing ISO8583 message: " +isoMessage);
+    logger->log( e.what() );
         return "";
     }
 

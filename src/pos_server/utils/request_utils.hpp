@@ -73,6 +73,7 @@ std::string parseVariableField(const std::string& data, size_t& start, int maxLe
 
 // Parses an ISO8583 response string into a map of fields.
 std::map<int, std::string> parseISO8583(const std::string& response) {
+Logger* logger = Logger::getInstance();
     std::map<int, std::string> fields;
     size_t index = 0;
 
