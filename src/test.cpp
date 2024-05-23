@@ -90,7 +90,9 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
 
            const char* id = field->Attribute("id");
             const char* value = field->Attribute("value");
-               fieldMap[id] = value;  
+
+            const idint=std::stoi(id);
+               fieldMap[idint] = value;  
             std::cout << "Parse "<<id<<" "<<value<<std::endl;
 
             std::cout << "Field " << id << ": " << value << std::endl;
