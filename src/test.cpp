@@ -80,7 +80,7 @@ std::map<int, std::string> parseISO8583(const std::string& response) {
 std::map<int, std::string> parseXmlISO8583(const std::string& response) {
     std::cout << "Parse XML"<<std::endl;
  XMLDocument doc;
-    doc.Parse(xml);
+    doc.Parse(response);
 
     XMLElement* isomsg = doc.FirstChildElement("isomsg");
     if (isomsg) {
