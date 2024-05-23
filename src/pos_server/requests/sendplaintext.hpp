@@ -27,6 +27,14 @@ using json = nlohmann::json;
  * - This function is dependent on the libcurl library for handling HTTP communications.
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
+int curl_debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
+    if (type == CURLINFO_TEXT || type == CURLINFO_HEADER_IN || type == CURLINFO_HEADER_OUT) {
+        std::string message(data, size); // Convert char* to string and trim null characters
+        log(message);
+    }
+    return 0; // Return 0 to indicate that everything is okay
+}
+
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
     Logger* logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
@@ -48,6 +56,9 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
     logger->log("init: headers");
   curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
+    curl_easy_setopt(curl, CURLOPT_DEBUGDATA, nullptr);
+    
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
