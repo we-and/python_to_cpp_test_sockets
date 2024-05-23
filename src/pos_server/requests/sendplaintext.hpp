@@ -84,7 +84,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
 
 
     CURLcode res = curl_easy_perform(curl);
-    logger->log("easy_perform");
+    logger->log("sendPlainText easy_perform");
     if (res == CURLE_OK) {
         logger->log("Request successful ");
         logger->log("Response: " + response_string);
@@ -99,6 +99,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     curl_easy_cleanup(curl);
 
 
+    logger->log("sendPlainText parse");
 
     //parse and check for token expiry
     std::string isoMessage=response_string;
