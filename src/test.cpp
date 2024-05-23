@@ -86,11 +86,9 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
     if (isomsg) {
         XMLElement* field = isomsg->FirstChildElement("field");
         while (field) {
-            int id;
-            const char* value;
 
-            field->QueryIntAttribute("id", &id);
-            field->Attribute("value", &value);
+           const char* id = field->Attribute("id");
+        const char* value = field->Attribute("value");
     std::cout << "Parse "<<id<<" "<<value<<std::endl;
 
             std::cout << "Field " << id << ": " << value << std::endl;
