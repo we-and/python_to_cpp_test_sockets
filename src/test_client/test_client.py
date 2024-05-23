@@ -1,5 +1,5 @@
 import socket
-
+import time
 def test_echo_server():
     host = '127.0.0.1'  # Server's IP address
     port = 6000         # Server's port number
@@ -22,6 +22,7 @@ def test_echo_server():
         received_message = data.decode()
         print("Received: {}".format(received_message))
 
+        time.sleep(1)
         print("-------------------------")
         s.sendall(isomessage.encode())  # Send message to server
        # print(f"Sent: {message}")
