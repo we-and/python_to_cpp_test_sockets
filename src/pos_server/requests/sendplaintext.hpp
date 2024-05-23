@@ -28,9 +28,10 @@ using json = nlohmann::json;
  * - Assumes that the server endpoint, headers, and CURL error handling are correctly set.
  */
 int curl_debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
+     Logger* logger = Logger::getInstance();
     if (type == CURLINFO_TEXT || type == CURLINFO_HEADER_IN || type == CURLINFO_HEADER_OUT) {
         std::string message(data, size); // Convert char* to string and trim null characters
-        log(message);
+        logger->log(message);
     }
     return 0; // Return 0 to indicate that everything is okay
 }
@@ -58,7 +59,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
   curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback);
     curl_easy_setopt(curl, CURLOPT_DEBUGDATA, nullptr);
-    
+
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
