@@ -42,18 +42,6 @@ def test_echo_server():
         print("Received: {}".format(received_message))
 
 
-        if False:
-            time.sleep(2)
-            print("-------------------------")
-            print("test 2: an isomsg")
-            s.sendall(isomessage.encode())  # Send message to server
-            print("Sent isomessage: {}".format(isomessage)) 
-            # Receive data from the server
-            data = s.recv(1024)  # Buffer size is 1024 bytes
-            received_message = data.decode()
-            print("Received: {}".format(received_message))
-
-
 
 
 # Run the function
