@@ -67,6 +67,8 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
     curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);  // Disable certificate verification (not recommended for production)
+curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);  // Disable host verification (not recommended)
     logger->log("parameters set");
     logger->log("payload"+payload);
 
