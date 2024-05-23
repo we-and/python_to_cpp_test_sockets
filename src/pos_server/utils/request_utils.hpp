@@ -94,7 +94,7 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
             fieldMap[idint] = value;    // Insert into the map using the integer key
 
             // Log the parsed values
-             logger->log(  "Parse str"+std::string(idint)+" "+std::string(value));
+             logger->log(  "Parse str"+std::string(id)+" "+std::string(value));
 
 
         }
