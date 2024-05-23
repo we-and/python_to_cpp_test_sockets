@@ -57,6 +57,7 @@ void checkTokenAndExecuteLibevent(struct bufferevent *bev, std::string sessionTo
     //the requestor
     auto isValidToken=is_valid_access_token();
     if (!isValidToken){
+        logger->log("not a valid access_token");
         //redo setup for getting a new access token
         auto [isNewSetupValid,newAccessToken]=setup(appConfig);
         //if new setup is valid, process the request
@@ -67,6 +68,7 @@ void checkTokenAndExecuteLibevent(struct bufferevent *bev, std::string sessionTo
             resendToRequestorLibevent( bev,payload);
         }
     }else{
+        logger->log("valid access_token, send plain text payload");
     // Sends the XML payload using the session's access token.
         sendPlainTextLibevent(bev,sessionToken, payload,appConfig);
     }
