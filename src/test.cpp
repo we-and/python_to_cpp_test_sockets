@@ -1,12 +1,13 @@
 
 #include <string>
 #include <map>
-
-
+#include <iostream>
+#include <tinyxml2.h>
 
 
 // Helper function to parse variable-length fields
 std::string parseVariableField(const std::string& data, size_t& start, int maxLength) {
+    std::cout << "parse " << start<<std::endl;
     int length = std::stoi(data.substr(start, 2));  // Assuming 2-digit length indicator
     start += 2;  // Move start past the length indicator
 
@@ -22,7 +23,6 @@ std::string parseVariableField(const std::string& data, size_t& start, int maxLe
 
 // Parses an ISO8583 response string into a map of fields.
 std::map<int, std::string> parseISO8583(const std::string& response) {
-Logger* logger = Logger::getInstance();
     std::map<int, std::string> fields;
     size_t index = 0;
 
@@ -76,11 +76,33 @@ Logger* logger = Logger::getInstance();
     return fields;
 }
 
+// Parses an ISO8583 response string into a map of fields.
+std::map<int, std::string> parseXmlISO8583(const std::string& response) {
+    std::cout << "Parse XML"<<std::endl;
+ XMLDocument doc;
+    doc.Parse(xml);
+
+    XMLElement* isomsg = doc.FirstChildElement("isomsg");
+    if (isomsg) {
+        XMLElement* field = isomsg->FirstChildElement("field");
+        while (field) {
+            int id;
+            const char* value;
+
+            field->QueryIntAttribute("id", &id);
+            field->QueryStringAttribute("value", &value);
+    std::cout << "Parse "<<id<<" "<<value<<std::endl;
+
+            std::cout << "Field " << id << ": " << value << std::endl;
+            
+            field = field->NextSiblingElement("field");
+        }
+    }
+}
 
 
-
-
-std::string a=<isomsg>
+std::string a = R"xml(
+    <isomsg>
   <field id="0" value="0610"/>
   <field id="2" value="2454-3000-0002"/>
   <field id="4" value="490.00"/>
@@ -105,13 +127,14 @@ std::string a=<isomsg>
   <field id="59" value="SALES"/>
   <field id="60" value="null"/>
   <field id="61" value="null"/>
-</isomsg>;
+</isomsg>
+)xml";
 
 int  main(){
      //parse and check for token expiry
     std::string isoMessage=a;
     try {
-        auto parsedFields = parseISO8583(isoMessage);
+        auto parsedFields = parseXmlISO8583(isoMessage);
 
         for (const auto& field : parsedFields) {
             std::cout << "Field " << field.first << ": " << field.second << std::endl;
