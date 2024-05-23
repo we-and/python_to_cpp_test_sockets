@@ -11,7 +11,7 @@ def test_echo_server():
         #print(f"Connected to {host}:{port}")
         print("Connected to {0}:{1}".format(host, port)) 
         s.sendall(message.encode())  # Send message to server
-        print(f"Sent: {message}")
+       # print(f"Sent: {message}")
         print("Sent: {0}".format(message)) 
         # Receive data from the server
         data = s.recv(1024)  # Buffer size is 1024 bytes
