@@ -47,7 +47,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     headers = curl_slist_append(headers, ("Accept: text/plain"));
     headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
     logger->log("init: headers");
-
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
