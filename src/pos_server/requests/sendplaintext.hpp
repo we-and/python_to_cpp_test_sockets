@@ -40,11 +40,13 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     if (!curl) {
         return json();  // Early exit if curl initialization fails
     }
+    logger->log("init: ");
      
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, ("Content-Type: text/plain"));
     headers = curl_slist_append(headers, ("Accept: text/plain"));
     headers = curl_slist_append(headers, ("Authorization: " + accessToken).c_str());
+    logger->log("init: headers");
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
@@ -53,6 +55,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
     curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+    logger->log("parameters set");
 
     CURLcode res = curl_easy_perform(curl);
     if (res == CURLE_OK) {
