@@ -79,6 +79,7 @@ std::map<int, std::string> parseISO8583(const std::string& response) {
 // Parses an ISO8583 response string into a map of fields.
 std::map<int, std::string> parseXmlISO8583(const std::string& response) {
     std::cout << "Parse XML"<<std::endl;
+     std::map<int, std::string> fieldMap;
  XMLDocument doc;
     doc.Parse(response.c_str());
 
@@ -88,14 +89,16 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
         while (field) {
 
            const char* id = field->Attribute("id");
-        const char* value = field->Attribute("value");
-    std::cout << "Parse "<<id<<" "<<value<<std::endl;
+            const char* value = field->Attribute("value");
+               fieldMap[id] = value;  
+            std::cout << "Parse "<<id<<" "<<value<<std::endl;
 
             std::cout << "Field " << id << ": " << value << std::endl;
             
             field = field->NextSiblingElement("field");
         }
     }
+     return fieldMap;
 }
 
 
