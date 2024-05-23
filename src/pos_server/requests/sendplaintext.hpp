@@ -56,8 +56,10 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
     curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
     logger->log("parameters set");
+    logger->log("payload"+payload);
 
     CURLcode res = curl_easy_perform(curl);
+    logger->log("easy_perform");
     if (res == CURLE_OK) {
         logger->log("Request successful ");
         logger->log("Response: " + response_string);
