@@ -76,8 +76,10 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             // If data was received, echo it back to the client
             if (isISO8583(data)) {
                 std::string payload = data;
+                logger->log("valid isomsg");
                 checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
             } else {
+                logger->log("Not a valid isomsg");
                 // Reject if not valid
                 resendToRequestor(new_socket, data);
             }
