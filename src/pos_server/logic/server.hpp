@@ -82,11 +82,13 @@ void checkTokenAndExecuteLibevent(struct bufferevent *bev, std::string sessionTo
 }
 
 bool isISO8583(const std::string& str) {
+    
+    auto cleanpayload=removeNewLines(str);
     // Regular expression to match strings that start with <isomsg> and end with </isomsg>
     std::regex pattern("^<isomsg>.*</isomsg>$", std::regex_constants::ECMAScript);
 
     // Check if the string matches the pattern
-    return std::regex_match(str, pattern);
+    return std::regex_match(cleanpayload, pattern);
 }
 
 
