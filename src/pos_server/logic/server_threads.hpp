@@ -56,8 +56,11 @@ void handleClientThreads(int new_socket, struct sockaddr_in address,std::string 
         bool isValidIsoMsg=isISO8583(data);
         if (isValidIsoMsg){
             std::string payload=data;
+            logger->log("valid isomsg");
             checkTokenAndExecute(new_socket, sessionToken,payload,appConfig);
         }else{
+            logger->log("Not a valid isomsg");
+            
             //reject if not a valid 
             resendToRequestor(new_socket,data);
         }
