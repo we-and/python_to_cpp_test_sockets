@@ -71,7 +71,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         std::string data(buffer.begin(), buffer.begin() + totalBytesRead);
         if (!data.empty()) {
             logger->log("Received data from client: " + data);  // Log received data
-            std::string cleanpayload=removeNewLines(str);
+            std::string cleanpayload=removeNewLines(data);
                 logger->log("cleanpayload"+cleanpayload);
             
             // Process the data...
