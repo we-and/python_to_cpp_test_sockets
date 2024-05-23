@@ -9,6 +9,7 @@
 #include <filesystem>
 #include "sendplaintext.hpp"
 
+#include <regex>
 #include <mutex>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -72,17 +73,11 @@ void checkTokenAndExecuteLibevent(struct bufferevent *bev, std::string sessionTo
 }
 
 bool isISO8583(const std::string& str) {
-    // Constants for the start and end tags
-    const std::string startTag = "<isomsg>";
-    const std::string endTag = "</isomsg>";
+    // Regular expression to match strings that start with <isomsg> and end with </isomsg>
+    std::regex pattern("^<isomsg>.*</isomsg>$", std::regex_constants::ECMAScript);
 
-    // Check if the string starts with the start tag and ends with the end tag
-    if (str.substr(0, startTag.length()) == startTag &&
-        str.substr(str.length() - endTag.length(), endTag.length()) == endTag) {
-        return true;
-    }
-
-    return false;
+    // Check if the string matches the pattern
+    return std::regex_match(str, pattern);
 }
 
 
