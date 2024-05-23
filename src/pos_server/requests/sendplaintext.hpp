@@ -104,7 +104,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     std::string isoMessage=response_string;
     try {
          isoMessage=removeNewLines(isoMessage);
-        auto parsedFields = parseISO8583(isoMessage);
+        auto parsedFields = parseXmlISO8583(isoMessage);
 
         for (const auto& field : parsedFields) {
             std::cout << "Field " << field.first << ": " << field.second << std::endl;
@@ -184,7 +184,7 @@ std::string sendPlainTextLibevent(struct bufferevent *bev, const std::string& ac
     //parse and check for token expiry
     std::string isoMessage=response_string;
     try {
-        auto parsedFields = parseISO8583(isoMessage);
+        auto parsedFields = parseXmlISO8583(isoMessage);
 
         for (const auto& field : parsedFields) {
             std::cout << "Field " << field.first << ": " << field.second << std::endl;

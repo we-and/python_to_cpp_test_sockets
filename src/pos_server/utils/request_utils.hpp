@@ -2,6 +2,8 @@
 #define REQUEST_UTILS_H
 
 
+#include <tinyxml2.h>
+using namespace tinyxml2;
 #include <event2/event.h>
 #include <event2/bufferevent.h>
 #include <event2/listener.h>
@@ -70,6 +72,33 @@ std::string parseVariableField(const std::string& data, size_t& start, int maxLe
     return field;
 }
 
+
+// Parses an ISO8583 response string into a map of fields.
+std::map<int, std::string> parseXmlISO8583(const std::string& response) {
+    std::cout << "Parse XML"<<std::endl;
+     std::map<int, std::string> fieldMap;
+ XMLDocument doc;
+    doc.Parse(response.c_str());
+
+    XMLElement* isomsg = doc.FirstChildElement("isomsg");
+    if (isomsg) {
+        XMLElement* field = isomsg->FirstChildElement("field");
+        while (field) {
+
+           const char* id = field->Attribute("id");
+            const char* value = field->Attribute("value");
+
+            const int idint=std::stoi(id);
+               fieldMap[idint] = value;  
+            std::cout << "Parse "<<id<<" "<<value<<std::endl;
+
+            std::cout << "Field " << id << ": " << value << std::endl;
+            
+            field = field->NextSiblingElement("field");
+        }
+    }
+     return fieldMap;
+}
 
 // Parses an ISO8583 response string into a map of fields.
 std::map<int, std::string> parseISO8583(const std::string& response) {
