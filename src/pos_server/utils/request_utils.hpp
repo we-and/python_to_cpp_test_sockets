@@ -75,7 +75,8 @@ std::string parseVariableField(const std::string& data, size_t& start, int maxLe
 
 // Parses an ISO8583 response string into a map of fields.
 std::map<int, std::string> parseXmlISO8583(const std::string& response) {
-    std::cout << "Parse XML"<<std::endl;
+     Logger* logger = Logger::getInstance();
+    logger->log( "Parse XML");
      std::map<int, std::string> fieldMap;
  XMLDocument doc;
     doc.Parse(response.c_str());
@@ -87,12 +88,12 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
 
            const char* id = field->Attribute("id");
             const char* value = field->Attribute("value");
+             logger->log(  "Parse str"+std::string(id)+" "+std::string(value));
 
             const int idint=std::stoi(id);
                fieldMap[idint] = value;  
-            std::cout << "Parse "<<id<<" "<<value<<std::endl;
+             logger->log(  "Parse int "+std::string(idint)+" "+std::string(value));
 
-            std::cout << "Field " << id << ": " << value << std::endl;
             
             field = field->NextSiblingElement("field");
         }
