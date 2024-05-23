@@ -91,8 +91,9 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
              logger->log(  "Parse str"+std::string(id)+" "+std::string(value));
 
              int idint=std::stoi(id);
+             std::string idstr=+std::string(idint);
                fieldMap[idint] = value;  
-             logger->log(  "Parse int "+std::string(idint)+" "+std::string(value));
+             logger->log(  "Parse int "+idstr+" "+std::string(value));
 
             
             field = field->NextSiblingElement("field");
