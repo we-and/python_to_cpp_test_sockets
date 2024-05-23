@@ -104,8 +104,12 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     //parse and check for token expiry
     std::string isoMessage=response_string;
     try {
+    logger->log("sendPlainText remove lines");
          isoMessage=removeNewLines(isoMessage);
+    logger->log("sendPlainText clear"+isoMessage);
+    logger->log("sendPlainText parse xml");
         auto parsedFields = parseXmlISO8583(isoMessage);
+    logger->log("sendPlainText parse xml done");
 
         for (const auto& field : parsedFields) {
             std::cout << "Field " << field.first << ": " << field.second << std::endl;
