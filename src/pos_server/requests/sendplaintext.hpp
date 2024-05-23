@@ -46,8 +46,8 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     Logger* logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
        
-    payload=removeNewLines(payload);
-    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + payload);
+    auto cleanpayload=removeNewLines(payload);
+    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + cleanpayload);
     logger->log("URL: " + url);
 
     CURL* curl = curl_easy_init();
@@ -68,7 +68,7 @@ std::string sendPlainText(const int requestorSocket, const std::string& accessTo
     curl_easy_setopt(curl, CURLOPT_DEBUGDATA, nullptr);
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cleanpayload.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
