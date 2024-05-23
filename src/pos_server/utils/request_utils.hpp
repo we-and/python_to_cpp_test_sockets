@@ -88,12 +88,17 @@ std::map<int, std::string> parseXmlISO8583(const std::string& response) {
 
            const char* id = field->Attribute("id");
             const char* value = field->Attribute("value");
-             logger->log(  "Parse str"+std::string(id)+" "+std::string(value));
 
-             int idint=std::stoi(id);
-             std::string idstr=std::string(idint);
-               fieldMap[idint] = value;  
-             logger->log(  "Parse int "+idstr+" "+std::string(value));
+             if (id != nullptr && value != nullptr) {
+            int idint = std::stoi(id);  // Convert id to an integer
+            fieldMap[idint] = value;    // Insert into the map using the integer key
+
+            // Log the parsed values
+             logger->log(  "Parse str"+std::string(idint)+" "+std::string(value));
+
+
+        }
+
 
             
             field = field->NextSiblingElement("field");
