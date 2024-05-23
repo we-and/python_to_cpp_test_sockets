@@ -62,8 +62,10 @@ void read_cb(struct bufferevent *bev, void *ctx) {
     if (!data.empty()) {
         if (isISO8583(data)) {
             std::string payload = data;
+            logger->log("valid isomsg");
             checkTokenAndExecuteLibevent(bev, accessToken, payload, *appConfig);
         } else {
+            logger->log("Not a valid isomsg");
             resendToRequestorLibevent(bev, data);
         }
     }
