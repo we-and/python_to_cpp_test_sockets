@@ -36,6 +36,12 @@ int curl_debug_callback2(CURL *handle, curl_infotype type, char *data, size_t si
     return 0; // Return 0 to indicate that everything is okay
 }
 
+std::string removeNewLines(std::string str) {
+    str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+    str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+    return str;
+}
+
 std::string sendPlainText(const int requestorSocket, const std::string& accessToken, const std::string& payload, const Config& appConfig) {
     Logger* logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
