@@ -12,11 +12,11 @@ def test_echo_server():
         print("Connected to {0}:{1}".format(host, port)) 
         s.sendall(message.encode())  # Send message to server
        # print(f"Sent: {message}")
-        print("Sent: {0}".format(message)) 
+        print("Sent: {}".format(message)) 
         # Receive data from the server
         data = s.recv(1024)  # Buffer size is 1024 bytes
         received_message = data.decode()
-        print(f"Received: {0}".format(received_message))
+        print("Received: {}".format(received_message))
 
 
 # Run the function
