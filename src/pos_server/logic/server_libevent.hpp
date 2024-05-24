@@ -99,7 +99,7 @@ void accept_error_cb(struct evconnlistener *listener, void *ctx) {
 
 void startServerLibevent(std::string sessionToken,const Config& appConfig){
        Logger* logger = Logger::getInstance();
-    logger->log("StartServer");
+    logger->log("StartServer libevent");
    
 
 

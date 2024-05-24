@@ -27,7 +27,13 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
-
+void processNewData(char* newData, size_t newDataLength) {
+    // Process the data starting at 'newData' and having length 'newDataLength'
+    // For example, this could parse messages, log data, etc.
+    std::string receivedData(newData, newDataLength);  // Construct string from new data
+    std::cout << "Received new data: " << receivedData << std::endl;
+    // Further processing...
+}
 
 void handleClientCustom(int new_socket, struct sockaddr_in address, const std::string& sessionToken, const Config& appConfig, Logger* logger) {
     std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
@@ -57,7 +63,9 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (activity > 0 && FD_ISSET(new_socket, &readfds)) {
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
-                logger->log("bytesread>0");
+                logger->log("---------------------------------------------");
+                 processNewData(buffer.data() + totalBytesRead, bytesRead);
+
                  logger->log(std::to_string(bytesRead));  // Log connection
                  // Log connection
                 logger->log("data");
@@ -77,7 +85,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 logger->log( dataBuffer.data());
 
                 totalBytesRead += bytesRead;
-                                logger->log( std::to_string(totalBytesRead));
+                logger->log( std::to_string(totalBytesRead));
                 // Resize buffer if needed
                 if (totalBytesRead == buffer.size()) {
                     logger->log("resize buffer");  // Log connection
