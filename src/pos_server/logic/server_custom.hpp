@@ -56,7 +56,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (activity > 0 && FD_ISSET(new_socket, &readfds)) {
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
-                dataBuffer.append(buffer, bytesRead);
+                 dataBuffer.append(buffer.data(), bytesRead);
 
 
                 totalBytesRead += bytesRead;
