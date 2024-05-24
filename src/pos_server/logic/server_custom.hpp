@@ -56,16 +56,20 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (activity > 0 && FD_ISSET(new_socket, &readfds)) {
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
-                logger->log("bytesread>0");  // Log connection
+                logger->log("bytesread>0");
+                 logger->log(bytesread);  // Log connection
+                 // Log connection
+                                 logger->log("data");
 
-                 dataBuffer.append(buffer.data(), bytesRead);
-
+                logger->log( buffer.data());
+                dataBuffer.append(buffer.data(), bytesRead);
 
                 totalBytesRead += bytesRead;
+                                logger->log( totalBytesRead);
+
                 // Resize buffer if needed
                 if (totalBytesRead == buffer.size()) {
                     logger->log("resize buffer");  // Log connection
-
                     buffer.resize(buffer.size() + bufferSize);
                 }
 
