@@ -37,6 +37,8 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
     int totalBytesRead = 0;
     int bytesRead = 0;
 
+    std::string dataBuffer; 
+
     while (true) {
         fd_set readfds;
         FD_ZERO(&readfds);
@@ -54,23 +56,26 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (activity > 0 && FD_ISSET(new_socket, &readfds)) {
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
+                dataBuffer.append(buffer, bytesRead);
+
+
                 totalBytesRead += bytesRead;
                 // Resize buffer if needed
                 if (totalBytesRead == buffer.size()) {
                     buffer.resize(buffer.size() + bufferSize);
                 }
-            } else if (bytesRead == 0) {
-                std::cout << "Client disconnected" << std::endl;
-                break;
-            } else {
-                perror("read failed");
-                break;
-            }
-        }
 
-        std::string data(buffer.begin(), buffer.begin() + totalBytesRead);
-        if (!data.empty()) {
-            logger->log("Received data from client: " + data);  // Log received data
+
+                size_t start, end;
+                // Keep processing while complete messages are in the buffer
+                while ((start = dataBuffer.find("<isomsg>")) != std::string::npos &&
+                    (end = dataBuffer.find("</isomsg>", start)) != std::string::npos) {
+                    std::string data = dataBuffer.substr(start, end + 9 - start); // 9 is length of "</isomsg>"
+
+
+
+
+             logger->log("Received data from client: " + data);  // Log received data
             std::string cleanpayload=removeNewLines(data);
                 logger->log("cleanpayload"+cleanpayload);
             
@@ -85,11 +90,19 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 // Reject if not valid
                 resendToRequestor(new_socket, data);
             }
-            // Reset buffer for next read
-            buffer.clear();
-            buffer.resize(bufferSize);
-            totalBytesRead = 0;
+
+                    dataBuffer.erase(start, end + 9 - start);
+                }
+
+            } else if (bytesRead == 0) {
+                std::cout << "Client disconnected" << std::endl;
+                break;
+            } else {
+                perror("read failed");
+                break;
+            }
         }
+
     }
 
     close(new_socket);
