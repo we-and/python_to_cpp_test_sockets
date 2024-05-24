@@ -93,28 +93,30 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                     buffer.resize(buffer.size() + bufferSize);
                 }
 
+                std::string d=buffer;
+
    // Check if the buffer starts with <isomsg>
-            if (dataBuffer.find("<isomsg>") != 0) {
+            if (d.find("<isomsg>") != 0) {
                  logger->log("not starting with <isomsg>,erase buffer");  // Log received data
                         
-                    resendToRequestor(new_socket, dataBuffer);
-                    dataBuffer.clear();
+                    resendToRequestor(new_socket, d);
+                    d.clear();
             }
 
             //if (wasEmpty){
              
             // Check if the accumulated data starts with <isomsg>
-            if (  dataBuffer.find("<isomsg>") == 0) {
+            if (  daylight.find("<isomsg>") == 0) {
                                   logger->log("Data buffer starts with <isomsg>");
             
                 size_t start, end;
                 // Keep processing while complete messages are in the buffer
-                while ((start = dataBuffer.find("<isomsg>")) != std::string::npos &&
-                    (end = dataBuffer.find("</isomsg>", start)) != std::string::npos) {
+                while ((start = d.find("<isomsg>")) != std::string::npos &&
+                    (end = d.find("</isomsg>", start)) != std::string::npos) {
 
                                         logger->log("msg is complete");  // Log connection
 
-                    std::string data = dataBuffer.substr(start, end + 9 - start); // 9 is length of "</isomsg>"
+                    std::string data = d.substr(start, end + 9 - start); // 9 is length of "</isomsg>"
 
                         logger->log("Received data from client: " + data);  // Log received data
                         std::string cleanpayload=removeNewLines(data);
@@ -133,7 +135,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                         }
 
                   logger->log("erase buffer");  // Log received data
-                    dataBuffer.erase(start, end + 9 - start);
+                    d.erase(start, end + 9 - start);
                 }
 
             }/*else{
