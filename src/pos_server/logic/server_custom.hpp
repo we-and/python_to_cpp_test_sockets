@@ -112,10 +112,10 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             }else{
              
                 if (wasEmpty){
-                logger->log("not starting with <isomsg>,erase buffer");  // Log received data
-                       
-                resendToRequestor(new_socket, dataBuffer);
-                dataBuffer.clear();
+                    logger->log("not starting with <isomsg>,erase buffer");  // Log received data
+                        
+                    resendToRequestor(new_socket, dataBuffer);
+                    dataBuffer.clear();
                 }
            // }
 
