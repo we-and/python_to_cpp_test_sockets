@@ -27,11 +27,12 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
-void processNewData(char* newData, size_t newDataLength) {
+void processNewData(char* newData, size_t newDataLength,Logger * logger) {
     // Process the data starting at 'newData' and having length 'newDataLength'
     // For example, this could parse messages, log data, etc.
     std::string receivedData(newData, newDataLength);  // Construct string from new data
-    std::cout << "Received new data: " << receivedData << std::endl;
+    logger->log("Received new data: ");
+    logger->log(receivedData);
     // Further processing...
 }
 
