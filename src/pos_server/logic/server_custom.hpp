@@ -27,6 +27,13 @@
 #include <sys/stat.h>
 #include "setup.hpp"
 
+#include <cstring>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <vector>
 
 struct ClientState {
     int socket;
