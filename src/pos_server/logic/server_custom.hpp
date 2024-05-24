@@ -106,7 +106,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             //if (wasEmpty){
              
             // Check if the accumulated data starts with <isomsg>
-            if (  daylight.find("<isomsg>") == 0) {
+            if (  d.find("<isomsg>") == 0) {
                                   logger->log("Data buffer starts with <isomsg>");
             
                 size_t start, end;
