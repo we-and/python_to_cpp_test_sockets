@@ -109,7 +109,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             }else{
                   logger->log("not starting with <isomsg>,erase buffer");  // Log received data
                        
-                    dataBuffer.erase(start, end + 9 - start);
+                    dataBuffer.clear();
 
             }
             } else if (bytesRead == 0) {
