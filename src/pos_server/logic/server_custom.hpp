@@ -65,7 +65,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
                 logger->log("---------------------------------------------");
-                 processNewData(buffer.data() + totalBytesRead, bytesRead);
+                 processNewData(buffer.data() + totalBytesRead, bytesRead,logger);
 
                  logger->log(std::to_string(bytesRead));  // Log connection
                  // Log connection
