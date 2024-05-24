@@ -104,11 +104,20 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                  logger->log(std::to_string(bytesRead));  // Log connection
                  // Log connection
                 logger->log("data");
+                logger->log("wasEmpty");
 
                 bool wasEmpty=(dataBuffer.empty()) ;
+                logger->log(wasEmpty?1:0);
+                logger->log("buffer");
 
                 logger->log( buffer.data());
+                 logger->log("dataBuffer before");
+
+                logger->log( dataBuffer.data());
                 dataBuffer.append(buffer.data(), bytesRead);
+                 logger->log("dataBuffer after");
+
+                logger->log( dataBuffer.data());
 
                 totalBytesRead += bytesRead;
                                 logger->log( std::to_string(totalBytesRead));
