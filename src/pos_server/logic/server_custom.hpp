@@ -93,7 +93,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                     buffer.resize(buffer.size() + bufferSize);
                 }
 
-                std::string d=std::to_string(buffer);
+                std::string d=std::string str(buffer.begin(), buffer.end());
 
    // Check if the buffer starts with <isomsg>
             if (d.find("<isomsg>") != 0) {
