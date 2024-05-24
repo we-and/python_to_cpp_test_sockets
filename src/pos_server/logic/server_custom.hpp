@@ -27,49 +27,6 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
-void handleClient(int clientSock) {
-    char buffer[1024];
-    std::string dataBuffer;  // Accumulate data here
-
-    while (true) {
-        int bytesRead = read(clientSock, buffer, sizeof(buffer) - 1);
-        if (bytesRead > 0) {
-            buffer[bytesRead] = '\0';  // Null-terminate buffer
-            dataBuffer.append(buffer);
-
-            // Check if the buffer starts with <isomsg>
-            if (dataBuffer.find("<isomsg>") == std::string::npos) {
-                resendToRequestor(new_socket, dataBuffer);
-                dataBuffer.clear();  // Clear buffer after resending
-                continue;
-            }
-
-            // Check for complete message
-            size_t startPos = dataBuffer.find("<isomsg>");
-            size_t endPos = dataBuffer.find("</isomsg>");
-            while (startPos != std::string::npos && endPos != std::string::npos && endPos > startPos) {
-                std::string message = dataBuffer.substr(startPos, endPos + 9 - startPos); // 9 is length of "</isomsg>"
-                processMessage(message);
-                dataBuffer = dataBuffer.substr(endPos + 9);  // Remove the processed message from buffer
-
-                // Check for another complete message
-                startPos = dataBuffer.find("<isomsg>");
-                endPos = dataBuffer.find("</isomsg>");
-            }
-        } else if (bytesRead == 0) {
-            std::cout << "Client disconnected." << std::endl;
-            break;  // Exit loop if client disconnected
-        } else {
-            perror("Read error");
-            break;  // Exit loop if read error
-        }
-    }
-    close(clientSock);  // Close socket when done
-}
-
-
-
-
 
 
 void handleClientCustom(int new_socket, struct sockaddr_in address, const std::string& sessionToken, const Config& appConfig, Logger* logger) {
