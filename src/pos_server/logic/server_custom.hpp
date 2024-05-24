@@ -72,7 +72,10 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                     logger->log("resize buffer");  // Log connection
                     buffer.resize(buffer.size() + bufferSize);
                 }
-
+            // Check if the accumulated data starts with <isomsg>
+            if (dataBuffer.find("<isomsg>") == 0) {
+                                  logger->log("Data buffer starts with <isomsg>");
+            
 
                 size_t start, end;
                 // Keep processing while complete messages are in the buffer
@@ -82,9 +85,6 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                                         logger->log("msg is complete");  // Log connection
 
                     std::string data = dataBuffer.substr(start, end + 9 - start); // 9 is length of "</isomsg>"
-
-
-
 
                         logger->log("Received data from client: " + data);  // Log received data
                         std::string cleanpayload=removeNewLines(data);
@@ -102,9 +102,16 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                             resendToRequestor(new_socket, data);
                         }
 
+                  logger->log("erase buffer");  // Log received data
                     dataBuffer.erase(start, end + 9 - start);
                 }
 
+            }else{
+                  logger->log("not starting with <isomsg>,erase buffer");  // Log received data
+                       
+                    dataBuffer.erase(start, end + 9 - start);
+
+            }
             } else if (bytesRead == 0) {
                 std::cout << "Client disconnected" << std::endl;
                 logger->log("Client disconnected"); 
