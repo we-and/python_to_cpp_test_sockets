@@ -38,8 +38,8 @@ void handleClient(int clientSock) {
             dataBuffer.append(buffer);
 
             // Check if the buffer starts with <isomsg>
-            if (dataBuffer.find("<isomsg>") != 0) {
-                resendMessage(clientSock, dataBuffer);
+            if (dataBuffer.find("<isomsg>") == std::string::npos) {
+                resendToRequestor(new_socket, dataBuffer);
                 dataBuffer.clear();  // Clear buffer after resending
                 continue;
             }
