@@ -61,6 +61,9 @@ std::string getFilePath(const Config& appConfig){
         std::cout <<"Log file               :"<< filePath <<std::endl;
 
     }
+    void log(const int& text) {
+        return log(std::to_string(text));
+    }
 
     void log(const std::string& text) {
         // Retrieve the current system time as a time_t object
