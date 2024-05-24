@@ -78,14 +78,20 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (FD_ISSET(new_socket, &read_fds)) {
             int bytes_read = read(new_socket, buffer.data(), buffer.size());
             if (bytes_read > 0) {
+
+                    logger->log("buffer before");
+                                        logger->log(message_buffer);
+
                 message_buffer.append(buffer.data(), bytes_read);
+                    logger->log("buffer after");
+                                        logger->log(message_buffer);
 
                 size_t start_pos = message_buffer.find("<isomsg>");
                 size_t end_pos = message_buffer.find("</isomsg>");
 
                 while (start_pos != std::string::npos && end_pos != std::string::npos) {
                     std::string complete_message = message_buffer.substr(start_pos, end_pos - start_pos + 9);
-                   
+                    logger->log("Complete message <isomsg>");
                    
                         std::string data=complete_message;
                         logger->log("Received data from client: " + data);  // Log received data
@@ -111,6 +117,8 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 }
 
                 if (!message_buffer.empty() && message_buffer.find("<isomsg>") != 0) {
+                      logger->log("buffer hasnt <isomsg> resend");  // Log received data
+                 
                      resendToRequestor(new_socket, message_buffer);
                     message_buffer.clear();
                 }
