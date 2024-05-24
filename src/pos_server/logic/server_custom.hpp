@@ -78,7 +78,25 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
 
                 while (start_pos != std::string::npos && end_pos != std::string::npos) {
                     std::string complete_message = message_buffer.substr(start_pos, end_pos - start_pos + 9);
-                    processmessage(complete_message);
+                   
+                   
+                        std::string data=complete_message;
+                        logger->log("Received data from client: " + data);  // Log received data
+                        std::string cleanpayload=removeNewLines(data);
+                            logger->log("cleanpayload"+cleanpayload);
+                        
+                        // Process the data...
+                        // If data was received, echo it back to the client
+                        if (isISO8583(cleanpayload)) {
+                            std::string payload = cleanpayload;
+                            logger->log("valid isomsg");
+                            checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
+                        } else {
+                            logger->log("Not a valid isomsg");
+                            // Reject if not valid
+                            resendToRequestor(new_socket, data);
+                        }
+
 
                     message_buffer.erase(0, end_pos + 9);
                     start_pos = message_buffer.find("<isomsg>");
@@ -86,7 +104,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 }
 
                 if (!message_buffer.empty() && message_buffer.find("<isomsg>") != 0) {
-                    resend(message_buffer);
+                     resendToRequestor(new_socket, message_buffer);
                     message_buffer.clear();
                 }
             } else if (bytes_read == 0) {
