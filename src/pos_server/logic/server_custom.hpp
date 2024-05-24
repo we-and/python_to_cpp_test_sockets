@@ -27,6 +27,50 @@
 #include <sys/stat.h> 
 #include "setup.hpp"
 
+void handleClient(int clientSock) {
+    char buffer[1024];
+    std::string dataBuffer;  // Accumulate data here
+
+    while (true) {
+        int bytesRead = read(clientSock, buffer, sizeof(buffer) - 1);
+        if (bytesRead > 0) {
+            buffer[bytesRead] = '\0';  // Null-terminate buffer
+            dataBuffer.append(buffer);
+
+            // Check if the buffer starts with <isomsg>
+            if (dataBuffer.find("<isomsg>") != 0) {
+                resendMessage(clientSock, dataBuffer);
+                dataBuffer.clear();  // Clear buffer after resending
+                continue;
+            }
+
+            // Check for complete message
+            size_t startPos = dataBuffer.find("<isomsg>");
+            size_t endPos = dataBuffer.find("</isomsg>");
+            while (startPos != std::string::npos && endPos != std::string::npos && endPos > startPos) {
+                std::string message = dataBuffer.substr(startPos, endPos + 9 - startPos); // 9 is length of "</isomsg>"
+                processMessage(message);
+                dataBuffer = dataBuffer.substr(endPos + 9);  // Remove the processed message from buffer
+
+                // Check for another complete message
+                startPos = dataBuffer.find("<isomsg>");
+                endPos = dataBuffer.find("</isomsg>");
+            }
+        } else if (bytesRead == 0) {
+            std::cout << "Client disconnected." << std::endl;
+            break;  // Exit loop if client disconnected
+        } else {
+            perror("Read error");
+            break;  // Exit loop if read error
+        }
+    }
+    close(clientSock);  // Close socket when done
+}
+
+
+
+
+
 
 void handleClientCustom(int new_socket, struct sockaddr_in address, const std::string& sessionToken, const Config& appConfig, Logger* logger) {
     std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
@@ -59,7 +103,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 logger->log("bytesread>0");
                  logger->log(std::to_string(bytesRead));  // Log connection
                  // Log connection
-                                 logger->log("data");
+                logger->log("data");
 
                 bool wasEmpty=(dataBuffer.empty()) ;
 
@@ -73,6 +117,14 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                     logger->log("resize buffer");  // Log connection
                     buffer.resize(buffer.size() + bufferSize);
                 }
+
+   // Check if the buffer starts with <isomsg>
+            if (dataBuffer.find("<isomsg>") != 0) {
+                 logger->log("not starting with <isomsg>,erase buffer");  // Log received data
+                        
+                    resendToRequestor(new_socket, dataBuffer);
+                    dataBuffer.clear();
+            }
 
             //if (wasEmpty){
              
@@ -109,7 +161,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                     dataBuffer.erase(start, end + 9 - start);
                 }
 
-            }else{
+            }/*else{
              
                 if (wasEmpty){
                     logger->log("not starting with <isomsg>,erase buffer");  // Log received data
@@ -119,7 +171,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 }
            // }
 
-            }
+            }*/
 
 
             } else if (bytesRead == 0) {
