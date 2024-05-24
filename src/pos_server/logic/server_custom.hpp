@@ -56,12 +56,16 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
         if (activity > 0 && FD_ISSET(new_socket, &readfds)) {
             bytesRead = read(new_socket, buffer.data() + totalBytesRead, buffer.size() - totalBytesRead);
             if (bytesRead > 0) {
+                logger->log("bytesread>0");  // Log connection
+
                  dataBuffer.append(buffer.data(), bytesRead);
 
 
                 totalBytesRead += bytesRead;
                 // Resize buffer if needed
                 if (totalBytesRead == buffer.size()) {
+                    logger->log("resize buffer");  // Log connection
+
                     buffer.resize(buffer.size() + bufferSize);
                 }
 
@@ -70,34 +74,39 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                 // Keep processing while complete messages are in the buffer
                 while ((start = dataBuffer.find("<isomsg>")) != std::string::npos &&
                     (end = dataBuffer.find("</isomsg>", start)) != std::string::npos) {
+
+                                        logger->log("msg is complete");  // Log connection
+
                     std::string data = dataBuffer.substr(start, end + 9 - start); // 9 is length of "</isomsg>"
 
 
 
 
-             logger->log("Received data from client: " + data);  // Log received data
-            std::string cleanpayload=removeNewLines(data);
-                logger->log("cleanpayload"+cleanpayload);
-            
-            // Process the data...
-            // If data was received, echo it back to the client
-            if (isISO8583(cleanpayload)) {
-                std::string payload = cleanpayload;
-                logger->log("valid isomsg");
-                checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
-            } else {
-                logger->log("Not a valid isomsg");
-                // Reject if not valid
-                resendToRequestor(new_socket, data);
-            }
+                        logger->log("Received data from client: " + data);  // Log received data
+                        std::string cleanpayload=removeNewLines(data);
+                            logger->log("cleanpayload"+cleanpayload);
+                        
+                        // Process the data...
+                        // If data was received, echo it back to the client
+                        if (isISO8583(cleanpayload)) {
+                            std::string payload = cleanpayload;
+                            logger->log("valid isomsg");
+                            checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
+                        } else {
+                            logger->log("Not a valid isomsg");
+                            // Reject if not valid
+                            resendToRequestor(new_socket, data);
+                        }
 
                     dataBuffer.erase(start, end + 9 - start);
                 }
 
             } else if (bytesRead == 0) {
                 std::cout << "Client disconnected" << std::endl;
+                logger->log("Client disconnected"); 
                 break;
             } else {
+                logger->log("read failed"); 
                 perror("read failed");
                 break;
             }
