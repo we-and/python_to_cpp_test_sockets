@@ -26,7 +26,8 @@
 //return {0,accesstoken} if success and has a token
 //return {1,""} otherwise 
 std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){ {
- logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED");
+ Logger* logger = Logger::getInstance();
+    logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED");
         //read device parameters 
         json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
 
