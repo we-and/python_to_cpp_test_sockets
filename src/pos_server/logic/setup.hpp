@@ -42,7 +42,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         logger->log( std::string(access_token)  );  
         return {0,access_token};
     }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
-        logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED")
+        logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED");
         //read device parameters 
         json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
 
