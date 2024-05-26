@@ -172,7 +172,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
             if (requestResult == 0)
             {
                 // resend with new accesstoken
-                return sendPlainText(requestorSocket, newAccessToken, payload, appConfig)
+                return sendPlainText(requestorSocket, newAccessToken, payload, appConfig);
             }
             else
             {
