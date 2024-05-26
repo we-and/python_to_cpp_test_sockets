@@ -92,7 +92,7 @@ bool is_valid_access_token()
 
         std::string exp_time_str = timePointToString(expiration_time);
         std::string cur_time_str = timePointToString(current_time);
-            logger->log("Current time "+(cur_time_str));
+        logger->log("Current time "+(cur_time_str));
             logger->log("Expiration time"+(exp_time_str));
         
         // Compare current time with expiration time
@@ -381,6 +381,22 @@ std::pair<int, std::string> processSessionResponseErrorMessage(SessionAPIRespons
 
 // returns { 0 , accesstoken } if success
 //         { 1, ""}            if not
+/**
+ * Processes the response received from the Activate Device API and initiates a session.
+ * 
+ * This function handles the response from the Activate Device API, extracts necessary information
+ * such as device ID, device key, and device sequence, and uses this information to create a session.
+ * The function logs the process, calculates a hash using the device sequence and key, and attempts to
+ * create a session by sending the calculated hash and device details. If the session is successfully created
+ * and an access token is received, it sets environment variables for the access token and its expiry time.
+ * The function also logs the results and handles errors appropriately.
+ * 
+ * @param activateResponse The response object from the Activate Device API.
+ * @param logger A pointer to the Logger object for logging information.
+ * @param appConfig The application configuration containing settings and paths.
+ * @return A pair consisting of an integer and a string. The integer represents the status code (0 for success, 1 for failure),
+ *         and the string contains the access token if the session creation is successful.
+ */
 std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse, Logger *logger, const Config &appConfig){
     logger->log("processActivateResponseOK");
     // Extract deviceId, deviceKey, and deviceSequence from the activation result

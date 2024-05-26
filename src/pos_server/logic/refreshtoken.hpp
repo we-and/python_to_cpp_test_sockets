@@ -43,7 +43,11 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
         //send as a REST /session sequest
         auto [sessionResult,accessToken]=processActivateResponseOK(response, logger, appConfig);
         if (sessionResult==0){
+            
             logger->log("setup processActivateResponseOK success");
+            
+
+
             //update device security parameters
             saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
