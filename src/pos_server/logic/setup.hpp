@@ -43,31 +43,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         return {0,access_token};
     }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
         logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED");
-        //read device parameters 
-        json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
-
-        //load into struct
-        ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
-        response.setDeviceId(deviceSecurity["deviceId"]);
-        response.setDeviceSequence(deviceSecurity["deviceSequence"]);
-        response.setDeviceKey(deviceSecurity["deviceKey"]);
-
-        //increment device sequence 
-        response.incrementDeviceSequence();
-
-        //send as a REST /session sequest
-        auto [sessionResult,accessToken]=processActivateResponseOK(response, logger, appConfig);
-        if (sessionResult==0){
-            logger->log("setup processActivateResponseOK success");
-            //update device security parameters
-            saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
-            return {0,accessToken};
-        }else{
-            logger->log("sessionSuccess false");
-            logger->log("setup processActivateResponseOK failed");
-            return {1,""};
-        }
-
+        return requestRefreshExpiredToken(appConfig);
 
     }else{//if not found
         logger->log( "Setup hasValidSessionToken_ no"  );  

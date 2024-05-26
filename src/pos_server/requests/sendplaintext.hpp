@@ -113,7 +113,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
 
         // asked not to follow documentation and switch to a different behavior:
         // if token expired, request new token and process command with new accesstoken
-        auto [requestResult, newAccessToken] = requestExpiredToken(appConfig);
+        auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
         if (requestResult == 0)
         {
             // resend with new accesstoken
@@ -168,7 +168,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
             //            return "";
 
             // asked for different behavior: request new token and process command with new access token
-            auto [requestResult, newAccessToken] = requestExpiredToken(appConfig);
+            auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
             if (requestResult == 0)
             {
                 // resend with new accesstoken
