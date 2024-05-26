@@ -34,6 +34,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     logger->log( "Setup"  );     
     SessionTokenCheck hasValidSessionToken_=hasValidSessionTokenInit();
     if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_VALID){
+        logger->log("SESSIONTOKENCHECK_FOUND_VALID")
         logger->log( "Setup hasValidSessionToken_ yes"  );  
         //if already setup
         const char* access_token = std::getenv("ACCESS_TOKEN");
@@ -41,7 +42,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
         logger->log( std::string(access_token)  );  
         return {0,access_token};
     }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
-        
+        logger->log("SESSIONTOKENCHECK_FOUND_EXPIRED")
         //read device parameters 
         json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
 
@@ -55,12 +56,15 @@ std::pair<int,std::string> setup(const Config& appConfig){
         response.incrementDeviceSequence();
 
         //send as a REST /session sequest
-        auto [sessionSuccess,accessToken]=processActivateResponseOK(response, logger, appConfig);
-        if (sessionSuccess){
+        auto [sessionResult,accessToken]=processActivateResponseOK(response, logger, appConfig);
+        if (sessionResult==0){
+            logger->log("setup processActivateResponseOK success");
             //update device security parameters
             saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
+            logger->log("sessionSuccess false")
+            logger->log("setup processActivateResponseOK failed");
             return {1,""};
         }
 

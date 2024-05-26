@@ -419,13 +419,19 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
         // Set the environment variable
+        
         if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0)
         {
+             logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
+            logger->log("Failed to set env variable ACCESS_TOKEN");
+
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
         if (setenv("TOKEN_EXPIRY_TIME",expiryTimeStr.c_str(), 1) != 0)
         {
+            logger->log("Failed to set env variable TOKEN_EXPIRY_TIME");
+
             std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
@@ -434,6 +440,8 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
 
         storeEnvironmentVariables(appConfig.envFilePath, accessToken, expiryTimeStr);
         return {0, accessToken};
+    }else{
+        logger->log("Sesssion has response with neither message nor accesstoken");
     }
     logger->log("Session has response other");
 
