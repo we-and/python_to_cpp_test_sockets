@@ -34,7 +34,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
     logger->log( "Setup"  );     
     SessionTokenCheck hasValidSessionToken_=hasValidSessionTokenInit();
     if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_VALID){
-        logger->log("SESSIONTOKENCHECK_FOUND_VALID")
+        logger->log("SESSIONTOKENCHECK_FOUND_VALID");
         logger->log( "Setup hasValidSessionToken_ yes"  );  
         //if already setup
         const char* access_token = std::getenv("ACCESS_TOKEN");
@@ -63,7 +63,7 @@ std::pair<int,std::string> setup(const Config& appConfig){
             saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
-            logger->log("sessionSuccess false")
+            logger->log("sessionSuccess false");
             logger->log("setup processActivateResponseOK failed");
             return {1,""};
         }
