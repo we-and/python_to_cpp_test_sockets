@@ -20,7 +20,7 @@
 #include <sys/stat.h> 
 #include "config.hpp"
 #include "configfile.hpp"
-
+#include "refreshtoken.hpp"
 #include "accesstoken.hpp"
 
 
@@ -93,4 +93,5 @@ std::pair<int,std::string> setup(const Config& appConfig){
         }
     }
 }
+
 #endif

@@ -5,6 +5,8 @@
 #include "../utils/json.hpp"
 #include <string>
 #include "../utils/request_utils.hpp"
+#include "../logic/refreshtoken.hpp"
+
 using json = nlohmann::json;
 
 /**
