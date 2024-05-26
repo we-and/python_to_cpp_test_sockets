@@ -20,7 +20,7 @@
 #include <sys/stat.h> 
 #include "config.hpp"
 #include "configfile.hpp"
-
+#include "../utils/log_utils.hpp"
 #include "accesstoken.hpp"
 
 //return {0,accesstoken} if success and has a token
