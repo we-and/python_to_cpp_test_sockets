@@ -1,5 +1,5 @@
-#ifndef SETUP_H
-#define SETUP_H
+#ifndef REFRESH_H
+#define REFRESH_H
 #include <iostream>
 #include <fstream>
 #include <chrono>
