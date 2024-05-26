@@ -124,7 +124,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
             // if token refresh failed
             auto msg = modifyISO8583MessageForExpiredTokenAlert(payload);
             resendToRequestor(requestorSocket, msg);
-            return ""
+            return "";
         }
         //           auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
         //         resendToRequestor(requestorSocket,msg);
@@ -179,8 +179,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
                 // if token refresh failed
                 auto msg = modifyISO8583MessageForExpiredTokenAlert(payload);
                 resendToRequestor(requestorSocket, msg);
-                return ""
-            }
+                return "";            }
         }
     }
     catch (const std::exception &e)
