@@ -106,7 +106,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
     logger->log("sendPlainText parse");
 
     // token expiry detected by string response from API "Access token expired"
-    if (response == "Access token expired")
+    if (response_string == "Access token expired")
     {
 
         // asked not to follow documentation and switch to a different behavior:
