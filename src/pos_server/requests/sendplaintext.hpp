@@ -72,7 +72,6 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, curl_debug_callback2);
     curl_easy_setopt(curl, CURLOPT_DEBUGDATA, nullptr);
-
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cleanpayload.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -153,7 +152,7 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
         {
             // If the ISO8583 response message does not contain a "TOKEN EXPIRY" response code
             // then the ISO8583 message response is to be returned to the requestor unmodified
-            resendToRequestor(requestorSocket, payload);
+            resendToRequestor(requestorSocket, response_string);
             return response_string;
         }
         else
