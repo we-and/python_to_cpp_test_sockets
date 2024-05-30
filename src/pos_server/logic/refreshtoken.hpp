@@ -44,7 +44,6 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
         response.setDeviceId(deviceSecurity["deviceId"]);
         response.setDeviceSequence(deviceSecurity["deviceSequence"]);
         response.setDeviceKey(deviceSecurity["deviceKey"]);
-        response.setRawJson();
         //increment device sequence 
         response.incrementDeviceSequence();
 
@@ -57,7 +56,7 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
 
 
             //update device security parameters
-            saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
+            saveJsonToFile(response.getRawJsonString(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
             logger->log("requestRefreshExpiredToken false");
