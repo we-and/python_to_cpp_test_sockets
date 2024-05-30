@@ -112,9 +112,13 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     bool doDebugExpiry=true;
     if (doDebugExpiry || (response_string == "Access token expired."))
     {
+    logger->log("sendPlainText debug: pretend it expired 1.");
+
         if (!doDebugExpiry || (attempt == 0)){ //run just one attempt for debug
         // asked not to follow documentation and switch to a different behavior:
         // if token expired, request new token and process command with new accesstoken
+    logger->log("sendPlainText debug: pretend it expired. 2");
+
         auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
         if (requestResult == 0)
         {
