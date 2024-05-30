@@ -52,7 +52,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     std::string url = appConfig.baseURL + "posCommand";
 
     auto cleanpayload = removeNewLines(payload);
-    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + cleanpayload);
+    logger->log("Sending plain text... Access Token: " + accessToken + ", Payload: " + cleanpayload+", Attempt "+std::to_string(attempt));
     logger->log("URL: " + url);
 
     CURL *curl = curl_easy_init();
@@ -108,10 +108,11 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
 
     // token expiry detected by string response from API "Access token expired"
     logger->log("sendPlainText debug: pretend it expired.");
-    if (true)
-   // if (response_string == "Access token expired.")
+    
+    bool doDebugExpiry=true;
+    if (doDebugExpiry || (response_string == "Access token expired."))
     {
-        if (attempt == 0){
+        if (!doDebugExpiry || (attempt == 0)){ //run just one attempt for debug
         // asked not to follow documentation and switch to a different behavior:
         // if token expired, request new token and process command with new accesstoken
         auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
