@@ -109,7 +109,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     // token expiry detected by string response from API "Access token expired"
     logger->log("sendPlainText debug: pretend it expired.");
     
-    bool doDebugExpiry=true;
+    bool doDebugExpiry=false;
     if (doDebugExpiry || (response_string == "Access token expired."))
     {
     logger->log("sendPlainText debug: pretend it expired 1.");
