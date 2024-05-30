@@ -162,7 +162,6 @@ bool checkEnvVarExists(const std::string &envVar, Logger *logger)
     }
 }
 
-x
 
 std::string getAbsolutePath(const std::string& filename) {
     std::filesystem::path path = filename;
