@@ -92,7 +92,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     {
         logger->log("Request successful ");
         logger->log("Response: " + response_string);
-        std::string isExpirationStr=(response_string == "Access token expired.") ? " no ":" yes ";
+        std::string isExpirationStr=(response_string == "Access token expired.") ? " YES ":" NO ";
         logger->log("Response isExpirationMessage? " + isExpirationStr);
         std::cout << "Request successful." << std::endl;
         std::cout << "Response from server: " << response_string << std::endl;
