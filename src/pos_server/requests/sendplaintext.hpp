@@ -199,7 +199,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     return "";
 }
 
-std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
+std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig)
 {
     return sendPlainTextAttempt( requestorSocket, accessToken, payload, appConfig, 0);
 
