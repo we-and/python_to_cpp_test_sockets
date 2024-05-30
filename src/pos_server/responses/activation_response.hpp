@@ -88,6 +88,26 @@ public:
     std::string getMessage() const { return message; }
     int getDeviceSequence() const { return deviceSequence; }
     json getRawJson() const { return rawJson;}
+    void setRawJson() const {
+/*
+        std::ostringstream jsonStream;
+            jsonStream << "{\n";
+            jsonStream << "    \"deviceId\": " << deviceId << ",\n";
+            jsonStream << "    \"deviceKey\": \"" << deviceKey << "\",\n";
+            jsonStream << "    \"deviceSequence\": " << deviceSequence << "\n";
+            jsonStream << "}";
+            rawJson= jsonStream.str();
+*/
+    json j;
+    j["deviceId"] = deviceId;
+    j["deviceKey"] = deviceKey;
+    j["deviceSequence"] = deviceSequence;
+
+    rawJson= j;  // The '4' specifies indentation for pretty printing
+    Logger* logger = Logger::getInstance();
+    logger->log("rawJson set as"+j.dump(4));
+}
+    }
 
 
      // Setter for deviceId
