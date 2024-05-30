@@ -24,6 +24,17 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
+std::string readFileContents(const std::string& fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file " + fileName);
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
 
 void saveJsonToFile(const json& j, const std::string& filePath) {
    Logger* logger = Logger::getInstance();
@@ -45,17 +56,6 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
         logger->log( "saveJsonToFile Error occurred during file write operation." );
     }
 }
-std::string readFileContents(const std::string& fileName) {
-    std::ifstream file(fileName);
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open file " + fileName);
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string &filePath, Logger *logger)
 {
