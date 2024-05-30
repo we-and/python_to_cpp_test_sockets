@@ -46,6 +46,11 @@ std::string removeNewLines(std::string str)
     return str;
 }
 
+bool isResponseAnExpirationWarning(std::string response){
+    return (response.length() < 25  ) && ( response.find("Access token expired") != std::string::npos  );
+//return    response == "Access token expired.";
+
+}
 std::string sendPlainTextAttempt(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig,const int attempt)
 {
     Logger *logger = Logger::getInstance();
@@ -92,7 +97,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     {
         logger->log("Request successful ");
         logger->log("Response: " + response_string);
-        std::string isExpirationStr=(response_string == "Access token expired.") ? " YES ":" NO ";
+        std::string isExpirationStr=isResponseAnExpirationWarning(response_string) ? " YES ":" NO ";
         logger->log("Response isExpirationMessage? " + isExpirationStr);
         std::cout << "Request successful." << std::endl;
         std::cout << "Response from server: " << response_string << std::endl;
@@ -113,7 +118,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     logger->log("sendPlainText debug: pretend it expired.");
     
     bool doDebugExpiry=false;
-    if (doDebugExpiry || (response_string == "Access token expired."))
+    if (doDebugExpiry || (isResponseAnExpirationWarning(response_string)))
     {
         logger->log("sendPlainText debug: pretend it expired 1.");
 
