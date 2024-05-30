@@ -118,7 +118,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
         if (requestResult == 0)
         {
             // resend with new accesstoken
-            return sendPlainText(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
+            return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
         }
         else
         {
@@ -177,7 +177,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
             if (requestResult == 0)
             {
                 // resend with new accesstoken
-                return sendPlainText(requestorSocket, newAccessToken, payload, appConfig);
+                return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
             }
             else
             {
