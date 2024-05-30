@@ -45,11 +45,6 @@ std::string removeNewLines(std::string str)
     str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
     return str;
 }
-std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
-{
-    return sendPlainTextAttempt( requestorSocket, accessToken, payload, appConfig, 0);
-
-}
 
 std::string sendPlainTextAttempt(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
 {
@@ -202,6 +197,12 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     }
 
     return "";
+}
+
+std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
+{
+    return sendPlainTextAttempt( requestorSocket, accessToken, payload, appConfig, 0);
+
 }
 
 std::string sendPlainTextLibevent(struct bufferevent *bev, const std::string &accessToken, const std::string &payload, const Config &appConfig)
