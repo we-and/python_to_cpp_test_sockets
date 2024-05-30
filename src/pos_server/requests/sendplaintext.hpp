@@ -45,8 +45,13 @@ std::string removeNewLines(std::string str)
     str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
     return str;
 }
+std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
+{
+    return sendPlainTextAttempt( requestorSocket, accessToken, payload, appConfig, 0);
 
-std::string sendPlainText(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig)
+}
+
+std::string sendPlainTextAttempt(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
 {
     Logger *logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
@@ -107,16 +112,18 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
     logger->log("sendPlainText parse");
 
     // token expiry detected by string response from API "Access token expired"
-    if (response_string == "Access token expired.")
+    logger->log("sendPlainText debug: pretend it expired.");
+    if (true)
+   // if (response_string == "Access token expired.")
     {
-
+        if (attempt == 0){
         // asked not to follow documentation and switch to a different behavior:
         // if token expired, request new token and process command with new accesstoken
         auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
         if (requestResult == 0)
         {
             // resend with new accesstoken
-            return sendPlainText(requestorSocket, newAccessToken, payload, appConfig);
+            return sendPlainText(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
         }
         else
         {
@@ -128,6 +135,10 @@ std::string sendPlainText(const int requestorSocket, const std::string &accessTo
         //           auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
         //         resendToRequestor(requestorSocket,msg);
         return "";
+        }else{
+        return "";
+            
+        }
     }
 
     // parse and check for token expiry
