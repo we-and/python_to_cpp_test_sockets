@@ -106,7 +106,7 @@ public:
     rawJson= j;  // The '4' specifies indentation for pretty printing
     Logger* logger = Logger::getInstance();
     logger->log("rawJson set as"+j.dump(4));
-}
+
     }
 
 
