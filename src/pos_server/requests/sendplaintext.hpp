@@ -46,7 +46,7 @@ std::string removeNewLines(std::string str)
     return str;
 }
 
-std::string sendPlainTextAttempt(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig, int attempt)
+std::string sendPlainTextAttempt(const int requestorSocket, const std::string &accessToken, const std::string &payload, const Config &appConfig,const int attempt)
 {
     Logger *logger = Logger::getInstance();
     std::string url = appConfig.baseURL + "posCommand";
