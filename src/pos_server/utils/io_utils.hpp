@@ -37,11 +37,24 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
     file.close();
     if (file.good()) {
         logger->log( "JSON data successfully saved to " + filePath );
+        auto contents=readFileContents(filePath);
+        logger->log( "File contents:" );
+        logger->log( contents );
+
     } else {
         logger->log( "saveJsonToFile Error occurred during file write operation." );
     }
 }
+std::string readFileContents(const std::string& fileName) {
+    std::ifstream file(fileName);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file " + fileName);
+    }
 
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string &filePath, Logger *logger)
@@ -149,7 +162,7 @@ bool checkEnvVarExists(const std::string &envVar, Logger *logger)
     }
 }
 
-
+x
 
 std::string getAbsolutePath(const std::string& filename) {
     std::filesystem::path path = filename;

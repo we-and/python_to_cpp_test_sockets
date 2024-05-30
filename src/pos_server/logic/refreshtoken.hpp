@@ -29,7 +29,15 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
  Logger* logger = Logger::getInstance();
     logger->log("requestRefreshExpiredToken SESSIONTOKENCHECK_FOUND_EXPIRED");
         //read device parameters 
+        logger->log("requestRefreshExpiredToken read from "+        appConfig.deviceSecurityParametersPath);
+        auto contents=readFileContents(appConfig.deviceSecurityParametersPath);
+        logger->log( "requestRefreshExpiredToken File contents:" );
+        logger->log( contents );
+
         json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
+
+
+
 
         //load into struct
         ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
@@ -44,7 +52,7 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
         auto [sessionResult,accessToken]=processActivateResponseOK(response, logger, appConfig);
         if (sessionResult==0){
             
-            logger->log("setup processActivateResponseOK success");
+            logger->log("requestRefreshExpiredToken processActivateResponseOK success");
             
 
 
@@ -52,8 +60,8 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
             saveJsonToFile(response.getRawJson(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
-            logger->log("sessionSuccess false");
-            logger->log("setup processActivateResponseOK failed");
+            logger->log("requestRefreshExpiredToken false");
+            logger->log("requestRefreshExpiredToken processActivateResponseOK failed");
             return {1,""};
         }
         }
