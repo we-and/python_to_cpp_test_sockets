@@ -30,7 +30,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
     logger->log( "saveJsonToFile"  );
     std::ofstream file(filePath);
     if (!file) {
-        std::cerr << "Error opening file for writing: " << filePath << std::endl;
+    logger->log( "saveJsonToFile Error opening file for writing: "+ filePath );
         return;
     }
     file << j.dump(4); // Serialize the JSON with an indentation of 4 spaces
@@ -38,7 +38,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
     if (file.good()) {
         logger->log( "JSON data successfully saved to " + filePath );
     } else {
-        std::cerr << "Error occurred during file write operation." << std::endl;
+        logger->log( "saveJsonToFile Error occurred during file write operation." );
     }
 }
 
@@ -56,12 +56,14 @@ json readJsonFromFile(const std::string &filePath, Logger *logger)
     }
     catch (const json::parse_error &e)
     {
-        std::cerr << "JSON parse error: " << e.what() << '\n';
+    logger->log("readJsonFromFileJSON parse error: ");
+    logger->log( e.what() );
         // Optionally, return or throw another exception depending on how you want to handle errors
     }
     catch (const std::ifstream::failure &e)
     {
-        std::cerr << "Error opening or reading the file: " << e.what() << '\n';
+    logger->log("readJsonFromFile Error opening or reading the file:  ");
+    logger->log( e.what() );
         // Optionally, return or throw another exception depending on how you want to handle errors
     }
 
@@ -79,6 +81,7 @@ std::string readStringFromFile(const std::string &filePath, Logger *logger)
 
         if (!file)
         {
+        logger->log("    readStringFromFile: Failed to open file:");
             throw std::runtime_error("Failed to open file: " + filePath);
         }
 
@@ -92,7 +95,6 @@ std::string readStringFromFile(const std::string &filePath, Logger *logger)
     }
     catch (const std::exception &e)
     {
-        std::cerr << "    readStringFromFile: Exception occurred: " << e.what() << std::endl;
         logger->log("    readStringFromFile: exception");
         logger->log(e.what());
     }
