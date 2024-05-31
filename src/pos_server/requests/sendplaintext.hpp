@@ -117,19 +117,22 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     logger->log("sendPlainText debug: pretend it expired.");
     logger->log("sendPlainText debug: pretend it expired.");
     
-    bool doDebugExpiry=false;
+    bool doDebugExpiry=true;
+    if(doDebugExpiry){
+            // token expiry detected by string response from API "Access token expired"
+            logger->log("sendPlainText debug: pretend it expired.");
+
+    }
     if (doDebugExpiry || (isResponseAnExpirationWarning(response_string)))
     {
-        logger->log("sendPlainText debug: pretend it expired 1.");
-
         if (!doDebugExpiry || (attempt == 0)){ //run just one attempt for debug
         // asked not to follow documentation and switch to a different behavior:
         // if token expired, request new token and process command with new accesstoken
-        logger->log("sendPlainText debug: pretend it expired. 2");
+
+        logger->log("sendPlainText: attempt to refresh");
 
         auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
-        if (requestResult == 0)
-        {
+        if (requestResult == 0){
             // resend with new accesstoken
             return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
         }
@@ -140,11 +143,11 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
             resendToRequestor(requestorSocket, msg);
             return "";
         }
-        //           auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
-        //         resendToRequestor(requestorSocket,msg);
-        return "";
+            //           auto msg=modifyISO8583MessageForExpiredTokenAlert(payload);
+            //         resendToRequestor(requestorSocket,msg);
+            return "";
         }else{
-        return "";
+            return "";
             
         }
     }

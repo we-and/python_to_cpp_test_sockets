@@ -59,7 +59,7 @@ void saveJsonToFile(const json& j, const std::string& filePath) {
 // Function to read a JSON file and return a JSON object
 json readJsonFromFile(const std::string &filePath, Logger *logger)
 {
-    logger->log("readJsonFromFile");
+    logger->log("readJsonFromFile "+filePath);
     std::ifstream file(filePath);
     json j;
 

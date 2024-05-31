@@ -34,18 +34,24 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
         logger->log( "requestRefreshExpiredToken File contents:" );
         logger->log( contents );
 
+        logger->log( "requestRefreshExpiredToken readDeviceSecurityParameters readJsonFromFile:" );
         json deviceSecurity=readJsonFromFile(appConfig.deviceSecurityParametersPath,logger);
+        logger->log( "requestRefreshExpiredToken readDeviceSecurityParameters readJsonFromFile done" );
 
 
 
 
         //load into struct
+        logger->log( "requestRefreshExpiredToken load into response" );
         ActivateDeviceAPIResponse response=ActivateDeviceAPIResponse();
         response.setDeviceId(deviceSecurity["deviceId"]);
         response.setDeviceSequence(deviceSecurity["deviceSequence"]);
         response.setDeviceKey(deviceSecurity["deviceKey"]);
         //increment device sequence 
+        logger->log( "requestRefreshExpiredToken load increment device sequence" );
         response.incrementDeviceSequence();
+
+        logger->log( "requestRefreshExpiredToken send" );
 
         //send as a REST /session sequest
         auto [sessionResult,accessToken]=processActivateResponseOK(response, logger, appConfig);
