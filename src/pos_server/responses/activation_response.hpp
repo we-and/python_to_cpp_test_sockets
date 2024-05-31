@@ -92,13 +92,12 @@ public:
     std::string getRawJsonString(){
        
         std::ostringstream jsonStream;
-            jsonStream << "{\n";
-            jsonStream << "    \"deviceId\": " << deviceId << ",\n";
-            jsonStream << "    \"deviceKey\": \"" << deviceKey << "\",\n";
-            jsonStream << "    \"deviceSequence\": " << deviceSequence << "\n";
-            jsonStream << "}";
-            return jsonStream.str();
-
+        jsonStream << "{\n";
+        jsonStream << "    \"deviceId\": " << deviceId << ",\n";
+        jsonStream << "    \"deviceKey\": \"" << deviceKey << "\",\n";
+        jsonStream << "    \"deviceSequence\": " << deviceSequence << "\n";
+        jsonStream << "}";
+        return jsonStream.str();
     }
     /*
     void setRawJson() const {

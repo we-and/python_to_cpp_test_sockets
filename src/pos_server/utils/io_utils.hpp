@@ -36,6 +36,29 @@ std::string readFileContents(const std::string& fileName) {
 }
 
 
+void saveStringToFile(const std::string& content, const std::string& filename) {
+    // Create an ofstream object to handle file operations
+    std::ofstream outFile(filename);
+
+    // Check if the file was successfully opened
+    if (!outFile) {
+        std::cerr << "Error: Could not open the file " << filename << std::endl;
+        return;
+    }
+
+    // Write the content to the file
+    outFile << content;
+
+    // Close the file
+    outFile.close();
+
+    // Inform the user that the file was saved successfully
+    if (outFile.good()) {
+        std::cout << "File saved successfully to " << filename << std::endl;
+    } else {
+        std::cerr << "Error: Something went wrong while saving the file " << filename << std::endl;
+    }
+}
 void saveJsonToFile(const json& j, const std::string& filePath) {
    Logger* logger = Logger::getInstance();
     logger->log( "saveJsonToFile"  );
@@ -65,6 +88,7 @@ json readJsonFromFile(const std::string &filePath, Logger *logger)
 
     try
     {
+        logger->log("readJsonFromFile reading");
         file >> j; // Attempt to read and parse the JSON file
     }
     catch (const json::parse_error &e)

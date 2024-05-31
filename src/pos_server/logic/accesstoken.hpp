@@ -438,17 +438,13 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         
         if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0)
         {
-             logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
             logger->log("Failed to set env variable ACCESS_TOKEN");
 
-            std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
         if (setenv("TOKEN_EXPIRY_TIME",expiryTimeStr.c_str(), 1) != 0)
         {
             logger->log("Failed to set env variable TOKEN_EXPIRY_TIME");
-
-            std::cerr << "Failed to set environment variable." << std::endl;
             return {1, ""}; // Return an error code
         }
         // Assuming function should return a bool, add return value here.

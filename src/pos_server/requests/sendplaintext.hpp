@@ -111,13 +111,11 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
 
-    logger->log("sendPlainText parse");
 
     // token expiry detected by string response from API "Access token expired"
-    logger->log("sendPlainText debug: pretend it expired.");
-    logger->log("sendPlainText debug: pretend it expired.");
     
-    bool doDebugExpiry=true;
+    logger->log("sendPlainText read potential expiry");
+    bool doDebugExpiry=false;
     if(doDebugExpiry){
             // token expiry detected by string response from API "Access token expired"
             logger->log("sendPlainText debug: pretend it expired.");
@@ -152,6 +150,7 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
         }
     }
 
+    logger->log("sendPlainText parse");
     // parse and check for token expiry
     std::string isoMessage = response_string;
     try

@@ -62,7 +62,7 @@ std::pair<int,std::string> requestRefreshExpiredToken(const Config& appConfig){
 
 
             //update device security parameters
-            saveJsonToFile(response.getRawJsonString(), appConfig.deviceSecurityParametersPath);
+            saveStringToFile(response.getRawJsonString(), appConfig.deviceSecurityParametersPath);
             return {0,accessToken};
         }else{
             logger->log("requestRefreshExpiredToken false");
