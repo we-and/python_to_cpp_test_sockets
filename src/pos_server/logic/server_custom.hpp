@@ -52,7 +52,7 @@ void processNewData(char *newData, size_t newDataLength, Logger *logger)
     // Further processing...
 }
 
-void handleClientCustom(int new_socket, struct sockaddr_in address, const std::string &sessionToken, const Config &appConfig, Logger *logger)
+void handleClientCustom(int new_socket, struct sockaddr_in address, const std::string &initialSessionToken, const Config &appConfig, Logger *logger)
 {
     std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
     logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established."); // Log connection
@@ -139,7 +139,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
     close(new_socket);
 
 }
-void startServerCustom(std::string sessionToken, const Config &appConfig)
+void startServerCustom(std::string initialSessionToken, const Config &appConfig)
 {
     Logger *logger = Logger::getInstance();
     logger->log("StartServer");
@@ -190,7 +190,7 @@ void startServerCustom(std::string sessionToken, const Config &appConfig)
             exit(EXIT_FAILURE);
         }
 
-        std::thread(handleClientCustom, new_socket, address, sessionToken, std::ref(appConfig), logger).detach();
+        std::thread(handleClientCustom, new_socket, address, initialSessionToken, std::ref(appConfig), logger).detach();
     }
 
     close(server_fd);

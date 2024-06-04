@@ -40,6 +40,8 @@ std::pair<int,std::string> setup(const Config& appConfig){
         const char* access_token = std::getenv("ACCESS_TOKEN");
         logger->log( "Setup hasValidSessionToken_ yes read"  );  
         logger->log( std::string(access_token)  );  
+
+
         return {0,access_token};
     }else if (hasValidSessionToken_==SESSIONTOKENCHECK_FOUND_EXPIRED){
         logger->log("setup SESSIONTOKENCHECK_FOUND_EXPIRED");

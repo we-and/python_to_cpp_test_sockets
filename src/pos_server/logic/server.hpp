@@ -175,17 +175,17 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(std::string sessionToken,const Config& appConfig){
+void startServer(std::string initialSessionToken,const Config& appConfig){
     Logger* logger = Logger::getInstance();
     //start server, choosing mode depending on the value in settings.ini
     if(appConfig.serverDispatchMode=="original"){
-        return startServerOriginal(sessionToken,appConfig);
+        return startServerOriginal(initialSessionToken,appConfig);
     }else if (appConfig.serverDispatchMode=="threads"){
-        return startServerThreads(sessionToken,appConfig);
+        return startServerThreads(initialSessionToken,appConfig);
     }else if(appConfig.serverDispatchMode=="custom"){
-        return startServerCustom(sessionToken,appConfig);
+        return startServerCustom(initialSessionToken,appConfig);
     }else if(appConfig.serverDispatchMode=="libevent"){
-        return startServerLibevent(sessionToken,appConfig);
+        return startServerLibevent(initialSessionToken,appConfig);
         
     }else {
          std::cerr << "Exiting after unknown dispatch mode in ini file " << appConfig.serverDispatchMode << std::endl;
