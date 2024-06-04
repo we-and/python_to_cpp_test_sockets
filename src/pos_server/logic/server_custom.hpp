@@ -56,7 +56,7 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
 {
     std::cout << "Connection from " << inet_ntoa(address.sin_addr) << " established." << std::endl;
     logger->log("Connection from " + std::string(inet_ntoa(address.sin_addr)) + " established."); // Log connection
-  fd_set read_fds;
+    fd_set read_fds;
     std::vector<char> buffer(1024);
     std::string message_buffer;
 
@@ -103,7 +103,11 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
                         if (isISO8583(cleanpayload)) {
                             std::string payload = cleanpayload;
                             logger->log("valid isomsg");
-                            checkTokenAndExecute(new_socket, sessionToken, payload, appConfig);
+                            logger->log("retrieve latest sessiontoken from env");
+                            const char *last_access_token = std::getenv("ACCESS_TOKEN");
+                            std::string lastAccessTokenStr=std::string(last_access_token);
+                            
+                            checkTokenAndExecute(new_socket, lastAccessTokenStr, payload, appConfig);
                         } else {
                             logger->log("Not a valid isomsg");
                             // Reject if not valid

@@ -22,16 +22,17 @@
 #include "setup.hpp"
 
 // The execute function orchestrates the communication with the API.
-void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::string payload,const Config& appConfig) {
+void checkTokenAndExecute(int requestorSocket, std::string accessToken, std::string payload,const Config& appConfig) {
     Logger* logger = Logger::getInstance();
-    logger->log("execute");  // Log the action of echoing data
+    logger->log("checkTokenAndExecute execute");  // Log the action of echoing data
 
-    bool checkTokenExpiry=false;
-    if (!checkTokenExpiry){
-        logger->log("skip token check");  // Log the action of echoing data
-        sendPlainText(requestorSocket,sessionToken, payload,appConfig);
+    bool runLocalCheckTokenExpiry=false;
+    if (!runLocalCheckTokenExpiry){
+        logger->log("checkTokenAndExecute skip local prerequest token check");  // Log the action of echoing data
+        sendPlainText(requestorSocket,accessToken, payload,appConfig);
     }else{
-        logger->log("token check");  // Log the action of echoing data
+        logger->log("checkTokenAndExecute token check"); 
+         // Log the action of echoing data
         //if the remote server endpoint determines the Session Token is not valid it will send an
         //ISO8583 response with the response code "TOKEN EXPIRY" in the ISO8583 message
         //response located in field number 32 prior to returning the ISO8583 message response to
@@ -49,7 +50,7 @@ void checkTokenAndExecute(int requestorSocket, std::string sessionToken, std::st
             }
         }else{
         // Sends the XML payload using the session's access token.
-            sendPlainText(requestorSocket,sessionToken, payload,appConfig);
+            sendPlainText(requestorSocket,accessToken, payload,appConfig);
         }
     }
 }
