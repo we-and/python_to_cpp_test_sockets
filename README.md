@@ -1,4 +1,4 @@
-# POS Server
+# C++ POS Server
 ## Quick start
 
 ```
