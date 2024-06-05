@@ -12,6 +12,7 @@
 #include <filesystem>
 #include "json.hpp"
 #include <sys/socket.h>
+#include <cstdio>  
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
