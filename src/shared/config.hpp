@@ -34,7 +34,7 @@ public:
     void setPosDirectory(const std::string& dir);
     void setSecretTokenFilename(const std::string& filename);
     void setActivationResultFilename(const std::string& filename);
-    std::fs::path getSecretTokenPath();
+    std::filesystem::path getSecretTokenPath();
 };
 
 #endif // SETTINGS_H

@@ -22,11 +22,11 @@ void Config::setPosDirectory(const std::string& dir) {
 void Config::setSecretTokenFilename(const std::string& filename) {
     secretTokenFilename = filename;
 }
-std::fs::path Config::getSecretTokenPath(){
+std::filesystem::path Config::getSecretTokenPath(){
     auto posDirectory=this->getPosDirectory();
     auto secretTokenFilename=this->getSecretTokenFilename();
 
-    std::fs::path secretTokenPath = posDirectory + secretTokenFilename;
+    std::filesystem::path secretTokenPath = posDirectory + secretTokenFilename;
     return secretTokenPath;
 
 }
