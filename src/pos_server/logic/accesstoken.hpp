@@ -213,6 +213,7 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
     std::string secretToken;
     if (secretTokenExists)
     {
+        
         fs::path secretTokenPath = posDirectory + secretTokenFilename;
         secretToken = readStringFromFile(secretTokenPath, logger);
         logger->log("    hasValidSecretToken true");
@@ -451,6 +452,11 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         // For example, you might return true if everything succeeds:
 
         storeEnvironmentVariables(appConfig.envFilePath, accessToken, expiryTimeStr);
+
+        //delete secret token on success
+        auto secretTokenPath=appConfig.getSecretTokenPath();
+        deleteFile(secretTokenPath);
+
         return {0, accessToken};
     }else{
         logger->log("Sesssion has response with neither message nor accesstoken");
