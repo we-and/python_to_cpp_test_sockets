@@ -39,9 +39,9 @@ std::string readFileContents(const std::string& fileName) {
 void deleteFile(const fs::path& filePath){
       Logger *logger = Logger::getInstance();
    if (std::remove(filePath) == 0) {
-        logger->log("File "+filePath + "deleted successfully.");
+        logger->log("File "+std::to_string(filePath) + "deleted successfully.");
     } else {
-        logger->log("Error deleting file "+filePath );
+        logger->log("Error deleting file "+std::to_string(filePath) );
 //        std::perror("Error deleting file"); // Output an error message if the deletion fails
     }
 }
