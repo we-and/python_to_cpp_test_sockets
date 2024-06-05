@@ -1,5 +1,6 @@
 #include "config.hpp"
 
+#include <filesystem>
 Config::Config()
     : posDirectory("/root/pos/"),
       secretTokenFilename("secrettoken.txt")    {}

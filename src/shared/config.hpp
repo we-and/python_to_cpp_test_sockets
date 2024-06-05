@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <string>
+#include <filesystem>
 
 class Config {
 private:
