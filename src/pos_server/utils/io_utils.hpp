@@ -25,6 +25,7 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
+namespace fs = std::filesystem;
 std::string readFileContents(const std::string& fileName) {
     std::ifstream file(fileName);
     if (!file.is_open()) {
@@ -39,12 +40,18 @@ std::string readFileContents(const std::string& fileName) {
 void deleteFile(const fs::path& filePath){
       Logger *logger = Logger::getInstance();
       std::string pathStr=filePath.string();
-   if (std::remove(filePath) == 0) {
+      try {
+   if (fs::remove(filePath) == 0) {
         logger->log("File "+pathStr + "deleted successfully.");
     } else {
         logger->log("Error deleting file "+pathStr );
-//        std::perror("Error deleting file"); // Output an error message if the deletion fails
     }
+    } catch (const fs::filesystem_error& e) {
+          logger->log("Error deleting file " );
+          logger->log(e.what());
+    }
+
+
 }
 void saveStringToFile(const std::string& content, const std::string& filename) {
     // Create an ofstream object to handle file operations
