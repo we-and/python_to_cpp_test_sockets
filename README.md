@@ -1,4 +1,4 @@
-# POS Server
+# C++ POS Server
 ## Quick start
 
 ```
@@ -8,7 +8,7 @@ git clone https://github.com/we-and/python_to_cpp_test_sockets
 cd python_to_cpp_test_sockets/
 
 cd src/pos_server
-g++ --std=c++17 -o ../../dist/pos main.cpp ../shared/config.cpp -I../shared -I./requests -lcryptopp -lcurl -lstdc++fs 
+g++ --std=c++17 -o ../../dist/pos_server main.cpp ../shared/config.cpp -I../shared -I./requests -lcryptopp -lcurl -lstdc++fs -levent -pthread -ltinyxml2 &&  sudo setcap 'cap_dac_override=eip' ../../dist/pos_server 
 cd ../..
 
 cd src/set_token
