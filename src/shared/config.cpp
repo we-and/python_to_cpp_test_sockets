@@ -21,3 +21,11 @@ void Config::setPosDirectory(const std::string& dir) {
 void Config::setSecretTokenFilename(const std::string& filename) {
     secretTokenFilename = filename;
 }
+fs::path Config::getSecretTokenPath(){
+    auto posDirectory=appConfig.getPosDirectory();
+    auto secretTokenFilename=appConfig.getSecretTokenFilename();
+
+    fs::path secretTokenPath = posDirectory + secretTokenFilename;
+    return secretTokenPath;
+
+}

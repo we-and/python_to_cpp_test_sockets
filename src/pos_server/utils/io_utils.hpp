@@ -35,7 +35,15 @@ std::string readFileContents(const std::string& fileName) {
     return buffer.str();
 }
 
-
+void deleteFile(const std::string& filePath){
+      Logger *logger = Logger::getInstance();
+   if (std::remove(filePath) == 0) {
+        logger->log("File "+filePath + "deleted successfully.");
+    } else {
+        logger->log("Error deleting file "+filePath );
+//        std::perror("Error deleting file"); // Output an error message if the deletion fails
+    }
+}
 void saveStringToFile(const std::string& content, const std::string& filename) {
     // Create an ofstream object to handle file operations
     std::ofstream outFile(filename);
