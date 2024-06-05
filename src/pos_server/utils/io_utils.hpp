@@ -38,10 +38,11 @@ std::string readFileContents(const std::string& fileName) {
 
 void deleteFile(const fs::path& filePath){
       Logger *logger = Logger::getInstance();
+      std::string pathStr=filePath.string();
    if (std::remove(filePath) == 0) {
-        logger->log("File "+std::to_string(filePath.string()) + "deleted successfully.");
+        logger->log("File "+pathStr + "deleted successfully.");
     } else {
-        logger->log("Error deleting file "+std::to_string(filePath.string()) );
+        logger->log("Error deleting file "+pathStr );
 //        std::perror("Error deleting file"); // Output an error message if the deletion fails
     }
 }
