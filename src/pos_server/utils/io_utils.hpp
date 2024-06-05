@@ -36,7 +36,7 @@ std::string readFileContents(const std::string& fileName) {
     return buffer.str();
 }
 
-void deleteFile(const std::string& filePath){
+void deleteFile(const fs::path& filePath){
       Logger *logger = Logger::getInstance();
    if (std::remove(filePath) == 0) {
         logger->log("File "+filePath + "deleted successfully.");
