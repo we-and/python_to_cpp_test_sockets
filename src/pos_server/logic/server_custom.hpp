@@ -141,8 +141,13 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
 }
 void startServerCustom(std::string initialSessionToken, const Config &appConfig)
 {
+
+    
     Logger *logger = Logger::getInstance();
     logger->log("StartServer");
+    
+    const char* host = appConfig.host.c_str(); 
+
     int server_fd, new_socket;
     struct sockaddr_in address;
     int opt = 1;
@@ -164,7 +169,23 @@ void startServerCustom(std::string initialSessionToken, const Config &appConfig)
         exit(EXIT_FAILURE);
     }
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    //address.sin_addr.s_addr = INADDR_ANY;
+
+    //FIX 1: change host 
+    if (std::strcmp(host, "127.0.0.1") == 0) {
+        address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    } else if (std::strcmp(host, "0.0.0.0") == 0) {
+        address.sin_addr.s_addr = htonl(INADDR_ANY);
+    } else {
+        if (inet_pton(AF_INET, host, &address.sin_addr) <= 0) {
+            perror("Invalid address/ Address not supported");
+            close(server_fd);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+
+
     address.sin_port = htons(port);
 
     // Forcefully attaching socket to the port
