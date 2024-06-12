@@ -51,7 +51,15 @@ public:
         return instance;
     }
 std::string getFilePath(const Config& appConfig){
-      auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) + ".txt";
+
+        // Get the current week number
+        std::tm now_tm = *std::localtime(&tt);
+        char weekNumberStr[3]; // Week number can be two digits
+        std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
+        int currentWeekNumber = std::stoi(weekNumberStr);
+
+
+      auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) +"- "+std::to_string(currentWeekNumber) ".txt";
       return filePath;
 }
     // Initialization method for setting up the configuration
@@ -63,6 +71,11 @@ std::string getFilePath(const Config& appConfig){
     }
     void log(const int& text) {
         return log(std::to_string(text));
+    }
+    bool shouldRotateLogFile() {
+        auto now = std::chrono::system_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::hours>(now - t).count();
+        return duration >= 168;  // 7 days * 24 hours = 168 hours
     }
 
     void log(const std::string& text) {
