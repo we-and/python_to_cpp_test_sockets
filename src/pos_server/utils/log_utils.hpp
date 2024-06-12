@@ -81,7 +81,7 @@ std::string getFilePath(){
     // Initialization method for setting up the configuration
     void init(const Config& appConfig_) {
         appConfig = appConfig_;
-          auto filePath=getFilePath(appConfig_);
+          auto filePath=getFilePath();
         std::cout <<"Log file               :"<< filePath <<std::endl;
 
     }
