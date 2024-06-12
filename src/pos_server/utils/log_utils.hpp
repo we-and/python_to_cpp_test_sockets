@@ -63,7 +63,7 @@ public:
     }
 
     void rotateLogFile() {
-        this->log(" > rotateLogFile");
+     //   this->log(" > rotateLogFile");
         logStartTime = std::chrono::system_clock::now();
         this->log(logStartTime);
  
