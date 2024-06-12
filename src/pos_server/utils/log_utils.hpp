@@ -63,13 +63,16 @@ public:
     }
 
     void rotateLogFile() {
+        this->log(" > rotateLogFile");
         logStartTime = std::chrono::system_clock::now();
+        this->log(logStartTime);
+ 
     }
       std::string getFilePath() {
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
-        
-                // Get the current week number
+    
+        // Get the current week number
         std::tm now_tm = *std::localtime(&tt);
         char weekNumberStr[3]; // Week number can be two digits
         std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
@@ -91,9 +94,14 @@ public:
         auto tt = std::chrono::system_clock::to_time_t(logStartTime);
         auto now_tm = *std::localtime(&tt);
 
-  char dateStr[11]; // Date in YYYY-MM-DD format
+        char dateStr[11]; // Date in YYYY-MM-DD format
         std::strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &now_tm);
         initialDate = dateStr;
+
+        char weekNumberStr[3]; // Week number can be two digits
+        std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
+        initialWeekNumber = std::stoi(weekNumberStr);
+
 
         char weekNumberStr[3]; // Week number can be two digits
         std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
