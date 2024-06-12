@@ -68,8 +68,17 @@ public:
       std::string getFilePath() {
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
-        auto weekNumber = std::put_time(std::localtime(&tt), "%U");
-        return appConfig.logsDir + "/log-" + initialDate + "-" + std::to_string(initialWeekNumber + std::stoi(weekNumber)) + ".txt";
+        
+                // Get the current week number
+        std::tm now_tm = *std::localtime(&tt);
+        char weekNumberStr[3]; // Week number can be two digits
+        std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
+        int currentWeekNumber = std::stoi(weekNumberStr);
+
+        return appConfig.logsDir + "/log-" + initialDate + "-" + std::to_string(initialWeekNumber + (currentWeekNumber - initialWeekNumber)) + ".txt";
+  
+
+
     }
 
     // Initialization method for setting up the configuration
@@ -81,10 +90,15 @@ public:
             // Get the initial date and week number
         auto tt = std::chrono::system_clock::to_time_t(logStartTime);
         auto now_tm = *std::localtime(&tt);
-        std::ostringstream dateStream;
-        dateStream << std::put_time(&now_tm, "%Y-%m-%d");
-        initialDate = dateStream.str();
-        initialWeekNumber = std::stoi(std::put_time(&now_tm, "%U"));
+
+  char dateStr[11]; // Date in YYYY-MM-DD format
+        std::strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &now_tm);
+        initialDate = dateStr;
+
+        char weekNumberStr[3]; // Week number can be two digits
+        std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
+        initialWeekNumber = std::stoi(weekNumberStr);
+
           rotateLogFile();
 
         std::cout <<"Log file               :"<< filePath <<std::endl;
