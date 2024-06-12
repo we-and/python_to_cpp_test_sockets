@@ -7,6 +7,10 @@
 #include <iomanip>
 #include <string>
 
+#include <ctime>
+#include <string>
+
+
 #include <mutex>
 #include <stdlib.h>  
 #include <sstream>
@@ -36,7 +40,7 @@ private:
      std::chrono::system_clock::time_point logStartTime;
     Config appConfig;  // Configuration instance as a class member
     std::string initialDate;
- 
+  int initialWeekNumber;
 protected:
     Logger() {}  // Constructor is protected
 
@@ -71,7 +75,7 @@ public:
     // Initialization method for setting up the configuration
     void init(const Config& appConfig_) {
         appConfig = appConfig_;
-          auto filePath=getFilePath(appConfig_);
+          auto filePath=getFilePath();
            logStartTime = std::chrono::system_clock::now();
 
             // Get the initial date and week number
@@ -93,12 +97,12 @@ public:
           if (shouldRotateLogFile()) {
             rotateLogFile();
         }
-        
+
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
 
-        auto filePath=getFilePath.logsDir + "/log-" + std::to_string(t) + ".txt";
+        auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) + ".txt";
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
 
