@@ -100,9 +100,6 @@ public:
         std::strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &now_tm);
         initialDate = dateStr;
 
-        char weekNumberStr[3]; // Week number can be two digits
-        std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
-        initialWeekNumber = std::stoi(weekNumberStr);
 
 
         char weekNumberStr[3]; // Week number can be two digits
