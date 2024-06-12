@@ -65,8 +65,10 @@ public:
     void rotateLogFile() {
      //   this->log(" > rotateLogFile");
         logStartTime = std::chrono::system_clock::now();
-        this->log(logStartTime);
- 
+        this->log("initialDate");
+        this->log(initialDate);
+        this->log(initialWeekNumber);
+
     }
       std::string getFilePath() {
         auto now = std::chrono::system_clock::now();
