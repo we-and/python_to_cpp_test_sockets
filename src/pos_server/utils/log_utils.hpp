@@ -74,11 +74,12 @@ std::string getFilePath(const Config& appConfig){
     void log(const int& text) {
         return log(std::to_string(text));
     }
+    /*
     bool shouldRotateLogFile() {
         auto now = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::hours>(now - t).count();
         return duration >= 168;  // 7 days * 24 hours = 168 hours
-    }
+    }*/
 
     void log(const std::string& text) {
         // Retrieve the current system time as a time_t object
