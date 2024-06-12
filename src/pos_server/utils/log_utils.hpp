@@ -51,7 +51,9 @@ public:
         return instance;
     }
 std::string getFilePath(const Config& appConfig){
-
+ auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
+        
         // Get the current week number
         std::tm now_tm = *std::localtime(&tt);
         char weekNumberStr[3]; // Week number can be two digits
