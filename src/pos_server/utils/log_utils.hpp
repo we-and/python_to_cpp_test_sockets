@@ -61,7 +61,7 @@ std::string getFilePath(const Config& appConfig){
         int currentWeekNumber = std::stoi(weekNumberStr);
 
 
-      auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) +"- "+std::to_string(currentWeekNumber)+ ".txt";
+      auto filePath=appConfig.logsDir + "/log-" + std::to_string(t) +"-"+std::to_string(currentWeekNumber)+ ".txt";
       return filePath;
 }
     // Initialization method for setting up the configuration
