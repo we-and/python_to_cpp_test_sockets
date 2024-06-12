@@ -80,7 +80,7 @@ public:
         std::strftime(weekNumberStr, sizeof(weekNumberStr), "%U", &now_tm);
         int currentWeekNumber = std::stoi(weekNumberStr);
 
-        return appConfig.logsDir + "/log.txt"
+        return appConfig.logsDir + "/log.txt";
 //        return appConfig.logsDir + "/log-" + initialDate + "-" + std::to_string(initialWeekNumber + (currentWeekNumber - initialWeekNumber)) + ".txt";
   
     }
