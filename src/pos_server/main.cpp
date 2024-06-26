@@ -85,15 +85,42 @@ int main(int argc, char* argv[]) {
 
 
     //setup app: check secret tokens, activation, access token, etc 
-    auto [setupResult,accessToken]=setup(appConfig);
-        logger->log("Setup done");
-    if (setupResult>0){
-        logger->log("Exiting program as setup failed");
-        std::cout<<"Exiting program..."<<std::endl;
-        return 1;
-    }else{
 
-        startServer(accessToken,appConfig);
-        return 0;
+    // Create a promise to hold the result of the setup function
+    std::promise<std::pair<bool, std::string>> promise;
+    std::future<std::pair<bool, std::string>> future = promise.get_future();
+
+    // Run the setup function in a new thread
+    std::thread setupThread([&promise, &appConfig]() {
+        try {
+            // Call the setup function and store the result in the promise
+            auto setupResult = setup(appConfig);
+            promise.set_value(setupResult);
+        } catch (...) {
+            // In case of exception, set the exception in the promise
+            promise.set_exception(std::current_exception());
+        }
+    });
+
+    // Wait for the setup function to complete
+    setupThread.join();
+
+ // Get the result from the future
+    try {
+        auto [setupResult, accessToken] = future.get();
+        //auto [setupResult,accessToken]=setup(appConfig);
+            logger->log("Setup done");
+        if (setupResult>0){
+            logger->log("Exiting program as setup failed");
+            std::cout<<"Exiting program..."<<std::endl;
+            return 1;
+        }else{
+
+            startServer(accessToken,appConfig);
+            return 0;
+        }
+      } catch (const std::exception& e) {
+        std::cerr << "Setup encountered an exception: " << e.what() << std::endl;
     }
+
 }
