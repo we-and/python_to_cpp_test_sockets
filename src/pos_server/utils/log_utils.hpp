@@ -26,7 +26,7 @@
 // Retrieve the current system time as a time_t object
 auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-
+std::mutex logMutex;
 namespace fs = std::filesystem;
 
 class Logger {
@@ -96,6 +96,13 @@ std::string getFilePath(){
     }*/
 
     void log(const std::string& text) {
+
+         logStream << "Thread " << std::this_thread::get_id() << ": " << message;
+
+    // Lock the mutex to ensure thread-safe console output
+        std::lock_guard<std::mutex> guard(logMutex);
+
+
         std::ios_base::openmode mode;
          if (shouldRotateLogFile()) {//overwrite if new day 
                mode= std::ios::trunc;
@@ -119,7 +126,7 @@ std::string getFilePath(){
         }
 
         // Write the current time and the log message to the file
-        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << text << "\n";
+        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << std::this_thread::get_id() << ": " << text << "\n";
     }
 };
 
