@@ -188,18 +188,51 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
             //            return "";
 
             // asked for different behavior: request new token and process command with new access token
-            auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
-            if (requestResult == 0)
-            {
-                // resend with new accesstoken
-                return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
+
+
+
+
+            // Create a promise to hold the result of the setup function
+            std::promise<std::pair<bool, std::string>> promise;
+            std::future<std::pair<bool, std::string>> future = promise.get_future();
+
+            // Run the setup function in a new thread
+            std::thread requestnewtokenThread([&promise, &appConfig]() {
+                try {
+                    // Call the setup function and store the result in the promise
+                    auto requestnewtokenResult = requestRefreshExpiredToken(appConfig);
+                    promise.set_value(requestnewtokenResult);
+                } catch (...) {
+                    // In case of exception, set the exception in the promise
+                    promise.set_exception(std::current_exception());
+                }
+            });
+
+            // Wait for the setup function to complete
+            requestnewtokenThread.join();
+
+
+
+
+        // Get the result from the future
+            try {
+                auto [requestResult, newAccessToken] = future.get();
+                if (requestResult == 0)
+                {
+                    // resend with new accesstoken
+                    return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
+                }
+                else
+                {
+                    // if token refresh failed
+                    auto msg = modifyISO8583MessageForExpiredTokenAlert(payload);
+                    resendToRequestor(requestorSocket, msg);
+                    return "";            }
+            } catch (const std::exception& e) {
+                std::cerr << "Request new token encountered an exception: " << e.what() << std::endl;
             }
-            else
-            {
-                // if token refresh failed
-                auto msg = modifyISO8583MessageForExpiredTokenAlert(payload);
-                resendToRequestor(requestorSocket, msg);
-                return "";            }
+
+        
         }
     }
     catch (const std::exception &e)
