@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <string>
 
+#include <thread>
+#include <sstream>
 #include <mutex>
 #include <stdlib.h>  
 #include <sstream>
