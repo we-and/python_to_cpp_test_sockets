@@ -99,8 +99,7 @@ std::string getFilePath(){
 
     void log(const std::string& text) {
 
-         logStream << "Thread " << std::this_thread::get_id() << ": " << message;
-
+         
     // Lock the mutex to ensure thread-safe console output
         std::lock_guard<std::mutex> guard(logMutex);
 
