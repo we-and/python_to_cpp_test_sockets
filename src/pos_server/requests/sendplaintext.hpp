@@ -129,7 +129,41 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
 
         logger->log("sendPlainText: attempt to refresh");
 
-        auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
+
+
+
+            // Create a promise to hold the result of the setup function
+            std::promise<std::pair<bool, std::string>> promise;
+            std::future<std::pair<bool, std::string>> future = promise.get_future();
+
+            // Run the setup function in a new thread
+            std::thread requestnewtokenThread([&promise, &appConfig]() {
+                try {
+                    // Call the setup function and store the result in the promise
+                    auto requestnewtokenResult = requestRefreshExpiredToken(appConfig);
+                    promise.set_value(requestnewtokenResult);
+                } catch (...) {
+                    // In case of exception, set the exception in the promise
+                    promise.set_exception(std::current_exception());
+                }
+            });
+
+            // Wait for the setup function to complete
+            requestnewtokenThread.join();
+
+
+
+
+
+
+
+
+
+
+
+
+         auto [requestResult, newAccessToken] = future.get();
+        //auto [requestResult, newAccessToken] = requestRefreshExpiredToken(appConfig);
         if (requestResult == 0){
             // resend with new accesstoken
             return sendPlainTextAttempt(requestorSocket, newAccessToken, payload, appConfig,attempt+1);
