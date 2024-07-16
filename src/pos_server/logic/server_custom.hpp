@@ -79,12 +79,12 @@ void handleClientCustom(int new_socket, struct sockaddr_in address, const std::s
             int bytes_read = read(new_socket, buffer.data(), buffer.size());
             if (bytes_read > 0) {
 
-                    logger->log("buffer before");
-                                        logger->log(message_buffer);
+                  //  logger->log("buffer before");
+                    //                    logger->log(message_buffer);
 
                 message_buffer.append(buffer.data(), bytes_read);
-                    logger->log("buffer after");
-                                        logger->log(message_buffer);
+               //     logger->log("buffer after");
+                 //                       logger->log(message_buffer);
 
                 size_t start_pos = message_buffer.find("<isomsg>");
                 size_t end_pos = message_buffer.find("</isomsg>");

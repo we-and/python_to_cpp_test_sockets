@@ -6,7 +6,7 @@
     #include <sstream>
     #include <filesystem>
 #include <future>
-
+#include "logic/periodic_access_token_refresh.hpp"
 #include "configfile.hpp"
 #include "utils/log_utils.hpp"
 #include "utils/io_utils.hpp" 
@@ -115,6 +115,15 @@ int main(int argc, char* argv[]) {
             std::cout<<"Exiting program..."<<std::endl;
             return 1;
         }else{
+
+
+            periodicTokenExpirationCheck();
+
+
+
+
+
+
 
             startServer(accessToken,appConfig);
             return 0;

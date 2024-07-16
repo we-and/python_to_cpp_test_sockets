@@ -28,7 +28,8 @@
 #include "../responses/session_response.hpp"
 namespace fs = std::filesystem;
 
-std::string timePointToString(const std::chrono::system_clock::time_point& time_point) {
+std::string timePointToString(const std::chrono::system_clock::time_point &time_point)
+{
     // Convert time_point to time_t for easier formatting
     std::time_t time = std::chrono::system_clock::to_time_t(time_point);
 
@@ -61,6 +62,7 @@ std::string timePointToString(const std::chrono::system_clock::time_point& time_
  *   'ACCESS_TOKEN' and 'TOKEN_EXPIRY_TIME', respectively.
  * - Proper error handling is implemented for date parsing and time comparison.
  */
+
 bool is_valid_access_token()
 {
     Logger *logger = Logger::getInstance();
@@ -71,9 +73,9 @@ bool is_valid_access_token()
 
     if (access_token != nullptr && expiration_time_str != nullptr)
     {
-     logger->log("is_valid_access_token has both");
-     logger->log(access_token);
-     logger->log(expiration_time_str);
+        logger->log("is_valid_access_token has both");
+        logger->log(access_token);
+        logger->log(expiration_time_str);
         std::tm tm = {};
         std::istringstream ss(expiration_time_str);
 
@@ -82,19 +84,19 @@ bool is_valid_access_token()
         if (ss.fail())
         {
             std::cerr << "Failed to parse time string" << std::endl;
-  logger->log("Token expiry failed");
+            logger->log("Token expiry failed");
             return false;
         }
-  logger->log("Token expiry parsed");
+        logger->log("Token expiry parsed");
         // Convert std::tm to std::chrono::system_clock::time_point
         auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
         auto current_time = std::chrono::system_clock::now();
 
         std::string exp_time_str = timePointToString(expiration_time);
         std::string cur_time_str = timePointToString(current_time);
-        logger->log("Current time "+(cur_time_str));
-            logger->log("Expiration time"+(exp_time_str));
-        
+        logger->log("Current time " + (cur_time_str));
+        logger->log("Expiration time" + (exp_time_str));
+
         // Compare current time with expiration time
         if (current_time < expiration_time)
         {
@@ -106,9 +108,10 @@ bool is_valid_access_token()
             logger->log("Time expired");
             return false;
         }
-    }else{
-                    logger->log("No env");
-
+    }
+    else
+    {
+        logger->log("No env");
     }
     return false;
 }
@@ -161,11 +164,12 @@ std::string calculateHash(int deviceSequence, const std::string &deviceKey)
                                                     new CryptoPP::HexEncoder(
                                                         new CryptoPP::StringSink(digest))));
 
-    //make lowercase
+    // make lowercase
     std::transform(digest.begin(), digest.end(), digest.begin(),
-                   [](unsigned char c) -> unsigned char { return std::tolower(c); });
+                   [](unsigned char c) -> unsigned char
+                   { return std::tolower(c); });
     logger->log("Sequence Hash: " + digest);
-    
+
     return digest;
 }
 
@@ -213,7 +217,7 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
     std::string secretToken;
     if (secretTokenExists)
     {
-        
+
         fs::path secretTokenPath = posDirectory + secretTokenFilename;
         secretToken = readStringFromFile(secretTokenPath, logger);
         logger->log("    hasValidSecretToken true");
@@ -238,7 +242,8 @@ std::pair<bool, bool> hasValidSecretToken(std::string posDirectory, std::string 
         // }
     }
 }
-enum SessionTokenCheck {
+enum SessionTokenCheck
+{
     SESSIONTOKENCHECK_NOT_FOUND,
     SESSIONTOKENCHECK_FOUND_EXPIRED,
     SESSIONTOKENCHECK_FOUND_VALID
@@ -253,10 +258,13 @@ SessionTokenCheck hasValidSessionToken(int requestorSocket)
     if (sessionTokenExists)
     {
         logger->log("    hasValidSessionToken: has ACCESS_TOKEN");
-        bool isValid= is_valid_access_token();
-        if (isValid){
+        bool isValid = is_valid_access_token();
+        if (isValid)
+        {
             return SESSIONTOKENCHECK_FOUND_VALID;
-        }else{
+        }
+        else
+        {
             return SESSIONTOKENCHECK_FOUND_EXPIRED;
         }
     }
@@ -276,12 +284,15 @@ SessionTokenCheck hasValidSessionTokenInit()
     if (sessionTokenExists)
     {
         logger->log("    hasValidSessionTokenInit: has ACCESS_TOKEN");
-        bool isValid= is_valid_access_token(); //-1 means no resend to sender if token is invalid.
-        if (isValid){
-                return SESSIONTOKENCHECK_FOUND_VALID;
-            }else{
-                return SESSIONTOKENCHECK_FOUND_EXPIRED;
-            }
+        bool isValid = is_valid_access_token(); //-1 means no resend to sender if token is invalid.
+        if (isValid)
+        {
+            return SESSIONTOKENCHECK_FOUND_VALID;
+        }
+        else
+        {
+            return SESSIONTOKENCHECK_FOUND_EXPIRED;
+        }
     }
     else
     {
@@ -289,7 +300,8 @@ SessionTokenCheck hasValidSessionTokenInit()
         return SESSIONTOKENCHECK_NOT_FOUND;
     }
 }
-std::string getFutureTime(int seconds) {
+std::string getFutureTime(int seconds)
+{
     // Get the current time
     auto now = std::chrono::system_clock::now();
 
@@ -310,18 +322,20 @@ std::string getFutureTime(int seconds) {
     // Return the formatted string
     return ss.str();
 }
-bool storeEnvironmentVariables(const std::string& filePath, const std::string& accessToken, const std::string& expiryTime) {
+bool storeEnvironmentVariables(const std::string &filePath, const std::string &accessToken, const std::string &expiryTime)
+{
     Logger *logger = Logger::getInstance();
-    logger->log("storing env in env file"+filePath);
+    logger->log("storing env in env file" + filePath);
     // Try to create the directory first (requires #include <sys/stat.h> and #include <sys/types.h>)
     // This step is optional based on whether directory exists or needs to be created by this function.
-//    system(("mkdir -p " + filePath.substr(0, filePath.find_last_of('/'))).c_str());
+    //    system(("mkdir -p " + filePath.substr(0, filePath.find_last_of('/'))).c_str());
 
     // Open or create the file to write the environment variables
-    std::ofstream outputFile(filePath, std::ios::out | std::ios::trunc);  // Open in write mode and truncate existing
-    if (!outputFile.is_open()) {
+    std::ofstream outputFile(filePath, std::ios::out | std::ios::trunc); // Open in write mode and truncate existing
+    if (!outputFile.is_open())
+    {
         std::cerr << "Failed to open or create the file: " << filePath << std::endl;
-         logger->log("storing env failed to open");
+        logger->log("storing env failed to open");
         return false;
     }
 
@@ -329,9 +343,10 @@ bool storeEnvironmentVariables(const std::string& filePath, const std::string& a
     outputFile << "ACCESS_TOKEN=" << accessToken << std::endl;
     outputFile << "TOKEN_EXPIRY_TIME=" << expiryTime << std::endl;
 
-    if (outputFile.fail()) {
+    if (outputFile.fail())
+    {
         std::cerr << "Failed to write to the file: " << filePath << std::endl;
-         logger->log("storing env failed");
+        logger->log("storing env failed");
         outputFile.close();
 
         return false;
@@ -339,7 +354,7 @@ bool storeEnvironmentVariables(const std::string& filePath, const std::string& a
 
     // Close the file
     outputFile.close();
-     logger->log("stored env in env file"+filePath);
+    logger->log("stored env in env file" + filePath);
     return true;
 }
 
@@ -364,19 +379,21 @@ std::pair<int, std::string> processActivateResponseErrorMessage(ActivateDeviceAP
     return {1, ""}; // Return an error code
 }
 
-std::pair<int, std::string> processSessionResponseErrorMessage(SessionAPIResponse &response, Logger *logger){
-     if (response.getMessage() == "Invalid Credential")
+std::pair<int, std::string> processSessionResponseErrorMessage(SessionAPIResponse &response, Logger *logger)
+{
+    if (response.getMessage() == "Invalid Credential")
     {
         std::cerr << "processSessionResponseErrorMessage:  exit with " << response.getMessage() << std::endl;
         logger->log("Exiting after session request message Invalid Credential:" + response.getMessage());
         std::exit(EXIT_FAILURE);
         return {1, ""}; // Return an error code
-    }else{
+    }
+    else
+    {
         std::cerr << "processSessionResponseErrorMessage:  exit with " << response.getMessage() << std::endl;
         logger->log("Exiting after session request message " + response.getMessage());
         std::exit(EXIT_FAILURE);
         return {1, ""}; // Return an error code
-
     }
 }
 
@@ -384,21 +401,22 @@ std::pair<int, std::string> processSessionResponseErrorMessage(SessionAPIRespons
 //         { 1, ""}            if not
 /**
  * Processes the response received from the Activate Device API and initiates a session.
- * 
+ *
  * This function handles the response from the Activate Device API, extracts necessary information
  * such as device ID, device key, and device sequence, and uses this information to create a session.
  * The function logs the process, calculates a hash using the device sequence and key, and attempts to
  * create a session by sending the calculated hash and device details. If the session is successfully created
  * and an access token is received, it sets environment variables for the access token and its expiry time.
  * The function also logs the results and handles errors appropriately.
- * 
+ *
  * @param activateResponse The response object from the Activate Device API.
  * @param logger A pointer to the Logger object for logging information.
  * @param appConfig The application configuration containing settings and paths.
  * @return A pair consisting of an integer and a string. The integer represents the status code (0 for success, 1 for failure),
  *         and the string contains the access token if the session creation is successful.
  */
-std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse, Logger *logger, const Config &appConfig){
+std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse &activateResponse, Logger *logger, const Config &appConfig)
+{
     logger->log("processActivateResponseOK");
     // Extract deviceId, deviceKey, and deviceSequence from the activation result
     int deviceId = activateResponse.getDeviceId();
@@ -421,29 +439,30 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
         return processSessionResponseErrorMessage(response, logger);
     }
 
-    logger->log("Response > accessToken="+response.getAccessToken() + " expiresTime="+std::to_string(response.getExpiryTime()));
-    logger->log("Response > valid="+(isValid));
-    if (response.hasAccessToken()){
+    logger->log("Response > accessToken=" + response.getAccessToken() + " expiresTime=" + std::to_string(response.getExpiryTime()));
+    logger->log("Response > valid=" + (isValid));
+    if (response.hasAccessToken())
+    {
         logger->log("Session has response with access token");
 
         // Extract the access token and its expiry time from the session result
         std::string accessToken = response.getAccessToken();
         int expiryTime = response.getExpiryTime();
-        
-        std::string  expiryTimeStr= getFutureTime(expiryTime);
-        logger->log("Session has response accessToken="+accessToken + " expiryTime="+(expiryTimeStr));
+
+        std::string expiryTimeStr = getFutureTime(expiryTime);
+        logger->log("Session has response accessToken=" + accessToken + " expiryTime=" + (expiryTimeStr));
 
         // Save the session result (which includes the access token and expiry) to a JSON file
         // saveJsonToFile(createSessionResult, accessTokenFilename);
         // Set the environment variable
-        
+
         if (setenv("ACCESS_TOKEN", accessToken.c_str(), 1) != 0)
         {
             logger->log("Failed to set env variable ACCESS_TOKEN");
 
             return {1, ""}; // Return an error code
         }
-        if (setenv("TOKEN_EXPIRY_TIME",expiryTimeStr.c_str(), 1) != 0)
+        if (setenv("TOKEN_EXPIRY_TIME", expiryTimeStr.c_str(), 1) != 0)
         {
             logger->log("Failed to set env variable TOKEN_EXPIRY_TIME");
             return {1, ""}; // Return an error code
@@ -453,12 +472,14 @@ std::pair<int, std::string> processActivateResponseOK(ActivateDeviceAPIResponse 
 
         storeEnvironmentVariables(appConfig.envFilePath, accessToken, expiryTimeStr);
 
-        //delete secret token on success
-        auto secretTokenPath=appConfig.getSecretTokenPath();
+        // delete secret token on success
+        auto secretTokenPath = appConfig.getSecretTokenPath();
         deleteFile(secretTokenPath);
 
         return {0, accessToken};
-    }else{
+    }
+    else
+    {
         logger->log("Sesssion has response with neither message nor accesstoken");
     }
     logger->log("Session has response other");
@@ -479,7 +500,8 @@ std::pair<int, std::string> requestAccessTokenFromSecretToken(std::string secret
     //    json activationResult = activateDevice(secretToken,config);
     logger->log("requestAccessTokenFromSecretToken: has activationResult");
 
-    if (response.hasMessage()){
+    if (response.hasMessage())
+    {
         return processActivateResponseErrorMessage(response, logger);
     }
     if (response.hasDeviceId())
