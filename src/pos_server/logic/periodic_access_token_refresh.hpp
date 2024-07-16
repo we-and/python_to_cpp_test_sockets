@@ -111,7 +111,7 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
                 // Calculate the difference in seconds
                 double difference = std::difftime(targetTime, currentTime);
 
-                logger->log("checkIfOneMinuteBeforeExpiry "+std::to_string(difference)+"s before renewal");
+                logger->log("checkIfOneMinuteBeforeExpiry "+std::to_string(int(difference))+"s before renewal");
                 // Check if the difference is 60 seconds (one minute)
                 if (difference > 0 && difference <= 60)
                 {
