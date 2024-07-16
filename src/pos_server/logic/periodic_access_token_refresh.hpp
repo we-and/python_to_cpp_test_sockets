@@ -136,13 +136,9 @@ void checkTokenExpired( const Config &appConfig)
 void periodicTokenExpirationCheck( const Config &appConfig){
  Logger *logger = Logger::getInstance();
     logger->log("periodicTokenExpirationCheck");
-    // Create a promise to hold the result of the setup function
-    std::promise<std::pair<bool, std::string>> promise;
-    std::future<std::pair<bool, std::string>> future = promise.get_future();
-
+   
     // Run the setup function in a new thread
-    std::thread periodicCheckThread([&promise, &appConfig]() {
-        try {
+    std::thread periodicCheckThread([ &appConfig]() {
            while (true) {
                 checkTokenExpired(appConfig);
 
@@ -150,21 +146,10 @@ void periodicTokenExpirationCheck( const Config &appConfig){
                 std::this_thread::sleep_for(std::chrono::minutes(1));
             }
 
-        } catch (...) {
-            // In case of exception, set the exception in the promise
-            promise.set_exception(std::current_exception());
-        }
     });
 
     // Wait for the setup function to complete
     periodicCheckThread.detach();
-
- // Get the result from the future
-    try {
-         future.get();
-    } catch (const std::exception& e) {
-                std::cerr << "periodicTokenExpirationCheck encountered an exception: " << e.what() << std::endl;
-            }
 }
 
 #endif
