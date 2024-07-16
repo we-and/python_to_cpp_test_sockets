@@ -139,7 +139,7 @@ void periodicTokenExpirationCheck( const Config &appConfig){
     std::thread periodicCheckThread([&promise, &appConfig]() {
         try {
             // Call the setup function and store the result in the promise
-            checkIfOneMinuteBeforeExpiry(appConfig);
+            checkTokenExpired(appConfig);
             //promise.set_value(setupResult);
         } catch (...) {
             // In case of exception, set the exception in the promise
@@ -153,7 +153,7 @@ void periodicTokenExpirationCheck( const Config &appConfig){
  // Get the result from the future
     try {
          future.get();
-}
+    }
 }
 
 #endif
