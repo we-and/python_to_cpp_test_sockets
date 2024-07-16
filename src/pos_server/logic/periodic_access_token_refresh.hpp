@@ -153,7 +153,9 @@ void periodicTokenExpirationCheck( const Config &appConfig){
  // Get the result from the future
     try {
          future.get();
-    }
+    } catch (const std::exception& e) {
+                std::cerr << "periodicTokenExpirationCheck encountered an exception: " << e.what() << std::endl;
+            }
 }
 
 #endif
