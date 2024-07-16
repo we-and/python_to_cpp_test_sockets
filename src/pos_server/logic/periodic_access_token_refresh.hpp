@@ -124,7 +124,9 @@ int checkIfOneMinuteBeforeExpiry( const Config &appConfig){
 
                 //}
             }
-
+            }else{
+                return -1;
+            }
 }
 
 int checkTokenExpired( const Config &appConfig)
@@ -143,11 +145,13 @@ void periodicTokenExpirationCheck( const Config &appConfig){
     std::thread periodicCheckThread([ &appConfig]() {
            while (true) {
                 int waittime_sec=                checkTokenExpired(appConfig);
-
-                // Sleep for the specified interval before checking again
-                std::this_thread::sleep_for(std::chrono::seconds(waittime_sec));
-                  askRefreshToken(appConfig);
-
+                if (waittime_sec>-1){
+                            // Sleep for the specified interval before checking again
+                            std::this_thread::sleep_for(std::chrono::seconds(waittime_sec));
+                            askRefreshToken(appConfig);
+                }else{
+                    
+                }
             }
 
     });
