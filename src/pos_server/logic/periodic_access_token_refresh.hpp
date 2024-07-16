@@ -135,14 +135,7 @@ void checkTokenExpired( const Config &appConfig)
     Logger *logger = Logger::getInstance();
     logger->log("checkTokenExpired");
 
-    auto [success, tm] = get_expirytime_from_env();
-    if (success)
-    {
-        if (tm!=nullptr){
-        checkIfOneMinuteBeforeExpiry(appConfig,*tm);
-    }
-
-    } 
+        checkIfOneMinuteBeforeExpiry(appConfig);
 }
 
 void periodicTokenExpirationCheck( const Config &appConfig){
