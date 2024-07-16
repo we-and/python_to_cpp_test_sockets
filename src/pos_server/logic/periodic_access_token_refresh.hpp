@@ -49,7 +49,7 @@ std::pair<bool, std::tm *> get_expirytime_from_env()
     // auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return {true, &tm};
 }
-void askRefreshToken()
+void askRefreshToken( const Config &appConfig)
 {
     Logger *logger = Logger::getInstance();
     logger->log("askRefreshToken");
@@ -84,7 +84,7 @@ void askRefreshToken()
         logger->log("askRefreshToken failed");
     }
 }
-void periodicTokenExpirationCheck(){
+void periodicTokenExpirationCheck( const Config &appConfig){
 
     // Create a promise to hold the result of the setup function
     std::promise<std::pair<bool, std::string>> promise;
@@ -94,7 +94,7 @@ void periodicTokenExpirationCheck(){
     std::thread periodicCheckThread([&promise, &appConfig]() {
         try {
             // Call the setup function and store the result in the promise
-            checkIfOneMinuteBeforeExpiry();
+            checkIfOneMinuteBeforeExpiry(appConfig);
             //promise.set_value(setupResult);
         } catch (...) {
             // In case of exception, set the exception in the promise
@@ -111,7 +111,7 @@ void periodicTokenExpirationCheck(){
 }
 }
 
-void checkIfOneMinuteBeforeExpiry(const std::tm &targetDate)
+void checkIfOneMinuteBeforeExpiry( const Config &appConfig,const std::tm &targetDate)
 {
     Logger *logger = Logger::getInstance();
     logger->log("checkOneMinuteBefore");
@@ -130,7 +130,7 @@ void checkIfOneMinuteBeforeExpiry(const std::tm &targetDate)
         // Check if the difference is 60 seconds (one minute)
         if (difference > 0 && difference <= 60)
         {
-            askRefreshToken();
+            askRefreshToken(appConfig);
 
             break;
         }
@@ -140,7 +140,7 @@ void checkIfOneMinuteBeforeExpiry(const std::tm &targetDate)
     }
 }
 
-void checkTokenExpired()
+void checkTokenExpired( const Config &appConfig)
 {
     Logger *logger = Logger::getInstance();
     logger->log("checkTokenExpired");
@@ -149,7 +149,7 @@ void checkTokenExpired()
     if (success)
     {
         if (tm!=nullptr){
-        checkIfOneMinuteBeforeExpiry(*tm);
+        checkIfOneMinuteBeforeExpiry(appConfig,*tm);
     }
 
     } 
