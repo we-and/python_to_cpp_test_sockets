@@ -49,20 +49,6 @@ std::pair<bool, std::tm *> get_expirytime_from_env()
     // auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return {true, &tm};
 }
-void checkTokenExpired()
-{
-    Logger *logger = Logger::getInstance();
-    logger->log("checkTokenExpired");
-
-    auto [success, tm] = get_expirytime_from_env();
-    if (success)
-    {
-        if (tm!=nullptr){
-        checkIfOneMinuteBeforeExpiry(*tm);
-    }
-
-    } 
-}
 void askRefreshToken()
 {
     Logger *logger = Logger::getInstance();
@@ -154,5 +140,19 @@ void checkIfOneMinuteBeforeExpiry(const std::tm &targetDate)
     }
 }
 
+void checkTokenExpired()
+{
+    Logger *logger = Logger::getInstance();
+    logger->log("checkTokenExpired");
+
+    auto [success, tm] = get_expirytime_from_env();
+    if (success)
+    {
+        if (tm!=nullptr){
+        checkIfOneMinuteBeforeExpiry(*tm);
+    }
+
+    } 
+}
 
 #endif
