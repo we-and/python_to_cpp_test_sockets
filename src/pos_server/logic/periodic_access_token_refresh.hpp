@@ -85,7 +85,7 @@ void askRefreshToken( const Config &appConfig)
         logger->log("askRefreshToken failed");
     }
 }
-void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
+int checkIfOneMinuteBeforeExpiry( const Config &appConfig){
     Logger *logger = Logger::getInstance(); 
    // logger->log("checkIfOneMinuteBeforeExpiry");
 
@@ -96,8 +96,8 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
         std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
 
-                std::thread::id threadId = std::this_thread::get_id();
-               // logger->log("Running in thread ID: " + std::to_string(std::hash<std::thread::id>{}(threadId)));
+        std::thread::id threadId = std::this_thread::get_id();
+        // logger->log("Running in thread ID: " + std::to_string(std::hash<std::thread::id>{}(threadId)));
 
 
         auto [success, tm] = get_expirytime_from_env();
@@ -106,31 +106,33 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
                 if (tm!=nullptr){
                 // Convert targetDate to time_t
                 std::time_t targetTime = std::mktime(const_cast<std::tm *>(tm));
-
-
                 // Calculate the difference in seconds
                 double difference = std::difftime(targetTime, currentTime);
-
-                logger->log("checkIfOneMinuteBeforeExpiry "+std::to_string(int(difference/60))+"min before renewal");
-                // Check if the difference is 60 seconds (one minute)
-                if (difference > 0 && difference <= 60)
-                {
-                    askRefreshToken(appConfig);
+                     logger->log("checkIfOneMinuteBeforeExpiry "+std::to_string(int(difference/60)-1)+"min before renewal");
+    //           
+                return int(difference/60)-1;
+//                if (int(difference/60) % 5 )==0{
+  //                  logger->log("checkIfOneMinuteBeforeExpiry "+std::to_string(int(difference/60))+"min before renewal");
+    //            }
+      //          // Check if the difference is 60 seconds (one minute)
+        //        if (difference > 0 && difference <= 60)
+          //      {
+            //        askRefreshToken(appConfig);
 
                    
-                }
+              //  }
 
-                }
+                //}
             }
 
 }
 
-void checkTokenExpired( const Config &appConfig)
+int checkTokenExpired( const Config &appConfig)
 {
     //Logger *logger = Logger::getInstance();
   //  logger->log("checkTokenExpired");
 
-        checkIfOneMinuteBeforeExpiry(appConfig);
+      return   checkIfOneMinuteBeforeExpiry(appConfig);
 }
 
 void periodicTokenExpirationCheck( const Config &appConfig){
@@ -140,10 +142,12 @@ void periodicTokenExpirationCheck( const Config &appConfig){
     // Run the setup function in a new thread
     std::thread periodicCheckThread([ &appConfig]() {
            while (true) {
-                checkTokenExpired(appConfig);
+                int waittime_sec=                checkTokenExpired(appConfig);
 
                 // Sleep for the specified interval before checking again
-                std::this_thread::sleep_for(std::chrono::minutes(1));
+                std::this_thread::sleep_for(std::chrono::seconds(waittime_sec));
+                  askRefreshToken(appConfig);
+
             }
 
     });
