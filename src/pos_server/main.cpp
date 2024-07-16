@@ -119,12 +119,6 @@ int main(int argc, char* argv[]) {
 
             periodicTokenExpirationCheck(appConfig);
 
-
-
-
-
-
-
             startServer(accessToken,appConfig);
             return 0;
         }

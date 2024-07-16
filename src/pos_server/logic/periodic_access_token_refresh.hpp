@@ -101,7 +101,7 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig,const std::tm &target
         // Calculate the difference in seconds
         double difference = std::difftime(targetTime, currentTime);
 
-        logger->log("checkIfOneMinuteBeforeExpiry not_yet ");
+        logger->log("checkIfOneMinuteBeforeExpiry not_  yet ");
         // Check if the difference is 60 seconds (one minute)
         if (difference > 0 && difference <= 60)
         {
@@ -150,7 +150,7 @@ void periodicTokenExpirationCheck( const Config &appConfig){
     });
 
     // Wait for the setup function to complete
-    periodicCheckThread.join();
+    periodicCheckThread.detach();
 
  // Get the result from the future
     try {
