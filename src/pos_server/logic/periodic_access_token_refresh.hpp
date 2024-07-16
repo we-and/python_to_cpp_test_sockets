@@ -20,6 +20,7 @@
 #include <cryptopp/hex.h>
 #include <cstdlib>
 #include <sys/stat.h>
+#include "refreshtoken.hpp"
 #include "../utils/log_utils.hpp"
 #include "../utils/io_utils.hpp"
 #include "config.hpp"
