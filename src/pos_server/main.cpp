@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
         }else{
 
 
-            periodicTokenExpirationCheck();
+            periodicTokenExpirationCheck(appConfig);
 
 
 
