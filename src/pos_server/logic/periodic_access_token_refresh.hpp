@@ -130,7 +130,8 @@ void checkTokenExpired( const Config &appConfig)
 }
 
 void periodicTokenExpirationCheck( const Config &appConfig){
-
+ Logger *logger = Logger::getInstance();
+    logger->log("periodicTokenExpirationCheck");
     // Create a promise to hold the result of the setup function
     std::promise<std::pair<bool, std::string>> promise;
     std::future<std::pair<bool, std::string>> future = promise.get_future();
