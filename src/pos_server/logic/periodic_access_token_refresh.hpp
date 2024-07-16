@@ -117,7 +117,7 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
                 {
                     askRefreshToken(appConfig);
 
-                    break;
+                   
                 }
 
                 }
