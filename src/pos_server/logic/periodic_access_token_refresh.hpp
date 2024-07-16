@@ -152,7 +152,7 @@ void periodicTokenExpirationCheck(const Config &appConfig)
                                             if (waittime_sec > -1)
                                             {
                                                 // Sleep for the specified interval before checking again
-                                                std::this_thread::sleep_for(std::chrono::seconds(waittime_sec));
+                                                std::this_thread::sleep_for(std::chrono::minutes(waittime_sec));
                                                 askRefreshToken(appConfig);
                                             }
                                             else
