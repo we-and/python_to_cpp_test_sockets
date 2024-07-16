@@ -85,33 +85,6 @@ void askRefreshToken( const Config &appConfig)
         logger->log("askRefreshToken failed");
     }
 }
-void periodicTokenExpirationCheck( const Config &appConfig){
-
-    // Create a promise to hold the result of the setup function
-    std::promise<std::pair<bool, std::string>> promise;
-    std::future<std::pair<bool, std::string>> future = promise.get_future();
-
-    // Run the setup function in a new thread
-    std::thread periodicCheckThread([&promise, &appConfig]() {
-        try {
-            // Call the setup function and store the result in the promise
-            checkIfOneMinuteBeforeExpiry(appConfig);
-            //promise.set_value(setupResult);
-        } catch (...) {
-            // In case of exception, set the exception in the promise
-            promise.set_exception(std::current_exception());
-        }
-    });
-
-    // Wait for the setup function to complete
-    periodicCheckThread.join();
-
- // Get the result from the future
-    try {
-         future.get();
-}
-}
-
 void checkIfOneMinuteBeforeExpiry( const Config &appConfig,const std::tm &targetDate)
 {
     Logger *logger = Logger::getInstance();
@@ -154,6 +127,33 @@ void checkTokenExpired( const Config &appConfig)
     }
 
     } 
+}
+
+void periodicTokenExpirationCheck( const Config &appConfig){
+
+    // Create a promise to hold the result of the setup function
+    std::promise<std::pair<bool, std::string>> promise;
+    std::future<std::pair<bool, std::string>> future = promise.get_future();
+
+    // Run the setup function in a new thread
+    std::thread periodicCheckThread([&promise, &appConfig]() {
+        try {
+            // Call the setup function and store the result in the promise
+            checkIfOneMinuteBeforeExpiry(appConfig);
+            //promise.set_value(setupResult);
+        } catch (...) {
+            // In case of exception, set the exception in the promise
+            promise.set_exception(std::current_exception());
+        }
+    });
+
+    // Wait for the setup function to complete
+    periodicCheckThread.join();
+
+ // Get the result from the future
+    try {
+         future.get();
+}
 }
 
 #endif
