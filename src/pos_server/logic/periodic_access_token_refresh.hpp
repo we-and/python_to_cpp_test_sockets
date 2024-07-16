@@ -42,12 +42,12 @@ std::pair<bool, std::tm *> get_expirytime_from_env()
     {
         std::cerr << "Failed to parse time string" << std::endl;
         logger->log("TOKEN_EXPIRY_TIME parse failed");
-        return std::make_pair(false, NULL);
+        return {false, nullptr};
     }
     logger->log("TOKEN_EXPIRY_TIME  parsed");
     // Convert std::tm to std::chrono::system_clock::time_point
     // auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-    return std::make_pair(true, &tm);)
+    return {true, &tm};
 }
 void checkTokenExpired()
 {
@@ -57,8 +57,11 @@ void checkTokenExpired()
     auto [success, tm] = get_expirytime_from_env();
     if (success)
     {
+        if (tm!=nullptr){
         checkIfOneMinuteBeforeExpiry(*tm);
     }
+
+    } 
 }
 void askRefreshToken()
 {
