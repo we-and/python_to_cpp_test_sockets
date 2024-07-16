@@ -1,3 +1,5 @@
+#ifndef ACTRES_H
+#define ACTRES_H
 #include <iostream>
 
 #include "../utils/json.hpp"
@@ -149,3 +151,5 @@ public:
         return isValid;
     }
 };
+
+#endif
