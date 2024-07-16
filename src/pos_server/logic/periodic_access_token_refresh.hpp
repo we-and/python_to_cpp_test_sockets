@@ -91,8 +91,6 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
 
 
 
-    while (true)
-    {
         // Get the current time
         auto now = std::chrono::system_clock::now();
         std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
@@ -125,9 +123,6 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
                 }
             }
 
-        // Sleep for one minute before checking again
-        std::this_thread::sleep_for(std::chrono::minutes(1));
-    }
 }
 
 void checkTokenExpired( const Config &appConfig)
@@ -148,9 +143,13 @@ void periodicTokenExpirationCheck( const Config &appConfig){
     // Run the setup function in a new thread
     std::thread periodicCheckThread([&promise, &appConfig]() {
         try {
-            // Call the setup function and store the result in the promise
-            checkTokenExpired(appConfig);
-            //promise.set_value(setupResult);
+           while (true) {
+                checkTokenExpired(appConfig);
+
+                // Sleep for the specified interval before checking again
+                std::this_thread::sleep_for(std::chrono::minutes(1));
+            }
+
         } catch (...) {
             // In case of exception, set the exception in the promise
             promise.set_exception(std::current_exception());
