@@ -45,7 +45,7 @@ std::pair<bool, std::tm *> get_expirytime_from_env()
         logger->log("TOKEN_EXPIRY_TIME parse failed");
         return {false, nullptr};
     }
-    logger->log("TOKEN_EXPIRY_TIME  parsed");
+//    logger->log("TOKEN_EXPIRY_TIME  parsed");
     // Convert std::tm to std::chrono::system_clock::time_point
     // auto expiration_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
     return {true, &tm};
@@ -87,7 +87,7 @@ void askRefreshToken( const Config &appConfig)
 }
 void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
     Logger *logger = Logger::getInstance(); 
-    logger->log("checkIfOneMinuteBeforeExpiry");
+   // logger->log("checkIfOneMinuteBeforeExpiry");
 
 
 
