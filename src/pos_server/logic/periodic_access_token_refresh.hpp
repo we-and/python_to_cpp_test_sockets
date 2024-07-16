@@ -85,12 +85,11 @@ void askRefreshToken( const Config &appConfig)
         logger->log("askRefreshToken failed");
     }
 }
-void checkIfOneMinuteBeforeExpiry( const Config &appConfig,const std::tm &targetDate)
-{
-    Logger *logger = Logger::getInstance();
+void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
+    Logger *logger = Logger::getInstance(); 
     logger->log("checkIfOneMinuteBeforeExpiry");
-    // Convert targetDate to time_t
-    std::time_t targetTime = std::mktime(const_cast<std::tm *>(&targetDate));
+
+
 
     while (true)
     {
@@ -98,17 +97,33 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig,const std::tm &target
         auto now = std::chrono::system_clock::now();
         std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 
-        // Calculate the difference in seconds
-        double difference = std::difftime(targetTime, currentTime);
 
-        logger->log("checkIfOneMinuteBeforeExpiry not_  yet ");
-        // Check if the difference is 60 seconds (one minute)
-        if (difference > 0 && difference <= 60)
-        {
-            askRefreshToken(appConfig);
+                std::thread::id threadId = std::this_thread::get_id();
+                logger->log("Running in thread ID: " + std::to_string(std::hash<std::thread::id>{}(threadId)));
 
-            break;
-        }
+
+        auto [success, tm] = get_expirytime_from_env();
+            if (success)
+            {
+                if (tm!=nullptr){
+                // Convert targetDate to time_t
+                std::time_t targetTime = std::mktime(const_cast<std::tm *>(tm));
+
+
+                // Calculate the difference in seconds
+                double difference = std::difftime(targetTime, currentTime);
+
+                logger->log("checkIfOneMinuteBeforeExpiry not_  yet ");
+                // Check if the difference is 60 seconds (one minute)
+                if (difference > 0 && difference <= 60)
+                {
+                    askRefreshToken(appConfig);
+
+                    break;
+                }
+
+                }
+            }
 
         // Sleep for one minute before checking again
         std::this_thread::sleep_for(std::chrono::minutes(1));
