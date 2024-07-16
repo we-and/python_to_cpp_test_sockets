@@ -1,3 +1,5 @@
+#ifndef SESRES_H
+#define SESRES_H
 #include <iostream>
 
 #include "../utils/json.hpp"
@@ -92,3 +94,5 @@ public:
         return isValid;
     }
 };
+
+#endif
