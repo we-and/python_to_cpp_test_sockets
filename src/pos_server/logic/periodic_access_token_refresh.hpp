@@ -31,7 +31,7 @@
 std::pair<bool, std::tm *> get_expirytime_from_env()
 {
     Logger *logger = Logger::getInstance();
-    logger->log("get_expirytime_from_env");
+   // logger->log("get_expirytime_from_env");
     const char *expiration_time_str = std::getenv("TOKEN_EXPIRY_TIME");
 
     std::tm tm = {};
@@ -127,8 +127,8 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
 
 void checkTokenExpired( const Config &appConfig)
 {
-    Logger *logger = Logger::getInstance();
-    logger->log("checkTokenExpired");
+    //Logger *logger = Logger::getInstance();
+  //  logger->log("checkTokenExpired");
 
         checkIfOneMinuteBeforeExpiry(appConfig);
 }
