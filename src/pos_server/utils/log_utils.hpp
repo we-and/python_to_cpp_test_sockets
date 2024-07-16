@@ -127,7 +127,8 @@ std::string getFilePath(){
         }
 
         // Write the current time and the log message to the file
-        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << std::this_thread::get_id() << ": " << text << "\n";
+        auto tid= std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
     }
 };
 
