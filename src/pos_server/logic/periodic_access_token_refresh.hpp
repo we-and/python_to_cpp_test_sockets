@@ -97,7 +97,7 @@ void checkIfOneMinuteBeforeExpiry( const Config &appConfig){
 
 
                 std::thread::id threadId = std::this_thread::get_id();
-                logger->log("Running in thread ID: " + std::to_string(std::hash<std::thread::id>{}(threadId)));
+               // logger->log("Running in thread ID: " + std::to_string(std::hash<std::thread::id>{}(threadId)));
 
 
         auto [success, tm] = get_expirytime_from_env();
