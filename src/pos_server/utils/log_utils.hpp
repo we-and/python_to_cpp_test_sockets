@@ -111,7 +111,7 @@ public:
 
                     if (fileTimePoint < oneWeekAgo)
                     {
-//                       fs::remove(entry.path());
+                       fs::remove(entry.path());
                         log( "Deleted old log file: "+ filePath );
                     }
                 }
