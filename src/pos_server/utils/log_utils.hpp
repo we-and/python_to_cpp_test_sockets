@@ -102,7 +102,7 @@ public:
 
                     if (fileTimePoint < oneWeekAgo) {
                         fs::remove(entry.path());
-                        std::cout << "Deleted old log file: " << filePath << std::endl;
+                        log( "Deleted old log file: "+ filePath );
                     }
                 } catch (const std::exception& e) {
                     std::cerr << "Error parsing time from filename: " << filename << " (" << e.what() << ")" << std::endl;
