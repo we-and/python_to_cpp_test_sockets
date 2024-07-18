@@ -111,8 +111,8 @@ public:
 
                     if (fileTimePoint < oneWeekAgo)
                     {
-                       // fs::remove(entry.path());
-                        std::cout << "Deleted old log file: " << filePath << std::endl;
+//                       fs::remove(entry.path());
+                        log( "Deleted old log file: "+ filePath );
                     }
                 }
                 catch (const std::exception &e)
@@ -136,9 +136,9 @@ public:
     {
         appConfig = appConfig_;
         setDayOfTheWeek();
-        deleteOldLogs();
         auto filePath = getFilePath();
         std::cout << "Rotated log file               :" << filePath << std::endl;
+        deleteOldLogs();
     }
     void log(const int &text)
     {
