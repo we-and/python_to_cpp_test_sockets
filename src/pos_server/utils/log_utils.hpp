@@ -83,8 +83,37 @@ public:
         }
         return false;
     }
+    void deleteOldLogsOldFormat() {
+    auto now = std::chrono::system_clock::now();
+    auto oneWeekAgo = now - std::chrono::hours(24 * 7);
+
+    for (const auto& entry : fs::directory_iterator(appConfig.logsDir )) {
+        if (entry.is_regular_file()) {
+            std::string filePath = entry.path().string();
+            std::string filename = entry.path().filename().string();
+
+            // Check if the filename starts with "log-" and ends with ".txt"
+            if (filename.find("log-") == 0 && filename.rfind(".txt") == filename.length() - 4) {
+                // Extract the timestamp from the filename
+                std::string timeStr = filename.substr(4, filename.length() - 8);
+                try {
+                    std::time_t fileTime = std::stoll(timeStr);
+                    auto fileTimePoint = std::chrono::system_clock::from_time_t(fileTime);
+
+                    if (fileTimePoint < oneWeekAgo) {
+                        fs::remove(entry.path());
+                        std::cout << "Deleted old log file: " << filePath << std::endl;
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Error parsing time from filename: " << filename << " (" << e.what() << ")" << std::endl;
+                }
+            }
+        }
+    }
+}
     void deleteOldLogs()
     {
+        deleteOldLogsOldFormat();
         auto now = std::chrono::system_clock::now();
         auto oneWeekAgo = now - std::chrono::hours(24 * 7);
 
@@ -137,7 +166,7 @@ public:
         appConfig = appConfig_;
         setDayOfTheWeek();
         auto filePath = getFilePath();
-        std::cout << "Rotated log file               :" << filePath << std::endl;
+        std::cout << "Rotated log file               : " << filePath << std::endl;
         deleteOldLogs();
     }
     void log(const int &text)
