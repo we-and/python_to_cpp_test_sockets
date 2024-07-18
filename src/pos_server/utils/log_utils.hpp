@@ -52,7 +52,16 @@ public:
         }
         return instance;
     }
+    void setDayOfTheWeek(){
+         // Get the current day of the week
+        auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
+        std::tm now_tm = *std::localtime(&tt);
+        char dayOfWeekStr[2]; // Day of week (0-6)
+        std::strftime(dayOfWeekStr, sizeof(dayOfWeekStr), "%w", &now_tm);
+        currentDayOfWeek = std::stoi(dayOfWeekStr);
 
+    }
      bool shouldRotateLogFile() {
         // Get the current day of the week
         auto now = std::chrono::system_clock::now();
@@ -83,19 +92,15 @@ std::string getFilePath(){
     // Initialization method for setting up the configuration
     void init(const Config& appConfig_) {
         appConfig = appConfig_;
+        setDayOfTheWeek();
           auto filePath=getFilePath();
-        std::cout <<"Log file               :"<< filePath <<std::endl;
+        std::cout <<"Rotated log file               :"<< filePath <<std::endl;
 
     }
     void log(const int& text) {
         return log(std::to_string(text));
     }
-    /*
-    bool shouldRotateLogFile() {
-        auto now = std::chrono::system_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::hours>(now - t).count();
-        return duration >= 168;  // 7 days * 24 hours = 168 hours
-    }*/
+ 
 
     void log(const std::string& text) {
 
