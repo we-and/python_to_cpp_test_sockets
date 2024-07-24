@@ -121,7 +121,7 @@ public:
     }
     void deleteOldLogs()
     {
-                       log("Deleting old log file: " + filePath);
+                       log("Deleting old log files ");
          
          int nDeleted=0;
         deleteOldLogsOldFormat();
