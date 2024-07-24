@@ -199,6 +199,7 @@ public:
         if (shouldRotateLogFile())
         { // overwrite if new day
             mode = std::ios::trunc;
+            deleteOldLogs();
         }
         else
         { // otherwise append to file
