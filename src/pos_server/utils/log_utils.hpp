@@ -83,41 +83,52 @@ public:
         }
         return false;
     }
-    void deleteOldLogsOldFormat() {
-    auto now = std::chrono::system_clock::now();
-    auto oneWeekAgo = now - std::chrono::hours(24 * 7);
+    void deleteOldLogsOldFormat()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto oneWeekAgo = now - std::chrono::hours(24 * 7);
 
-    for (const auto& entry : fs::directory_iterator(appConfig.logsDir )) {
-        if (entry.is_regular_file()) {
-            std::string filePath = entry.path().string();
-            std::string filename = entry.path().filename().string();
+        for (const auto &entry : fs::directory_iterator(appConfig.logsDir))
+        {
+            if (entry.is_regular_file())
+            {
+                std::string filePath = entry.path().string();
+                std::string filename = entry.path().filename().string();
 
-            // Check if the filename starts with "log-" and ends with ".txt"
-            if (filename.find("log-") == 0 && filename.rfind(".txt") == filename.length() - 4) {
-                // Extract the timestamp from the filename
-                std::string timeStr = filename.substr(4, filename.length() - 8);
-                try {
-                    std::time_t fileTime = std::stoll(timeStr);
-                    auto fileTimePoint = std::chrono::system_clock::from_time_t(fileTime);
+                // Check if the filename starts with "log-" and ends with ".txt"
+                if (filename.find("log-") == 0 && filename.rfind(".txt") == filename.length() - 4)
+                {
+                    // Extract the timestamp from the filename
+                    std::string timeStr = filename.substr(4, filename.length() - 8);
+                    try
+                    {
+                        std::time_t fileTime = std::stoll(timeStr);
+                        auto fileTimePoint = std::chrono::system_clock::from_time_t(fileTime);
 
-                    if (fileTimePoint < oneWeekAgo) {
-                        fs::remove(entry.path());
-                        log( "Deleted old log file: "+ filePath );
+                        if (fileTimePoint < oneWeekAgo)
+                        {
+                            fs::remove(entry.path());
+                            log("Deleted old log file: " + filePath);
+                        }
                     }
-                } catch (const std::exception& e) {
-                    std::cerr << "Error parsing time from filename: " << filename << " (" << e.what() << ")" << std::endl;
+                    catch (const std::exception &e)
+                    {
+                        std::cerr << "Error parsing time from filename: " << filename << " (" << e.what() << ")" << std::endl;
+                    }
                 }
             }
         }
     }
-}
     void deleteOldLogs()
     {
+                       log("Deleting old log file: " + filePath);
+         
+         int nDeleted=0;
         deleteOldLogsOldFormat();
         auto now = std::chrono::system_clock::now();
         auto oneWeekAgo = now - std::chrono::hours(24 * 7);
 
-        for (const auto &entry : fs::directory_iterator( appConfig.logsDir ))
+        for (const auto &entry : fs::directory_iterator(appConfig.logsDir))
         {
             if (entry.is_regular_file())
             {
@@ -140,8 +151,12 @@ public:
 
                     if (fileTimePoint < oneWeekAgo)
                     {
-                       fs::remove(entry.path());
-                        log( "Deleted old log file: "+ filePath );
+                        nDeleted++;         
+                        fs::remove(entry.path());
+                        log("Deleted old log file: " + filePath);
+                    }else{
+                        log("Log file: " + filePath+" kept as recent");
+            
                     }
                 }
                 catch (const std::exception &e)
