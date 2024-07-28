@@ -2,7 +2,7 @@ import socket
 import time
 def test_echo_server():
     host = '127.0.0.1'  # Server's IP address
-    port = 6000         # Server's port number
+    port = 6500         # Server's port number
     invalidMessage = "Hello, Server"  # Message to send
    # isomessage='<isomsg><!-- org.jpos.iso.packager.XMLPackager --><field id="0" value="0600"/><field id="2" value="2454-3000-0002"/><field id="22" value="1"/><field id="23" value="0297"/><field id="55" value="1.2.0.0"/></isomsg>'
     isomessageMultiline='''<isomsg>
