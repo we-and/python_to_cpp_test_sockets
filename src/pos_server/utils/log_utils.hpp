@@ -256,20 +256,27 @@ public:
         setDayOfTheWeek();
         setLogFilename();
         // auto filePath = getFilePath();
+
+        isReady=true;
+        std::cout << "Log ready" << std::endl;
         std::cout << "Rotated log file               : " << logFilepath << std::endl;
 
-     isReady=true;
-        
         deleteOldLogs();
 
     }
     void log(const int &text)
     {
+        if (!isReady){
+            std::cout<<text<<std::endl;
+            return;
+        }
         return log(std::to_string(text));
     }
 
     void log(const std::string &text)
     {
+           std::cout<<text<<std::endl;
+         
         if (!isReady){
             std::cout<<text<<std::endl;
             return;
