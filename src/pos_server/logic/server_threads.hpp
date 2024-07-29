@@ -67,7 +67,7 @@ void handleClientThreads(int new_socket, struct sockaddr_in address,std::string 
     }
 
 }
-void startServerThreads(std::string sessionToken,const Config& appConfig){
+void startServerThreads(std::string sessionToken,const Config& appConfig, std::atomic<bool>& stop_thread_flag){
      Logger* logger = Logger::getInstance();
     logger->log("StartServer");
     int server_fd, new_socket;
@@ -104,7 +104,7 @@ void startServerThreads(std::string sessionToken,const Config& appConfig){
         exit(EXIT_FAILURE);
     }
     
-    while (true) {
+   while (!stop_thread_flag.load()) 
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
             perror("accept");
             continue;

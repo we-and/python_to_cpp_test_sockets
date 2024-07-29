@@ -4,6 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <iomanip>
+#include <atomic>
 #include <string>
 #include <stdlib.h>
 #include <sstream>
@@ -138,7 +139,7 @@ int checkTokenExpired(const Config &appConfig)
     return checkIfOneMinuteBeforeExpiry(appConfig);
 }
 
-void periodicTokenExpirationCheck(const Config &appConfig)
+void periodicTokenExpirationCheck(const Config &appConfig, std::atomic<bool>& stop_thread_flag)
 {
     Logger *logger = Logger::getInstance();
     logger->log("periodicTokenExpirationCheck");
@@ -146,7 +147,7 @@ void periodicTokenExpirationCheck(const Config &appConfig)
     // Run the setup function in a new thread
     std::thread periodicCheckThread([&appConfig]()
                                     {
-                                        while (true)
+                                         while (!stop_thread_flag.load()) 
                                         {
                                             int waittime_sec = checkTokenExpired(appConfig);
                                             if (waittime_sec > -1)

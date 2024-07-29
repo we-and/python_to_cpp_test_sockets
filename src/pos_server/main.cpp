@@ -5,6 +5,9 @@
     #include <stdlib.h>  
     #include <sstream>
     #include <filesystem>
+
+#include <csignal>
+#include <atomic>
 #include <future>
 #include "logic/periodic_access_token_refresh.hpp"
 #include "configfile.hpp"
@@ -22,7 +25,13 @@ using json = nlohmann::json;
 // Initialize static members
 Logger* Logger::instance = nullptr;
 std::mutex Logger::mutex;
+std::atomic<bool> thread_stop_flag(false);
 
+// Signal handler function to handle external stops
+void signalHandler(int signum) {
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+    thread_stop_flag.store(true);
+}
 
 
 /**
@@ -56,6 +65,12 @@ int main(int argc, char* argv[]) {
             std::cerr << "Config file not found at  "<< configFilePath<<". Check within /home/ubuntu/pos/conf or try with an absolute path." << std::endl;
         return 1;
     }
+
+
+    
+     
+    // Register signal handler
+    std::signal(SIGINT, signalHandler);
 
     //set appConfig
     Config appConfig;
@@ -119,9 +134,9 @@ int main(int argc, char* argv[]) {
         }else{
 
 
-            periodicTokenExpirationCheck(appConfig);
+            periodicTokenExpirationCheck(appConfig,thread_stop_flag);
 
-            startServer(accessToken,appConfig);
+            startServer(accessToken,appConfig,thread_stop_flag);
             delete logger;
             return 0;
         }

@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <stdlib.h>  
+#include <atomic>
 #include <sstream>
 #include <curl/curl.h>
 #include <filesystem>
@@ -175,13 +176,13 @@ void handleClient(int new_socket, struct sockaddr_in address,std::string session
  * - Ensure that the program is run with sufficient privileges to bind to the desired port.
  */
 
-void startServer(std::string initialSessionToken,const Config& appConfig){
+void startServer(std::string initialSessionToken,const Config& appConfig, std::atomic<bool>& stop_thread_flag){
     Logger* logger = Logger::getInstance();
     //start server, choosing mode depending on the value in settings.ini
     if(appConfig.serverDispatchMode=="original"){
         return startServerOriginal(initialSessionToken,appConfig);
     }else if (appConfig.serverDispatchMode=="threads"){
-        return startServerThreads(initialSessionToken,appConfig);
+        return startServerThreads(initialSessionToken,appConfig,thread_stop_flag);
     }else if(appConfig.serverDispatchMode=="custom"){
         return startServerCustom(initialSessionToken,appConfig);
     }else if(appConfig.serverDispatchMode=="libevent"){
