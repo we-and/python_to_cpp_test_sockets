@@ -77,7 +77,7 @@ public:
         auto elapsed = elapsed_sec / 60; // convert to minutes
 
         // auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
-        int currentPeriod = elapsed / 3;
+        int currentPeriod = elapsed / 2;
         if (currentPeriod != currentLogPeriod)
         {
             currentLogPeriod = currentPeriod;
@@ -331,13 +331,15 @@ public:
 
         std::ios_base::openmode mode;
 
-        logSimple("L Should rotate");
+//        logSimple("L Should rotate");
         bool shouldRotate=shouldRotateLogFile();
-        logSimple("L Should rotate "+std::string(shouldRotate?"yes":"no"));
+  //      logSimple("L Should rotate "+std::string(shouldRotate?"yes":"no"));
         if (shouldRotate)
         { // overwrite if new day
+            
             mode = std::ios::trunc;
             deleteOldLogs();
+            setLogFilename();
         }
         else
         { // otherwise append to file
