@@ -86,7 +86,7 @@ public:
             return true;
         }
 //        std::cout <<("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod))<<std::endl;;
-   logSimple("shouldRotateLogFrequentRotations no, compperiod=" + std::to_string(currentPeriod)+" logperiod=" + std::to_string(currentPeriod)+" ela="+std::to_string(elapsed_sec));
+   logSimple("shouldRotateLogFrequentRotations no, nowtimet=" + std::to_string(nowTimeT)+" serverstart=" + std::to_string(serverStartTime)+" compperiod=" + std::to_string(currentPeriod)+" logperiod=" + std::to_string(currentPeriod)+" ela="+std::to_string(elapsed_sec));
          
         return false;
     }
