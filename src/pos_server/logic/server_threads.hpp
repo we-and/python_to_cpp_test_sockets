@@ -104,7 +104,7 @@ void startServerThreads(std::string sessionToken,const Config& appConfig, std::a
         exit(EXIT_FAILURE);
     }
     
-   while (!stop_thread_flag.load()) 
+   while (!stop_thread_flag.load()) {
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
             perror("accept");
             continue;
