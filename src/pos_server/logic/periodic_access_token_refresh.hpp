@@ -145,7 +145,7 @@ void periodicTokenExpirationCheck(const Config &appConfig, std::atomic<bool>& st
     logger->log("periodicTokenExpirationCheck");
 
     // Run the setup function in a new thread
-    std::thread periodicCheckThread([&appConfig]()
+    std::thread periodicCheckThread([&appConfig, &stop_thread_flag]()
                                     {
                                          while (!stop_thread_flag.load()) 
                                         {
