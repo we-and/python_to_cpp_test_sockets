@@ -86,14 +86,14 @@ public:
     void setLogFilenameFrequentRotations() {
                 std::cout << "setLogFilenameFrequentRotations              : " << std::endl;
 
-          log("setLogFilenameFrequentRotations ");
+//          log("setLogFilenameFrequentRotations ");
         auto now = std::chrono::system_clock::now();
         auto timestamp = std::chrono::system_clock::to_time_t(now);
         std::stringstream ss;
         ss << logsDir << "/log-" << timestamp << "-" << currentLogPeriod << ".txt";
         logFilepath = ss.str();
          std::cout << "setLogFilenameFrequentRotations filepath=             : " << logFilepath<<std::endl;
-                  log("setLogFilenameFrequentRotations set"+logFilepath);
+              //    log("setLogFilenameFrequentRotations set"+logFilepath);
 
     }
     static Logger *getInstance()
