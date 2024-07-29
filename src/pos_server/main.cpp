@@ -73,6 +73,7 @@ int main(int argc, char* argv[]) {
     //create logger
     Logger* logger = Logger::getInstance();
     logger->init(appConfig);  // Initialize logger configuration once
+    logger->logSimple("Start"); 
 
     logger->log("POS SERVER 0.99"); 
     logger->log( "Port                        : " +std::to_string( configFile.port));
@@ -113,6 +114,7 @@ int main(int argc, char* argv[]) {
         if (setupResult>0){
             logger->log("Exiting program as setup failed");
             std::cout<<"Exiting program..."<<std::endl;
+            delete logger;
             return 1;
         }else{
 
@@ -120,10 +122,12 @@ int main(int argc, char* argv[]) {
             periodicTokenExpirationCheck(appConfig);
 
             startServer(accessToken,appConfig);
+            delete logger;
             return 0;
         }
       } catch (const std::exception& e) {
         std::cerr << "Setup encountered an exception: " << e.what() << std::endl;
+        delete logger;
     }
 
 }

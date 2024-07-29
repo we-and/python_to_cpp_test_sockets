@@ -264,11 +264,11 @@ public:
         // auto filePath = getFilePath();
 
         isReady=true;
-        logSimple( "Log ready" );
-        logSimple( "Rotated log file               : " +logFilepath);
+        logSimple( "[LOG] Log ready" );
+        logSimple( "[LOG] Rotated log file               : " +logFilepath);
 
         deleteOldLogs();
-        logSimple("Init finished ");
+        logSimple("[LOG] Init finished ");
     }
     void log(const int &text)
     {
