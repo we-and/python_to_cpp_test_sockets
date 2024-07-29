@@ -176,7 +176,9 @@ public:
                         if (fileTimePoint < oneWeekAgo)
                         {
                             fs::remove(entry.path());
-                            log("Deleted old log file: " + filePath);
+                                                    std::cout <<("Deleted old log file (old format): " + filePath) <<std::endl;
+
+         //                   log("Deleted old log file: " + filePath);
                         }
                     }
                     catch (const std::exception &e)
@@ -189,7 +191,7 @@ public:
     }
     void deleteOldLogs()
     {
-        log("Deleting old log files ");
+        //log("Deleting old log files ");
 
         int nDeleted = 0;
         deleteOldLogsOldFormat();
@@ -221,11 +223,13 @@ public:
                     {
                         nDeleted++;
                         fs::remove(entry.path());
-                        log("Deleted old log file: " + filePath);
+                        std::cout <<("Deleted old log file: " + filePath) <<std::endl;
+                    //    log("Deleted old log file: " + filePath);
                     }
                     else
                     {
-                        log("Log file: " + filePath + " kept as recent");
+                                       std::cout <<("Log file: " + filePath + " kept as recent") <<std::endl;
+                    //         log("Log file: " + filePath + " kept as recent");
                     }
                 }
                 catch (const std::exception &e)
