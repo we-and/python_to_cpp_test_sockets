@@ -238,7 +238,7 @@ public:
         setDayOfTheWeek();
         setLogFilename();
         //auto filePath = getFilePath();
-        std::cout << "Rotated log file               : " << filePath << std::endl;
+        std::cout << "Rotated log file               : " << logFilepath << std::endl;
         
         deleteOldLogs();
     }
