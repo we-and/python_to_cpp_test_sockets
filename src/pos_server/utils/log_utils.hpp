@@ -73,7 +73,8 @@ public:
     {
         auto now = std::chrono::system_clock::now();
         auto nowTimeT = std::chrono::system_clock::to_time_t(now);
-        auto elapsed = std::difftime(nowTimeT, serverStartTime) / 60; // convert to minutes
+        auto elapsed_sec = std::difftime(nowTimeT, serverStartTime) / 60;
+        auto elapsed = elapsed_sec / 60; // convert to minutes
 
         // auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
         int currentPeriod = elapsed / 3;
@@ -85,7 +86,7 @@ public:
             return true;
         }
 //        std::cout <<("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod))<<std::endl;;
-   logSimple("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod));
+   logSimple("shouldRotateLogFrequentRotations no, compperiod=" + std::to_string(currentPeriod)+" logperiod=" + std::to_string(currentPeriod)+" ela="+std::to_string(elapsed_sec));
          
         return false;
     }
@@ -342,14 +343,14 @@ public:
         { // otherwise append to file
             mode = std::ios::app;
         }
-        logSimple("L log 1");
+        //logSimple("L log 1");
 
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
         auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         auto filePath = getFilePath();
-        logSimple("L log 2");
+       // logSimple("L log 2");
            std::cout<<"LOG now="<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
