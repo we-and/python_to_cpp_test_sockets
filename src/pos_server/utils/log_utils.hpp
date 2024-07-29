@@ -44,7 +44,9 @@ private:
     std::string logFilepath;
     std::string logsDir;
     bool isReady = false;
-    int rotate_every_x_minutes=2;
+    int rotate_every_x_minutes= 1440;
+
+    
 protected:
     Logger() : currentDayOfWeek(-1) {} // Constructor is protected
 
@@ -87,7 +89,7 @@ public:
         auto elapsed = elapsed_sec / 60; // convert to minutes
 
         // auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
-        int currentPeriod = elapsed / 2;
+        int currentPeriod = elapsed / rotate_every_x_minutes;
         if (currentPeriod != currentLogPeriod)
         {
             int maxPerPeriod=calculateMaxLogFilesPerWeek(rotate_every_x_minutes);
