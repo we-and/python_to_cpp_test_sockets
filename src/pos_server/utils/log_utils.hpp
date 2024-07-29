@@ -290,6 +290,7 @@ public:
         // Lock the mutex to ensure thread-safe console output
         std::lock_guard<std::mutex> guard(logMutex);
 
+          std::cout<<"LOGS"<<isReady<<" A"<<std::endl;
 
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
@@ -298,6 +299,7 @@ public:
         auto filePath = getFilePath();
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
+          std::cout<<"LOGS"<<isReady<<" B"<<std::endl;
 
         // Check if the file was successfully opened
         if (!log_file.is_open())
@@ -307,8 +309,11 @@ public:
         }
 
         // Write the current time and the log message to the file
-      
+                std::cout<<"LOGS"<<isReady<<" C"<<std::endl;
+
         log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
+              std::cout<<"LOGS"<<isReady<<" D"<<std::endl;
+
     }
     void log(const std::string &text)
     {
