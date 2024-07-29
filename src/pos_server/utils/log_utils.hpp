@@ -326,7 +326,7 @@ public:
 
         logSimple("L Should rotate");
         bool shouldRotate=shouldRotateLogFile();
-        logSimple("L Should rotate "+(shouldRotate?"yes":"no"));
+        logSimple("L Should rotate "+std::string(shouldRotate?"yes":"no"));
         if (shouldRotate)
         { // overwrite if new day
             mode = std::ios::trunc;
