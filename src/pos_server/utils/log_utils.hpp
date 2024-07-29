@@ -242,6 +242,7 @@ public:
         std::cout << "[LOG] Init" << std::endl;
         
         appConfig = appConfig_;
+        logsDir=appConfig.logsDir;
         setDayOfTheWeek();
         setLogFilename();
         //auto filePath = getFilePath();
