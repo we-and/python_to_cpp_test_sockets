@@ -39,10 +39,11 @@ private:
     Config appConfig; // Configuration instance as a class member
     int currentDayOfWeek;
 
-bool isDebugPeriod=true;
-  int currentLogPeriod = 0;
+    bool isDebugPeriod = true;
+    int currentLogPeriod = 0;
     std::string logFilepath;
-    std::string logsDir ;
+    std::string logsDir;
+    bool isReady=false;
 protected:
     Logger() : currentDayOfWeek(-1) {} // Constructor is protected
 
@@ -51,50 +52,54 @@ public:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 
-
-    void setLogFilename(){
+    void setLogFilename()
+    {
         std::cout << "setLogFilename              : " << std::endl;
-        
-        if (isDebugPeriod){
+
+        if (isDebugPeriod)
+        {
             setLogFilenameFrequentRotations();
-        }else{
+        }
+        else
+        {
             setLogFilenameOnceADay();
         }
     }
-    void setLogFilenameOnceADay(){
-        logFilepath=  logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";    
-
+    void setLogFilenameOnceADay()
+    {
+        logFilepath = logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
     }
-     bool shouldRotateLogFrequentRotations() {
+    bool shouldRotateLogFrequentRotations()
+    {
         auto now = std::chrono::system_clock::now();
-         auto nowTimeT = std::chrono::system_clock::to_time_t(now);
-        auto elapsed = std::difftime(nowTimeT, serverStartTime) / 60;//convert to minutes
+        auto nowTimeT = std::chrono::system_clock::to_time_t(now);
+        auto elapsed = std::difftime(nowTimeT, serverStartTime) / 60; // convert to minutes
 
-        //auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
+        // auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
         int currentPeriod = elapsed / 3;
-        if (currentPeriod != currentLogPeriod) {
+        if (currentPeriod != currentLogPeriod)
+        {
             currentLogPeriod = currentPeriod;
-            log("shouldRotateLogFrequentRotations yes, period=" +std::to_string(currentPeriod));
+            log("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
             return true;
         }
-        log("shouldRotateLogFrequentRotations no, period=" +std::to_string(currentPeriod));
+        log("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod));
 
         return false;
     }
 
+    void setLogFilenameFrequentRotations()
+    {
+        std::cout << "setLogFilenameFrequentRotations              : " << std::endl;
 
-    void setLogFilenameFrequentRotations() {
-                std::cout << "setLogFilenameFrequentRotations              : " << std::endl;
-
-//          log("setLogFilenameFrequentRotations ");
+        //          log("setLogFilenameFrequentRotations ");
         auto now = std::chrono::system_clock::now();
         auto timestamp = std::chrono::system_clock::to_time_t(now);
         std::stringstream ss;
         ss << logsDir << "/log-" << timestamp << "-" << currentLogPeriod << ".txt";
         logFilepath = ss.str();
-         std::cout << "setLogFilenameFrequentRotations filepath=             : " << logFilepath<<std::endl;
-              //    log("setLogFilenameFrequentRotations set"+logFilepath);
-
+        std::cout << "setLogFilenameFrequentRotations filepath=             : " << logFilepath << std::endl;
+        //    log("setLogFilenameFrequentRotations set"+logFilepath);
     }
     static Logger *getInstance()
     {
@@ -116,11 +121,15 @@ public:
         currentDayOfWeek = std::stoi(dayOfWeekStr);
     }
 
-    bool shouldRotateLogFile(){
-        if (isDebugPeriod){
-           return shouldRotateLogFrequentRotations();
-        }else{
-           return shouldRotateLogFileOnceADay();
+    bool shouldRotateLogFile()
+    {
+        if (isDebugPeriod)
+        {
+            return shouldRotateLogFrequentRotations();
+        }
+        else
+        {
+            return shouldRotateLogFileOnceADay();
         }
     }
     bool shouldRotateLogFileOnceADay()
@@ -179,9 +188,9 @@ public:
     }
     void deleteOldLogs()
     {
-                       log("Deleting old log files ");
-         
-         int nDeleted=0;
+        log("Deleting old log files ");
+
+        int nDeleted = 0;
         deleteOldLogsOldFormat();
         auto now = std::chrono::system_clock::now();
         auto oneWeekAgo = now - std::chrono::hours(24 * 7);
@@ -209,12 +218,13 @@ public:
 
                     if (fileTimePoint < oneWeekAgo)
                     {
-                        nDeleted++;         
+                        nDeleted++;
                         fs::remove(entry.path());
                         log("Deleted old log file: " + filePath);
-                    }else{
-                        log("Log file: " + filePath+" kept as recent");
-            
+                    }
+                    else
+                    {
+                        log("Log file: " + filePath + " kept as recent");
                     }
                 }
                 catch (const std::exception &e)
@@ -228,27 +238,30 @@ public:
     std::string getFilePath()
     {
         return logFilepath;
-/*
-        auto now = std::chrono::system_clock::now();
-        auto tt = std::chrono::system_clock::to_time_t(now);
+        /*
+                auto now = std::chrono::system_clock::now();
+                auto tt = std::chrono::system_clock::to_time_t(now);
 
-        auto filePath = appConfig.logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
-        return filePath;
-  */
+                auto filePath = appConfig.logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
+                return filePath;
+          */
     }
     // Initialization method for setting up the configuration
     void init(const Config &appConfig_)
     {
         std::cout << "[LOG] Init" << std::endl;
-        
+
         appConfig = appConfig_;
-        logsDir=appConfig.logsDir;
+        logsDir = appConfig.logsDir;
         setDayOfTheWeek();
         setLogFilename();
-        //auto filePath = getFilePath();
+        // auto filePath = getFilePath();
         std::cout << "Rotated log file               : " << logFilepath << std::endl;
+
+     isReady=true;
         
         deleteOldLogs();
+
     }
     void log(const int &text)
     {
@@ -257,7 +270,9 @@ public:
 
     void log(const std::string &text)
     {
-
+        if (!isReady){
+            std::cout<<text<<std::endl;
+        }
         // Lock the mutex to ensure thread-safe console output
         std::lock_guard<std::mutex> guard(logMutex);
 
