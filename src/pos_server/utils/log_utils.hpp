@@ -73,7 +73,7 @@ public:
     {
         auto now = std::chrono::system_clock::now();
         auto nowTimeT = std::chrono::system_clock::to_time_t(now);
-        auto elapsed_sec = std::difftime(nowTimeT, serverStartTime) / 60;
+        auto elapsed_sec = std::difftime(nowTimeT, serverStartTime) ;
         auto elapsed = elapsed_sec / 60; // convert to minutes
 
         // auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
