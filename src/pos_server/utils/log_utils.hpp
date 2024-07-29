@@ -26,7 +26,7 @@
 #include "config.hpp"
 
 // Retrieve the current system time as a time_t object
-auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+auto serverStartTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 std::mutex logMutex;
 namespace fs = std::filesystem;
@@ -39,6 +39,10 @@ private:
     Config appConfig; // Configuration instance as a class member
     int currentDayOfWeek;
 
+bool isDebugPeriod=true;
+  int currentLogPeriod = -1;
+    std::string logFilepath;
+    std::string logsDir ;
 protected:
     Logger() : currentDayOfWeek(-1) {} // Constructor is protected
 
@@ -47,6 +51,42 @@ public:
     Logger(const Logger &) = delete;
     Logger &operator=(const Logger &) = delete;
 
+
+    void setLogFilename(){
+        if (isDebugPeriod){
+            setLogFilenameFrequentRotations();
+        }else{
+            setLogFilenameOnceADay()
+        }
+    }
+    void setLogFilenameOnceADay(){
+        logFilepath=  logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";    
+    }
+     bool shouldRotateLogFrequentRotations() {
+        auto now = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(now - serverStartTime).count();
+        int currentPeriod = elapsed / 3;
+        if (currentPeriod != currentLogPeriod) {
+            currentLogPeriod = currentPeriod;
+            log("shouldRotateLogFrequentRotations yes, period=" +std::to_string(currentPeriod));
+            return true;
+        }
+        log("shouldRotateLogFrequentRotations no, period=" +std::to_string(currentPeriod));
+
+        return false;
+    }
+
+
+    void setLogFilenameFrequentRotations() {
+          log("setLogFilenameFrequentRotations ");
+        auto now = std::chrono::system_clock::now();
+        auto timestamp = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << logsDir << "/log-" << timestamp << "-" << currentLogPeriod << ".txt";
+        logFilepath = ss.str();
+                  log("setLogFilenameFrequentRotations set"+logFilepath);
+
+    }
     static Logger *getInstance()
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -66,7 +106,15 @@ public:
         std::strftime(dayOfWeekStr, sizeof(dayOfWeekStr), "%w", &now_tm);
         currentDayOfWeek = std::stoi(dayOfWeekStr);
     }
-    bool shouldRotateLogFile()
+
+    bool shouldRotateLogFile(){
+        if (isDebugPeriod){
+           return shouldRotateLogFrequentRotations();
+        }else{
+           return shouldRotateLogFileOnceADay()
+        }
+    }
+    bool shouldRotateLogFileOnceADay()
     {
         // Get the current day of the week
         auto now = std::chrono::system_clock::now();
@@ -79,6 +127,7 @@ public:
         if (dayOfWeek != currentDayOfWeek)
         {
             currentDayOfWeek = dayOfWeek;
+            setLogFilename();
             return true;
         }
         return false;
@@ -172,7 +221,7 @@ public:
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
 
-        auto filePath = appConfig.logsDir + "/log-" + std::to_string(t) + "-" + std::to_string(currentDayOfWeek) + ".txt";
+        auto filePath = appConfig.logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
         return filePath;
     }
     // Initialization method for setting up the configuration
