@@ -61,6 +61,7 @@ public:
     }
     void setLogFilenameOnceADay(){
         logFilepath=  logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";    
+
     }
      bool shouldRotateLogFrequentRotations() {
         auto now = std::chrono::system_clock::now();
@@ -221,19 +222,24 @@ public:
 
     std::string getFilePath()
     {
+        return logFilepath;
+/*
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
 
         auto filePath = appConfig.logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
         return filePath;
+  */
     }
     // Initialization method for setting up the configuration
     void init(const Config &appConfig_)
     {
         appConfig = appConfig_;
         setDayOfTheWeek();
-        auto filePath = getFilePath();
+        setLogFilename();
+        //auto filePath = getFilePath();
         std::cout << "Rotated log file               : " << filePath << std::endl;
+        
         deleteOldLogs();
     }
     void log(const int &text)
