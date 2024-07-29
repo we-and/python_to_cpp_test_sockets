@@ -189,12 +189,12 @@ std::string sendPlainTextAttempt(const int requestorSocket, const std::string &a
     std::string isoMessage = response_string;
     try
     {
-        logger->log("sendPlainText remove lines");
+     //   logger->log("sendPlainText remove lines");
         isoMessage = removeNewLines(isoMessage);
-        logger->log("sendPlainText clear" + isoMessage);
-        logger->log("sendPlainText parse xml");
+      //  logger->log("sendPlainText clear" + isoMessage);
+        //logger->log("sendPlainText parse xml");
         auto parsedFields = parseXmlISO8583(isoMessage);
-        logger->log("sendPlainText parse xml done");
+      //  logger->log("sendPlainText parse xml done");
 
         for (const auto &field : parsedFields)
         {
