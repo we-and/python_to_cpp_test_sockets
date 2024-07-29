@@ -80,10 +80,11 @@ public:
         if (currentPeriod != currentLogPeriod)
         {
             currentLogPeriod = currentPeriod;
-            log("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
+        std::cout << ("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod))<<std::endl;
+        //    log("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
             return true;
         }
-        log("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod));
+        std::cout <<("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod))<<std::endl;;
 
         return false;
     }
