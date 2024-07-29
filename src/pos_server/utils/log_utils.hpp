@@ -298,7 +298,7 @@ public:
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
-
+  auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         auto filePath = getFilePath();
            std::cout<<"LOG now="<<now<<" "<<tt<<" "<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
@@ -313,7 +313,7 @@ public:
            std::cout<<"LOG now="<<std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
 
         // Write the current time and the log message to the file
-        auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+      
         log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
     }
 };
