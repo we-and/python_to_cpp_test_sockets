@@ -300,7 +300,7 @@ public:
         auto tt = std::chrono::system_clock::to_time_t(now);
   auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         auto filePath = getFilePath();
-           std::cout<<"LOG now="<<now<<" "<<tt<<" "<<filePath<<std::endl;
+           std::cout<<"LOG now="<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
 
