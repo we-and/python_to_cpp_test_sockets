@@ -312,7 +312,8 @@ public:
     }
     void log(const std::string &text)
     {
-           std::cout<<"LOG"<<isReady<<" "<<text<<std::endl;
+        
+        std::cout<<"LOG"<<isReady<<" "<<text<<std::endl;
          
         if (!isReady){
             std::cout<<text<<std::endl;
@@ -322,7 +323,11 @@ public:
         std::lock_guard<std::mutex> guard(logMutex);
 
         std::ios_base::openmode mode;
-        if (shouldRotateLogFile())
+
+        logSimple("L Should rotate");
+        bool shouldRotate=shouldRotateLogFile();
+        logSimple("L Should rotate "+(shouldRotate?"yes":"no"));
+        if (shouldRotate)
         { // overwrite if new day
             mode = std::ios::trunc;
             deleteOldLogs();
@@ -331,12 +336,14 @@ public:
         { // otherwise append to file
             mode = std::ios::app;
         }
+        logSimple("L log 1");
 
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
         auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         auto filePath = getFilePath();
+        logSimple("L log 2");
            std::cout<<"LOG now="<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
