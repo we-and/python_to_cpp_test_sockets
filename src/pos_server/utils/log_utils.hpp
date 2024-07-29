@@ -275,7 +275,7 @@ public:
 
     void log(const std::string &text)
     {
-           std::cout<<text<<std::endl;
+           std::cout<<"LOG"<<isReady<<" "<<text<<std::endl;
          
         if (!isReady){
             std::cout<<text<<std::endl;
@@ -300,6 +300,7 @@ public:
         auto tt = std::chrono::system_clock::to_time_t(now);
 
         auto filePath = getFilePath();
+           std::cout<<"LOG now="<<now<<" "<<tt<<" "<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
         std::ofstream log_file(filePath, std::ios::app);
 
@@ -309,6 +310,7 @@ public:
             std::cerr << "Failed to open log file at " << filePath << std::endl;
             return;
         }
+           std::cout<<"LOG now="<<std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
 
         // Write the current time and the log message to the file
         auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
