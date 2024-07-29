@@ -80,12 +80,13 @@ public:
         if (currentPeriod != currentLogPeriod)
         {
             currentLogPeriod = currentPeriod;
-        std::cout << ("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod))<<std::endl;
-        //    log("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
+  //      std::cout << ("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod))<<std::endl;
+            logSimple("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
             return true;
         }
-        std::cout <<("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod))<<std::endl;;
-
+//        std::cout <<("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod))<<std::endl;;
+   logSimple("shouldRotateLogFrequentRotations no, period=" + std::to_string(currentPeriod));
+         
         return false;
     }
 
@@ -178,7 +179,7 @@ public:
                             fs::remove(entry.path());
                                                     std::cout <<("Deleted old log file (old format): " + filePath) <<std::endl;
 
-         //                   log("Deleted old log file: " + filePath);
+                            logSimple("Deleted old log file: " + filePath);
                         }
                     }
                     catch (const std::exception &e)
@@ -191,7 +192,7 @@ public:
     }
     void deleteOldLogs()
     {
-        //log("Deleting old log files ");
+        logSimple("Deleting old log files ");
 
         int nDeleted = 0;
         deleteOldLogsOldFormat();
@@ -229,7 +230,7 @@ public:
                     else
                     {
                                        std::cout <<("Log file: " + filePath + " kept as recent") <<std::endl;
-                    //         log("Log file: " + filePath + " kept as recent");
+                             logSimple("Log file: " + filePath + " kept as recent");
                     }
                 }
                 catch (const std::exception &e)
@@ -278,6 +279,37 @@ public:
         return log(std::to_string(text));
     }
 
+    void logSimple(const std::string &text)
+    {
+          std::cout<<"LOGS"<<isReady<<" "<<text<<std::endl;
+         
+        if (!isReady){
+            std::cout<<text<<std::endl;
+            return;
+        }
+        // Lock the mutex to ensure thread-safe console output
+        std::lock_guard<std::mutex> guard(logMutex);
+
+
+        // Retrieve the current system time as a time_t object
+        auto now = std::chrono::system_clock::now();
+        auto tt = std::chrono::system_clock::to_time_t(now);
+        auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        auto filePath = getFilePath();
+        // Create or open a log file named with the current time stamp
+        std::ofstream log_file(filePath, std::ios::app);
+
+        // Check if the file was successfully opened
+        if (!log_file.is_open())
+        {
+            std::cerr << "Failed to open log file at " << filePath << std::endl;
+            return;
+        }
+
+        // Write the current time and the log message to the file
+      
+        log_file << std::put_time(std::localtime(&tt), "%F %T") << " - " << "Thread " << tid << ": " << text << "\n";
+    }
     void log(const std::string &text)
     {
            std::cout<<"LOG"<<isReady<<" "<<text<<std::endl;
@@ -303,7 +335,7 @@ public:
         // Retrieve the current system time as a time_t object
         auto now = std::chrono::system_clock::now();
         auto tt = std::chrono::system_clock::to_time_t(now);
-  auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        auto tid = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         auto filePath = getFilePath();
            std::cout<<"LOG now="<<filePath<<std::endl;
         // Create or open a log file named with the current time stamp
