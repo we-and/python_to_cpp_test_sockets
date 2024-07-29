@@ -224,8 +224,8 @@ public:
                     {
                         nDeleted++;
                         fs::remove(entry.path());
-                        std::cout <<("Deleted old log file: " + filePath) <<std::endl;
-                    //    log("Deleted old log file: " + filePath);
+//                        std::cout <<("Deleted old log file: " + filePath) <<std::endl;
+                    logSimple("Deleted old log file: " + filePath);
                     }
                     else
                     {
@@ -264,11 +264,11 @@ public:
         // auto filePath = getFilePath();
 
         isReady=true;
-        std::cout << "Log ready" << std::endl;
-        std::cout << "Rotated log file               : " << logFilepath << std::endl;
+        logSimple( "Log ready" );
+        logSimple( "Rotated log file               : " +logFilepath);
 
         deleteOldLogs();
-
+        logSimple("Init finished ");
     }
     void log(const int &text)
     {
