@@ -44,7 +44,7 @@ private:
     std::string logFilepath;
     std::string logsDir;
     bool isReady = false;
-
+    int rotate_every_x_minutes=2;
 protected:
     Logger() : currentDayOfWeek(-1) {} // Constructor is protected
 
@@ -66,6 +66,15 @@ public:
             setLogFilenameOnceADay();
         }
     }
+    int calculateMaxLogFilesPerWeek(int rotationIntervalMinutes) {
+    const int minutesPerDay = 24 * 60;
+    const int minutesPerWeek = 7 * minutesPerDay;
+
+    // Calculate the number of intervals in a week
+    int maxLogFiles = minutesPerWeek / rotationIntervalMinutes;
+
+    return maxLogFiles;
+}
     void setLogFilenameOnceADay()
     {
         logFilepath = logsDir + "/log-" + std::to_string(serverStartTime) + "-" + std::to_string(currentDayOfWeek) + ".txt";
@@ -81,7 +90,13 @@ public:
         int currentPeriod = elapsed / 2;
         if (currentPeriod != currentLogPeriod)
         {
+            int maxPerPeriod=calculateMaxLogFilesPerWeek(rotate_every_x_minutes);
+            if (currentPeriod>=maxPerPeriod){
+                currentPeriod=0;
+            }
             currentLogPeriod = currentPeriod;
+
+
             //      std::cout << ("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod))<<std::endl;
             logSimple("shouldRotateLogFrequentRotations yes, period=" + std::to_string(currentPeriod));
             return true;
