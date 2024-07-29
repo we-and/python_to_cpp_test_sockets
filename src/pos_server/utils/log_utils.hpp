@@ -40,7 +40,7 @@ private:
     int currentDayOfWeek;
 
 bool isDebugPeriod=true;
-  int currentLogPeriod = -1;
+  int currentLogPeriod = 0;
     std::string logFilepath;
     std::string logsDir ;
 protected:
