@@ -287,6 +287,7 @@ public:
             std::cout<<text<<std::endl;
             return;
         }
+          std::cout<<"LOGS"<<isReady<<" AA"<<std::endl;
         // Lock the mutex to ensure thread-safe console output
         std::lock_guard<std::mutex> guard(logMutex);
 
