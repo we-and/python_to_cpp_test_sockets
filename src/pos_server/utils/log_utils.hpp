@@ -56,7 +56,7 @@ public:
         if (isDebugPeriod){
             setLogFilenameFrequentRotations();
         }else{
-            setLogFilenameOnceADay()
+            setLogFilenameOnceADay();
         }
     }
     void setLogFilenameOnceADay(){
