@@ -111,7 +111,7 @@ public:
         if (isDebugPeriod){
            return shouldRotateLogFrequentRotations();
         }else{
-           return shouldRotateLogFileOnceADay()
+           return shouldRotateLogFileOnceADay();
         }
     }
     bool shouldRotateLogFileOnceADay()
